@@ -1,0 +1,6 @@
+src/*
+!src/SEnergyCorrelator.h
+!src/SEnergyCorrelator.cc
+!src/autogen.sh
+!src/configure.ac
+!src/Makefile.am
