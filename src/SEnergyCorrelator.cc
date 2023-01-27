@@ -1,136 +1,125 @@
-//____________________________________________________________________________..
+// 'SEnergyCorrelator.cc'
+// Derek Anderson
+// 01.20.2023
 //
-// This is a template for a Fun4All SubsysReco module with all methods from the
-// $OFFLINE_MAIN/include/fun4all/SubsysReco.h baseclass
-// You do not have to implement all of them, you can just remove unused methods
-// here and in SEnergyCorrelator.h.
-//
-// SEnergyCorrelator(const std::string &name = "SEnergyCorrelator")
-// everything is keyed to SEnergyCorrelator, duplicate names do work but it makes
-// e.g. finding culprits in logs difficult or getting a pointer to the module
-// from the command line
-//
-// SEnergyCorrelator::~SEnergyCorrelator()
-// this is called when the Fun4AllServer is deleted at the end of running. Be
-// mindful what you delete - you do loose ownership of object you put on the node tree
-//
-// int SEnergyCorrelator::Init(PHCompositeNode *topNode)
-// This method is called when the module is registered with the Fun4AllServer. You
-// can create historgrams here or put objects on the node tree but be aware that
-// modules which haven't been registered yet did not put antyhing on the node tree
-//
-// int SEnergyCorrelator::InitRun(PHCompositeNode *topNode)
-// This method is called when the first event is read (or generated). At
-// this point the run number is known (which is mainly interesting for raw data
-// processing). Also all objects are on the node tree in case your module's action
-// depends on what else is around. Last chance to put nodes under the DST Node
-// We mix events during readback if branches are added after the first event
-//
-// int SEnergyCorrelator::process_event(PHCompositeNode *topNode)
-// called for every event. Return codes trigger actions, you find them in
-// $OFFLINE_MAIN/include/fun4all/Fun4AllReturnCodes.h
-//   everything is good:
-//     return Fun4AllReturnCodes::EVENT_OK
-//   abort event reconstruction, clear everything and process next event:
-//     return Fun4AllReturnCodes::ABORT_EVENT; 
-//   proceed but do not save this event in output (needs output manager setting):
-//     return Fun4AllReturnCodes::DISCARD_EVENT; 
-//   abort processing:
-//     return Fun4AllReturnCodes::ABORT_RUN
-// all other integers will lead to an error and abort of processing
-//
-// int SEnergyCorrelator::ResetEvent(PHCompositeNode *topNode)
-// If you have internal data structures (arrays, stl containers) which needs clearing
-// after each event, this is the place to do that. The nodes under the DST node are cleared
-// by the framework
-//
-// int SEnergyCorrelator::EndRun(const int runnumber)
-// This method is called at the end of a run when an event from a new run is
-// encountered. Useful when analyzing multiple runs (raw data). Also called at
-// the end of processing (before the End() method)
-//
-// int SEnergyCorrelator::End(PHCompositeNode *topNode)
-// This is called at the end of processing. It needs to be called by the macro
-// by Fun4AllServer::End(), so do not forget this in your macro
-//
-// int SEnergyCorrelator::Reset(PHCompositeNode *topNode)
-// not really used - it is called before the dtor is called
-//
-// void SEnergyCorrelator::Print(const std::string &what) const
-// Called from the command line - useful to print information when you need it
-//
-//____________________________________________________________________________..
+// A module to implement Peter Komiske's
+// EEC library in the sPHENIX software
+// stack.
 
+#define SENERGYCORRELATOR_CC
+
+// user includes
 #include "SEnergyCorrelator.h"
+#include "SEnergyCorrelator.io.h"
+#include "SEnergyCorrelator.system.h"
 
-#include <fun4all/Fun4AllReturnCodes.h>
+using namespace std;
+using namespace findNode;
 
-#include <phool/PHCompositeNode.h>
 
-//____________________________________________________________________________..
-SEnergyCorrelator::SEnergyCorrelator(const std::string &name):
- SubsysReco(name)
-{
-  std::cout << "SEnergyCorrelator::SEnergyCorrelator(const std::string &name) Calling ctor" << std::endl;
-}
 
-//____________________________________________________________________________..
-SEnergyCorrelator::~SEnergyCorrelator()
-{
-  std::cout << "SEnergyCorrelator::~SEnergyCorrelator() Calling dtor" << std::endl;
-}
+// ctor/dtor ------------------------------------------------------------------
 
-//____________________________________________________________________________..
-int SEnergyCorrelator::Init(PHCompositeNode *topNode)
-{
-  std::cout << "SEnergyCorrelator::Init(PHCompositeNode *topNode) Initializing" << std::endl;
+SEnergyCorrelator::SEnergyCorrelator(const string &name, const bool isComplex, const bool doDebug) : SubsysReco(name) {
+
+  // initialize internal variables
+  InitializeMembers();
+
+  // set standalone/complex mode
+  if (isComplex) {
+    m_inComplexMode    = true;
+    m_inStandaloneMode = false; 
+  } else {
+    m_inComplexMode    = false;
+    m_inStandaloneMode = true;
+  }
+
+  // set verbosity in complex mode
+  if (m_inComplexMode) {
+    m_verbosity = Verbosity();
+  }
+
+  // print debug statement
+  m_inDebugMode = doDebug;
+  if (m_inDebugMode) {
+    cout << "SEnergyCorrelator::SEnergyCorrelator(string, bool, bool) calling ctor" << endl;
+  }
+
+}  // end ctor(string, bool, bool)
+
+
+
+SEnergyCorrelator::~SEnergyCorrelator() {
+
+  // print debug statement
+  if (m_inDebugMode) {
+    cout << "SEnergyCorrelator::~SEnergyCorrelator() calling dtor" << endl;
+  }
+  delete m_inFile;
+  delete m_outFile;
+
+}  // end dtor
+
+
+
+// F4A methods ----------------------------------------------------------------
+
+int SEnergyCorrelator::Init(PHCompositeNode *topNode) {
+
+  // print debug statement
+  if (m_inDebugMode) {
+    cout << "SEnergyCorrelator::Init(PHCompositeNode*) initializing" << endl;
+  }
+
+  InitializeHists();
   return Fun4AllReturnCodes::EVENT_OK;
-}
 
-//____________________________________________________________________________..
-int SEnergyCorrelator::InitRun(PHCompositeNode *topNode)
-{
-  std::cout << "SEnergyCorrelator::InitRun(PHCompositeNode *topNode) Initializing for Run XXX" << std::endl;
+}  // end 'Init(PHCompositeNode*)'
+
+
+
+int SEnergyCorrelator::process_event(PHCompositeNode *topNode) {
+
+  // print debug statement
+  if (m_inDebugMode) {
+    cout << "SEnergyCorrelator::process_event(PHCompositeNode*) processing event" << endl;
+  }
   return Fun4AllReturnCodes::EVENT_OK;
-}
 
-//____________________________________________________________________________..
-int SEnergyCorrelator::process_event(PHCompositeNode *topNode)
-{
-  std::cout << "SEnergyCorrelator::process_event(PHCompositeNode *topNode) Processing Event" << std::endl;
+}  // end 'process_event(PHCompositeNode*)'
+
+
+
+int SEnergyCorrelator::End(PHCompositeNode *topNode) {
+
+  // print debug statement
+  if (m_inDebugMode) {
+    cout << "SEnergyCorrelator::End(PHCompositeNode*) this is the end..." << endl;
+  }
   return Fun4AllReturnCodes::EVENT_OK;
-}
 
-//____________________________________________________________________________..
-int SEnergyCorrelator::ResetEvent(PHCompositeNode *topNode)
-{
-  std::cout << "SEnergyCorrelator::ResetEvent(PHCompositeNode *topNode) Resetting internal structures, prepare for next event" << std::endl;
+}  // end 'End(PHCompositeNode*)'
+
+
+
+// standalone-only methods ----------------------------------------------------
+
+int SEnergyCorrelator::Analyze() {
+
+  // print debug statement
+  if (m_inDebugMode) {
+    cout << "SEnergyCorrelator::Analyze() analyzing input" << endl;
+  }
+
+  // make sure in standalone mode
+  if (m_inComplexMode) {
+    cerr << "SEnergyCorrelator::Analyze() PANIC: calling standalone method in complex mode!\n"
+         << "                             Ending program execution!"
+         << endl;
+    assert(m_inStandaloneMode);
+  }
   return Fun4AllReturnCodes::EVENT_OK;
-}
 
-//____________________________________________________________________________..
-int SEnergyCorrelator::EndRun(const int runnumber)
-{
-  std::cout << "SEnergyCorrelator::EndRun(const int runnumber) Ending Run for Run " << runnumber << std::endl;
-  return Fun4AllReturnCodes::EVENT_OK;
-}
+}  // end 'Analyze()'
 
-//____________________________________________________________________________..
-int SEnergyCorrelator::End(PHCompositeNode *topNode)
-{
-  std::cout << "SEnergyCorrelator::End(PHCompositeNode *topNode) This is the End..." << std::endl;
-  return Fun4AllReturnCodes::EVENT_OK;
-}
-
-//____________________________________________________________________________..
-int SEnergyCorrelator::Reset(PHCompositeNode *topNode)
-{
- std::cout << "SEnergyCorrelator::Reset(PHCompositeNode *topNode) being Reset" << std::endl;
-  return Fun4AllReturnCodes::EVENT_OK;
-}
-
-//____________________________________________________________________________..
-void SEnergyCorrelator::Print(const std::string &what) const
-{
-  std::cout << "SEnergyCorrelator::Print(const std::string &what) const Printing info for " << what << std::endl;
-}
+// end ------------------------------------------------------------------------

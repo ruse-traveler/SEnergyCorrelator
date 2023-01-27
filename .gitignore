@@ -1,7 +1,10 @@
 reference/
+input/
 src/*
 !src/SEnergyCorrelator.h
 !src/SEnergyCorrelator.cc
+!src/SEnergyCorrelator.io.h
+!src/SEnergyCorrelator.system.h
 !src/autogen.sh
 !src/configure.ac
 !src/Makefile.am
