@@ -1,3 +1,4 @@
+reference/
 src/*
 !src/SEnergyCorrelator.h
 !src/SEnergyCorrelator.cc
