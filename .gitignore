@@ -4,6 +4,7 @@ src/*
 !src/SEnergyCorrelator.h
 !src/SEnergyCorrelator.cc
 !src/SEnergyCorrelator.io.h
+!src/SEnergyCorrelatorLinkDef.h
 !src/SEnergyCorrelator.system.h
 !src/autogen.sh
 !src/configure.ac
