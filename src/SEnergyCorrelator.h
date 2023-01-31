@@ -36,8 +36,10 @@
 #include <TMath.h>
 #include <TNtuple.h>
 #include <TDirectory.h>
+// fastjet includes
+#include <fastjet/PseudoJet.hh>
 // eec include
-#include </sphenix/user/danderson/eec/EnergyEnergyCorrelators/eec/include/EEC.hh>
+#include "/sphenix/user/danderson/eec/EnergyEnergyCorrelators/eec/include/EEC.hh"
 
 #pragma GCC diagnostic pop
 
