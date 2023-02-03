@@ -16,9 +16,7 @@ using namespace findNode;
 void SEnergyCorrelator::GrabInputNode() {
 
   // print debug statement
-  if (m_inDebugMode) {
-    PrintMessage(3);
-  }
+  if (m_inDebugMode) PrintMessage(3);
 
   /* TODO grab input node here */
   const bool placeholder = true;
@@ -39,9 +37,7 @@ void SEnergyCorrelator::GrabInputNode() {
 void SEnergyCorrelator::OpenInputFile() {
 
   // print debug statement
-  if (m_inDebugMode) {
-    PrintMessage(11);
-  }
+  if (m_inDebugMode) PrintMessage(11);
 
   // open file
   m_inFile = new TFile(m_inFileName.data(), "read");
@@ -54,19 +50,35 @@ void SEnergyCorrelator::OpenInputFile() {
   m_inFile -> GetObject(m_inTreeName.data(), m_inTree);
   if (!m_inTree) {
     PrintError(7);
-  } 
+    assert(m_inTree);
+  }
   return;
 
 }  // end 'OpenInputFile()'
 
 
 
+void SEnergyCorrelator::OpenOutputFile() {
+
+  // print debug statement
+  if (m_inDebugMode) PrintMessage(15);
+
+  // open file
+  m_outFile = new TFile(m_outFileName.data(), "read");
+  if (!m_outFile) {
+    PrintError(11);
+    assert(m_outFile);
+  }
+  return;
+
+}  // end 'OpenOutputFile()'
+
+
+
 void SEnergyCorrelator::SaveOutput() {
 
   // print debug statement
-  if (m_inDebugMode) {
-    PrintMessage(9);
-  }
+  if (m_inDebugMode) PrintMessage(9);
 
   /* TODO save output here */
   return;

@@ -41,9 +41,7 @@ SEnergyCorrelator::SEnergyCorrelator(const string &name, const bool isComplex, c
 
   // print debug statement
   m_inDebugMode = doDebug;
-  if (m_inDebugMode) {
-    PrintMessage(1);
-  }
+  if (m_inDebugMode) PrintMessage(1);
 
 }  // end ctor(string, bool, bool)
 
@@ -52,9 +50,9 @@ SEnergyCorrelator::SEnergyCorrelator(const string &name, const bool isComplex, c
 SEnergyCorrelator::~SEnergyCorrelator() {
 
   // print debug statement
-  if (m_inDebugMode) {
-    PrintMessage(14);
-  }
+  if (m_inDebugMode) PrintMessage(14);
+
+  // delete files
   delete m_inFile;
   delete m_outFile;
 
@@ -67,17 +65,16 @@ SEnergyCorrelator::~SEnergyCorrelator() {
 int SEnergyCorrelator::Init(PHCompositeNode *topNode) {
 
   // print debug statement
-  if (m_inDebugMode) {
-    PrintMessage(2);
-  }
+  if (m_inDebugMode) PrintMessage(2);
 
-  // make sure complex mode is on & open input
+  // make sure complex mode is on & open files
   if (m_inStandaloneMode) {
     PrintError(0);
     assert(m_inComplexMode);
   } else {
     GrabInputNode();
   }
+  OpenOutputFile();
 
   // initialize input, output, & correlators
   InitializeTree();
@@ -92,9 +89,7 @@ int SEnergyCorrelator::Init(PHCompositeNode *topNode) {
 int SEnergyCorrelator::process_event(PHCompositeNode *topNode) {
 
   // print debug statement
-  if (m_inDebugMode) {
-    PrintMessage(7);
-  }
+  if (m_inDebugMode) PrintMessage(7);
 
   // make sure complex mode is on
   if (m_inStandaloneMode) {
@@ -112,9 +107,7 @@ int SEnergyCorrelator::process_event(PHCompositeNode *topNode) {
 int SEnergyCorrelator::End(PHCompositeNode *topNode) {
 
   // print debug statement
-  if (m_inDebugMode) {
-    PrintMessage(8);
-  }
+  if (m_inDebugMode) PrintMessage(8);
 
   // make sure complex mode is on & save output
   if (m_inStandaloneMode) {
@@ -134,17 +127,16 @@ int SEnergyCorrelator::End(PHCompositeNode *topNode) {
 void SEnergyCorrelator::Init() {
 
   // print debug statement
-  if (m_inDebugMode) {
-    PrintMessage(10);
-  }
+  if (m_inDebugMode) PrintMessage(10);
 
-  // make sure standalone mode is on & open input
+  // make sure standalone mode is on & open files
   if (m_inComplexMode) {
     PrintError(5);
     assert(m_inStandaloneMode);
   } else {
     OpenInputFile();
   }
+  OpenOutputFile();
 
   // initialize input, output, & correlators
   InitializeTree();
@@ -159,9 +151,7 @@ void SEnergyCorrelator::Init() {
 void SEnergyCorrelator::Analyze() {
 
   // print debug statement
-  if (m_inDebugMode) {
-    PrintMessage(12);
-  }
+  if (m_inDebugMode) PrintMessage(12);
 
   // make sure standalone mode is on
   if (m_inComplexMode) {
@@ -179,9 +169,7 @@ void SEnergyCorrelator::Analyze() {
 void SEnergyCorrelator::End() {
 
   // print debug statement
-  if (m_inDebugMode) {
-    PrintMessage(13);
-  }
+  if (m_inDebugMode) PrintMessage(13);
 
   // make sure standalone mode is on & save output
   if (m_inComplexMode) {
