@@ -5,6 +5,9 @@
 // Use this to run the SEnergyCorrelator
 // class in standalone mode.
 
+#ifndef DOSTANDALONECORRELATORCALCULATION_C
+#define DOSTANDALONECORRELATORCALCULATION_C
+
 // standard c includes
 #include <string>
 #include <vector>
@@ -13,14 +16,21 @@
 // user includes
 #include "/sphenix/user/danderson/install/include/senergycorrelator/SEnergyCorrelator.h"
 
+#ifdef __CINT__ 
+#pragma link C++ nestedclasses;
+#pragma link C++ nestedtypedefs;
+#pragma link C++ class std::vector<std::vector<double> >+;
+#pragma link C++ class std::vector<std::pair<double,double> >+;
+#endif
+
 // load libraries
 R__LOAD_LIBRARY(/sphenix/user/danderson/install/lib/libsenergycorrelator.so)
 
 using namespace std;
 
 // global constants
-static const size_t NRange = 2;
-static const size_t NCorrs = 2;
+static const size_t NHistRange   = 2;
+static const size_t NEnergyCorrs = 2;
 
 
 
@@ -33,13 +43,13 @@ void DoStandaloneCorrelatorCalculation() {
   const string outFile("test.root");
 
   // correlator parameters
-  const uint64_t  nPointCorr         = 2;
-  const uint64_t  nBinsDr            = 75;
-  const double    binRangeDr[NRange] = {1e-5, 1.};
-  const bool      isTruth[NCorrs]    = {false, true};
+  const uint32_t  nPointCorr             = 2;
+  const uint64_t  nBinsDr                = 75;
+  const double    binRangeDr[NHistRange] = {1e-5, 1.};
+  const bool      isTruth[NEnergyCorrs]  = {false, true};
 
   // pTjet bins
-  const vector<pair<float, float>> pTjetBins = {{5. 10.}, {10., 15.}, {15., 20.}, {20., 30.}, {30., 50.}};
+  const vector<pair<double, double>> ptJetBins = {{5., 10.}, {10., 15.}, {15., 20.}, {20., 30.}, {30., 50.}};
 
   // misc parameters
   const int  verbosity = 0;
@@ -53,7 +63,7 @@ void DoStandaloneCorrelatorCalculation() {
   recoCorrelator -> SetInputTree(inReco, isTruth[0]);
   recoCorrelator -> SetOutputFile(outFile);
   recoCorrelator -> SetCorrelatorParameters(nPointCorr, nBinsDr, binRangeDr[0], binRangeDr[1]);
-  recoCorrelator -> SetPtJetBins(pTJetBins);
+  recoCorrelator -> SetPtJetBins(ptJetBins);
   recoCorrelator -> Init();
   recoCorrelator -> Analyze();
   recoCorrelator -> End();
@@ -65,11 +75,13 @@ void DoStandaloneCorrelatorCalculation() {
   trueCorrelator -> SetInputTree(inTrue, isTruth[1]);
   trueCorrelator -> SetOutputFile(outFile);
   recoCorrelator -> SetCorrelatorParameters(nPointCorr, nBinsDr, binRangeDr[0], binRangeDr[1]);
-  recoCorrelator -> SetPtJetBins(pTJetBins);
+  recoCorrelator -> SetPtJetBins(ptJetBins);
   trueCorrelator -> Init();
   trueCorrelator -> Analyze();
   trueCorrelator -> End();
 
 }
+
+#endif
 
 // end ------------------------------------------------------------------------

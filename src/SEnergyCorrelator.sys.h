@@ -9,16 +9,14 @@
 #pragma once
 
 using namespace std;
-using namespace findNode;
+using namespace fastjet;
 
 
 
 void SEnergyCorrelator::InitializeMembers() {
 
   // print debug statement
-  if (m_inDebugMode) {
-    PrintMessage(0);
-  }
+  if (m_inDebugMode) PrintDebug(0);
 
   m_inFile            = 0x0;
   m_inTree            = 0x0;
@@ -33,6 +31,11 @@ void SEnergyCorrelator::InitializeMembers() {
   m_inNodeName        = "";
   m_inTreeName        = "";
   m_outFileName       = "";
+  m_nPointCorr        = 0;
+  m_nBinsDr           = 0;
+  m_nBinsJetPt        = 0;
+  m_drBinRange[0]     = 0.;
+  m_drBinRange[1]     = 0.;
   m_truParton3_ID     = 0;
   m_truParton4_ID     = 0;
   m_truParton3_MomX   = 0.;
@@ -95,6 +98,8 @@ void SEnergyCorrelator::InitializeMembers() {
   m_brCstJt           = 0x0;
   m_brCstEta          = 0x0;
   m_brCstPhi          = 0x0;
+  m_ptJetBins.clear();
+  m_eecLongSide.clear();
   return;
 
 }  // end 'InitializeMembers()'
@@ -104,9 +109,7 @@ void SEnergyCorrelator::InitializeMembers() {
 void SEnergyCorrelator::InitializeHists() {
 
   // print debug statement
-  if (m_inDebugMode) {
-    PrintMessage(5);
-  }
+  if (m_inDebugMode) PrintDebug(5);
 
   /* TODO output histograms wil be initialized here */
   return;
@@ -118,11 +121,12 @@ void SEnergyCorrelator::InitializeHists() {
 void SEnergyCorrelator::InitializeCorrs() {
 
   // print debug statement
-  if (m_inDebugMode) {
-    PrintMessage(6);
-  }
+  if (m_inDebugMode) PrintDebug(6);
 
-  /* TODO correlators will be initialized here */
+  // initialize correlator for each jet pt bin
+  for (size_t iPtBin = 0; iPtBin < m_nBinsJetPt; iPtBin++) {
+    m_eecLongSide.push_back(new contrib::eec::EECLongestSide<contrib::eec::hist::axis::log>(m_nPointCorr, m_nBinsDr, {m_drBinRange[0], m_drBinRange[1]}));
+  }
   return;
 
 }  // end 'InitializeCorrs()'
@@ -132,9 +136,7 @@ void SEnergyCorrelator::InitializeCorrs() {
 void SEnergyCorrelator::InitializeTree() {
 
   // print debug statement
-  if (m_inDebugMode) {
-    PrintMessage(4);
-  }
+  if (m_inDebugMode) PrintDebug(4);
 
   // check for tree
   if (!m_inTree) {
@@ -194,59 +196,83 @@ void SEnergyCorrelator::PrintMessage(const uint32_t code) {
     cout << "SEnergyCorrelator::PrintMessage() printing a message..." << endl;
   }
 
+  /* TODO add standalone running statements */
+  switch (code) {
+    default:
+      cout << "testing testing..." << endl;
+      break;
+  }
+  return;
+
+}  // end 'PrintMessage(uint32_t)'
+
+
+void SEnergyCorrelator::PrintDebug(const uint32_t code) {
+
+  // print debug statement
+  if (m_inDebugMode && (m_verbosity > 5)) {
+    cout << "SEnergyCorrelator::PrintDebug() printing a debugging statement..." << endl;
+  }
+
   switch (code) {
     case 0:
-      cout << "SEnergyCorrelator::InitializeMembers() initializing internal variables" << endl;
+      cout << "SEnergyCorrelator::InitializeMembers() initializing internal variables..." << endl;
       break;
     case 1:
-      cout << "SEnergyCorrelator::SEnergyCorrelator(string, bool, bool) calling ctor" << endl;
+      cout << "SEnergyCorrelator::SEnergyCorrelator(string, bool, bool) calling ctor..." << endl;
       break;
     case 2:
-      cout << "SEnergyCorrelator::Init(PHCompositeNode*) initializing" << endl;
+      cout << "SEnergyCorrelator::Init(PHCompositeNode*) initializing..." << endl;
       break;
     case 3:
-      cout << "SEnergyCorrelator::GrabInputNode() grabbing input node" << endl;
+      cout << "SEnergyCorrelator::GrabInputNode() grabbing input node..." << endl;
       break;
     case 4:
-      cout << "SEnergyCorrelator::InitializeTree() initializing input tree" << endl;
+      cout << "SEnergyCorrelator::InitializeTree() initializing input tree..." << endl;
       break;
     case 5:
-      cout << "SEnergyCorrelator::InitializeHists() initializing histograms" << endl;
+      cout << "SEnergyCorrelator::InitializeHists() initializing histograms..." << endl;
       break;
     case 6:
       cout << "SEnergyCorrelator::InitializeCorrs() initializing correlators" << endl;
       break;
     case 7:
-      cout << "SEnergyCorrelator::process_event(PHCompositeNode*) processing event" << endl;
+      cout << "SEnergyCorrelator::process_event(PHCompositeNode*) processing event..." << endl;
       break;
     case 8:
-      cout << "SEnergyCorrelator::End(PHCompositeNode*) this is the end" << endl;
+      cout << "SEnergyCorrelator::End(PHCompositeNode*) this is the end..." << endl;
       break;
     case 9:
-      cout << "SEnergyCorrelator::SaveOutput() saving output" << endl;
+      cout << "SEnergyCorrelator::SaveOutput() saving output..." << endl;
       break;
     case 10:
-      cout << "SEnergyCorrelator::Init() initializing" << endl;
+      cout << "SEnergyCorrelator::Init() initializing..." << endl;
       break;
     case 11:
-      cout << "SenergyCorrelator::OpenInputFile() opening input file" << endl;
+      cout << "SenergyCorrelator::OpenInputFile() opening input file..." << endl;
       break;
     case 12:
-      cout << "SEnergyCorrelator::Analyze() analyzing input" << endl;
+      cout << "SEnergyCorrelator::Analyze() analyzing input..." << endl;
       break;
     case 13:
-      cout << "SEnergyCorrelator::End() this is the end" << endl;
+      cout << "SEnergyCorrelator::End() this is the end..." << endl;
       break;
     case 14:
-      cout << "SEnergyCorrelator::~SEnergyCorrelator() calling dtor" << endl;
+      cout << "SEnergyCorrelator::~SEnergyCorrelator() calling dtor..." << endl;
       break;
     case 15:
-      cout << "SEnergyCorrelator::OpenOutputFile() opening output file" << endl;
+      cout << "SEnergyCorrelator::OpenOutputFile() opening output file..." << endl;
+      break;
+    case 16:
+      cout << "SEnergyCorrelator::GetEntry() getting tree entry..." << endl;
+      break;
+    case 17:
+      cout << "SEnergyCorrelator::LoadTree() loading tree..." << endl;
       break;
   }
   return;
 
-}  // end 'PrintMessage()'
+}  // end 'PrintDebug(uint32_t)'
 
 
 
@@ -259,44 +285,148 @@ void SEnergyCorrelator::PrintError(const uint32_t code) {
 
   switch (code) {
     case 0:
-      cerr << "SEnergyCorrelator::Init(PHCompositeNode*) PANIC: calling complex method in standalone mode! Aborting!" << endl;
+      if (m_inComplexMode) {
+        cerr << "SEnergyCorrelator::Init(PHCompositeNode*) PANIC: calling complex method in standalone mode! Aborting!" << endl;
+      } else {
+        cerr << "PANIC: calling complex method in standalone mode! Aborting!" << endl;
+      }
       break;
     case 1:
-      cerr << "SEnergyCorrelator::GrabInputNode() PANIC: couldn't grab node \"" << m_inNodeName << "\"! Aborting!" << endl;
+      if (m_inComplexMode) {
+        cerr << "SEnergyCorrelator::GrabInputNode() PANIC: couldn't grab node \"" << m_inNodeName << "\"! Aborting!" << endl;
+      } else {
+        cerr << "PANIC: couldn't grab node \"" << m_inNodeName << "\"! Aborting!" << endl;
+      }
       break;
     case 2:
-      cerr << "SEnergyCorrelator::GrabInputNode() PANIC: couldn't grab tree \"" << m_inTreeName << "\" from node \"" << m_inNodeName << "\"! Aborting!" << endl;
+      if (m_inComplexMode) {
+        cerr << "SEnergyCorrelator::GrabInputNode() PANIC: couldn't grab tree \"" << m_inTreeName << "\" from node \"" << m_inNodeName << "\"! Aborting!" << endl;
+      } else {
+        cerr << "PANIC: couldn't grab tree \"" << m_inTreeName << "\" from node \"" << m_inNodeName << "\"! Aborting!" << endl;
+      }
       break;
     case 3:
-      cerr << "SEnergyCorrelator::process_event(PHCompositeNode*) PANIC: calling complex method in standalone mode! Aborting!" << endl;
+      if (m_inComplexMode) {
+        cerr << "SEnergyCorrelator::process_event(PHCompositeNode*) PANIC: calling complex method in standalone mode! Aborting!" << endl;
+      } else {
+        cerr << "PANIC: calling complex method in standalone mode! Aborting!" << endl;
+      }
       break;
     case 4:
-      cerr << "SEnergyCorrelator::End(PHCompositeNode*) PANIC: calling complex method in standalone mode! Aborting!" << endl;
+      if (m_inComplexMode) {
+        cerr << "SEnergyCorrelator::End(PHCompositeNode*) PANIC: calling complex method in standalone mode! Aborting!" << endl;
+      } else {
+        cerr << "PANIC: calling complex method in standalone mode! Aborting!" << endl;
+      }
       break;
     case 5:
-      cerr << "SEnergyCorrelator::Init() PANIC: calling standalone method in complex mode! Aborting!" << endl;
+      if (m_inComplexMode) {
+        cerr << "SEnergyCorrelator::Init() PANIC: calling standalone method in complex mode! Aborting!" << endl;
+      } else {
+        cerr << "PANIC: calling standalone method in complex mode! Aborting!" << endl;
+      }
       break;
     case 6:
-      cerr << "SEnergyCorrelator::OpenInputFile() PANIC: couldn't open file \"" << m_inFileName << "\"! Aborting!" << endl;
+      if (m_inComplexMode) {
+        cerr << "SEnergyCorrelator::OpenInputFile() PANIC: couldn't open file \"" << m_inFileName << "\"! Aborting!" << endl;
+      } else {
+        cerr << "PANIC: couldn't open file \"" << m_inFileName << "\"! Aborting!" << endl;
+      }
       break;
     case 7:
-      cerr << "SEnergyCorrelator::OpenInputFile() PANIC: couldn't grab tree \"" << m_inTreeName << "\" from file \"" << m_inFileName << "\"! Aborting!" << endl;
+      if (m_inComplexMode) {
+        cerr << "SEnergyCorrelator::OpenInputFile() PANIC: couldn't grab tree \"" << m_inTreeName << "\" from file \"" << m_inFileName << "\"! Aborting!" << endl;
+      } else {
+        cerr << "PANIC: couldn't grab tree \"" << m_inTreeName << "\" from file \"" << m_inFileName << "\"! Aborting!" << endl;
+      }
       break;
     case 8:
-      cerr << "SEnergyCorrelator::Analyze() PANIC: calling standalone method in complex mode! Aborting!" << endl;
+      if (m_inComplexMode) {
+        cerr << "SEnergyCorrelator::Analyze() PANIC: calling standalone method in complex mode! Aborting!" << endl;
+      } else {
+        cerr << "PANIC: calling standalone method in complex mode! Aborting!" << endl;
+      }
       break;
     case 9:
-      cerr << "SEnergyCorrelator::End() PANIC: calling standalone method in complex mode! Aborting!" << endl;
+      if (m_inComplexMode) {
+        cerr << "SEnergyCorrelator::End() PANIC: calling standalone method in complex mode! Aborting!" << endl;
+      } else {
+        cerr << "PANIC: calling standalone method in complex mode! Aborting!" << endl;
+      }
       break;
     case 10:
-      cerr << "SEnergyCorrelator::InitializeTree() PANIC: no TTree! Aborting!" << endl;
+      if (m_inComplexMode) {
+        cerr << "SEnergyCorrelator::InitializeTree() PANIC: no TTree! Aborting!" << endl;
+      } else {
+        cerr << "PANIC: no TTree! Aborting!" << endl;
+      }
       break;
     case 11:
-      cerr << "SenergyCorrelator::OpenOutputFile() PANIC: couldn't open output file! Aborting!" << endl;
+      if (m_inComplexMode) {
+        cerr << "SEnergyCorrelator::OpenOutputFile() PANIC: couldn't open output file! Aborting!" << endl;
+      } else {
+        cerr << "PANIC: couldn't open output file! Aborting!" << endl;
+      }
       break;
   }
   return;
 
-}  // end 'PrintError()'
+}  // end 'PrintError(unint32_t)'
+
+
+
+bool SEnergyCorrelator::CheckCriticalParameters() {
+
+  // print debugging statement
+  /* TODO add statement */
+
+  /* TODO checking goes here */
+  return true;
+
+}  // end 'CheckCriticalParameters()'
+
+
+
+int64_t SEnergyCorrelator::GetEntry(const uint64_t entry) {
+
+  // print debugging statemet
+  if (m_inDebugMode && (m_verbosity > 5)) PrintDebug(16);
+
+  int64_t entryStatus(-1);
+  if (!m_inTree) {
+    entryStatus = 0;
+  } else {
+    entryStatus = m_inTree -> GetEntry(entry);
+  }
+  return entryStatus;
+
+}  // end 'GetEntry(uint64_t)'
+
+
+
+int64_t SEnergyCorrelator::LoadTree(const uint64_t entry) {
+
+  // print debugging statemet
+  if (m_inDebugMode && (m_verbosity > 5)) PrintDebug(17);
+
+  // check for tree & load
+  int     treeNumber(-1);
+  int64_t treeStatus(-1);
+  if (!m_inTree) {
+    treeStatus = -5;
+  } else {
+    treeNumber = m_inTree -> GetTreeNumber();
+    treeStatus = m_inTree -> LoadTree(entry);
+  }
+
+  // update current tree number if need be
+  const bool isTreeStatusGood = (treeStatus >= 0);
+  const bool isNotCurrentTree = (treeNumber != m_fCurrent);
+  if (isTreeStatusGood && isNotCurrentTree) {
+    m_fCurrent = m_inTree -> GetTreeNumber();
+  }
+  return treeStatus;
+
+}  // end 'LoadTree(uint64_t)'
 
 // end ------------------------------------------------------------------------
