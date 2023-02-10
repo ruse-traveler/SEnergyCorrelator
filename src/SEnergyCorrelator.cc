@@ -21,7 +21,7 @@ using namespace fastjet;
 // ctor/dtor ------------------------------------------------------------------
 
 //SEnergyCorrelator::SEnergyCorrelator(const string &name, const bool isComplex, const bool doDebug) : SubsysReco(name) {
-SEnergyCorrelator::SEnergyCorrelator(const string &name, const bool isComplex, const bool doDebug) {
+SEnergyCorrelator::SEnergyCorrelator(const string &name, const bool isComplex, const bool doDebug, const bool inBatch) {
 
   // initialize internal variables
   InitializeMembers();
@@ -42,9 +42,14 @@ SEnergyCorrelator::SEnergyCorrelator(const string &name, const bool isComplex, c
   }
 */
 
-  // print debug statement
+  // set debug/batch mode & print debug statement
   m_inDebugMode = doDebug;
+  m_inBatchMode = inBatch;
   if (m_inDebugMode) PrintDebug(1);
+
+  // set module name & announce start of calculation
+  m_moduleName = name;
+  if (m_inStandaloneMode) PrintMessage(0);
 
 }  // end ctor(string, bool, bool)
 
@@ -94,6 +99,9 @@ void SEnergyCorrelator::Init() {
   }
   OpenOutputFile();
 
+  // announce files
+  PrintMessage(1);
+
   // initialize input, output, & correlators
   InitializeTree();
   InitializeHists();
@@ -115,7 +123,17 @@ void SEnergyCorrelator::Analyze() {
     assert(m_inStandaloneMode);
   }
 
-  /* TODO analysis goes here */
+  // load tree and announce start of event loop
+  const uint64_t nEvts = 5;
+  PrintMessage(7, nEvts);
+
+  /* event loop goes here */
+  for (uint64_t iEvt = 0; iEvt < nEvts; iEvt++) {
+    PrintMessage(8, nEvts, iEvt);
+  }
+
+  // announce end of analysis
+  PrintMessage(9);
   return;
 
 }  // end 'StandaloneAnalyze()'
@@ -134,6 +152,9 @@ void SEnergyCorrelator::End() {
   } else {
     SaveOutput();
   }
+
+  // announce end
+  PrintMessage(11);
   return;
 
 }  // end 'StandaloneEnd()'

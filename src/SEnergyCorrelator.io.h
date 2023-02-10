@@ -18,7 +18,7 @@ void SEnergyCorrelator::SetInputTree(const string &iTreeName, const bool isTruth
   if (m_inDebugMode) PrintDebug(18);
   
   m_inTreeName       = iTreeName;
-  m_isInputTreeTruth = isTruthTree;
+  m_isInputTreeTruth = isTruthTree; 
   return;
 
 }  // end 'SetInputTree(string&, bool)'
@@ -34,6 +34,9 @@ void SEnergyCorrelator::SetCorrelatorParameters(const uint32_t nPointCorr, const
   m_nBinsDr       = nBinsDr;
   m_drBinRange[0] = minDr;
   m_drBinRange[1] = maxDr;
+
+  // announce correlator parameters
+  if (m_inStandaloneMode) PrintMessage(5);
   return;
 
 }  // end 'SetCorrelatorParameters(uint32_t, uint64_t, double, double)'
@@ -52,6 +55,9 @@ void SEnergyCorrelator::SetPtJetBins(const vector<pair<double, double>> &pTjetBi
     const pair<double, double> ptBin = {minPt, maxPt};
     m_ptJetBins.push_back(ptBin);
   }
+
+  // announce pTjet bins
+  if (m_inStandaloneMode) PrintMessage(6);
   return;
 
 }  // end 'SetPtJetBins(vector<pair<double, double>>&)'
@@ -116,7 +122,10 @@ void SEnergyCorrelator::SaveOutput() {
   // print debug statement
   if (m_inDebugMode) PrintDebug(9);
 
-  /* TODO save output here */
+  /* TODO saving goes here */
+
+  // announce saving
+  if (m_inStandaloneMode) PrintMessage(10);
   return;
 
 }  // end 'SaveOutput()'
