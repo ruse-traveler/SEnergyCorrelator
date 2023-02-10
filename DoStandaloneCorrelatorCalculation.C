@@ -16,13 +16,6 @@
 // user includes
 #include "/sphenix/user/danderson/install/include/senergycorrelator/SEnergyCorrelator.h"
 
-#ifdef __CINT__ 
-#pragma link C++ nestedclasses;
-#pragma link C++ nestedtypedefs;
-#pragma link C++ class std::vector<std::vector<double> >+;
-#pragma link C++ class std::vector<std::pair<double,double> >+;
-#endif
-
 // load libraries
 R__LOAD_LIBRARY(/sphenix/user/danderson/install/lib/libsenergycorrelator.so)
 
