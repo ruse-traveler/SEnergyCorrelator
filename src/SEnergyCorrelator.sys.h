@@ -264,10 +264,22 @@ void SEnergyCorrelator::PrintDebug(const uint32_t code) {
       cout << "SEnergyCorrelator::OpenOutputFile() opening output file..." << endl;
       break;
     case 16:
-      cout << "SEnergyCorrelator::GetEntry() getting tree entry..." << endl;
+      cout << "SEnergyCorrelator::GetEntry(uint64_t) getting tree entry..." << endl;
       break;
     case 17:
-      cout << "SEnergyCorrelator::LoadTree() loading tree..." << endl;
+      cout << "SEnergyCorrelator::LoadTree(uint64_t) loading tree..." << endl;
+      break;
+    case 18:
+      cout << "SEnergyCorrelator::SetInputTree(string, bool) setting input tree name..." << endl;
+      break;
+    case 19:
+      cout << "SEnergyCorrelator::SetCorrelatorParameters(uint32_t, uint64_t, double, double) setting correlator parameters..." << endl;
+      break;
+    case 20:
+      cout << "SEnergyCorrelator::SetPtJetBins(vector<pair<double, double>>) setting pTjet bins..." << endl;
+      break;
+    case 21:
+      cout << "SEnergyCorrelators:CheckCriticalParameters() checking critical parameters..." << endl;
       break;
   }
   return;
@@ -378,7 +390,7 @@ void SEnergyCorrelator::PrintError(const uint32_t code) {
 bool SEnergyCorrelator::CheckCriticalParameters() {
 
   // print debugging statement
-  /* TODO add statement */
+  if (m_inDebugMode) PrintDebug(21); 
 
   /* TODO checking goes here */
   return true;

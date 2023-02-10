@@ -15,7 +15,7 @@ using namespace std;
 void SEnergyCorrelator::SetInputTree(const string &iTreeName, const bool isTruthTree) {
 
   // print debug statemet
-  /* TODO add statement here */
+  if (m_inDebugMode) PrintDebug(18);
   
   m_inTreeName       = iTreeName;
   m_isInputTreeTruth = isTruthTree;
@@ -28,7 +28,7 @@ void SEnergyCorrelator::SetInputTree(const string &iTreeName, const bool isTruth
 void SEnergyCorrelator::SetCorrelatorParameters(const uint32_t nPointCorr, const uint64_t nBinsDr, const double minDr, const double maxDr) {
 
   // print debug statement
-  /* TODO add statement here */
+  if (m_inDebugMode) PrintDebug(19);
 
   m_nPointCorr    = nPointCorr;
   m_nBinsDr       = nBinsDr;
@@ -40,15 +40,15 @@ void SEnergyCorrelator::SetCorrelatorParameters(const uint32_t nPointCorr, const
 
 
 
-void SEnergyCorrelator::SetPtJetBins(const std::vector<std::pair<double, double>> &pTjetBins) {
+void SEnergyCorrelator::SetPtJetBins(const vector<pair<double, double>> &pTjetBins) {
 
   // print debug statement
-  /* TODO add statement here */
+  if (m_inDebugMode) PrintDebug(20);
 
   m_nBinsJetPt = pTjetBins.size();
   for (uint32_t iJetBin = 0; iJetBin < m_nBinsJetPt; iJetBin++) {
-    const double minPt               = pTjetBins.at(iJetBin).first;
-    const double maxPt               = pTjetBins.at(iJetBin).second;
+    const double               minPt = pTjetBins.at(iJetBin).first;
+    const double               maxPt = pTjetBins.at(iJetBin).second;
     const pair<double, double> ptBin = {minPt, maxPt};
     m_ptJetBins.push_back(ptBin);
   }

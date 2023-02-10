@@ -36,7 +36,7 @@ SEnergyCorrelator::SEnergyCorrelator(const string &name, const bool isComplex, c
   }
 
   // set verbosity in complex mode
-/*
+/* TODO add back in complex mode
   if (m_inComplexMode) {
     m_verbosity = Verbosity();
   }
