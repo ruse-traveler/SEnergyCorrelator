@@ -123,14 +123,25 @@ void SEnergyCorrelator::Analyze() {
     assert(m_inStandaloneMode);
   }
 
-  // load tree and announce start of event loop
-  const uint64_t nEvts = 5;
+  // announce start of event loop
+  const uint64_t nEvts = m_inTree -> GetEntriesFast();
   PrintMessage(7, nEvts);
 
-  /* event loop goes here */
+  // event loop
+  uint64_t nBytes = 0;
   for (uint64_t iEvt = 0; iEvt < nEvts; iEvt++) {
-    PrintMessage(8, nEvts, iEvt);
-  }
+
+    const uint64_t entry = LoadTree(iEvt);
+    if (entry < 0) break;
+
+    const uint64_t bytes = GetEntry(iEvt);
+    if (bytes < 0) {
+      break;
+    } else {
+      nBytes += bytes;
+      PrintMessage(8, nEvts, iEvt);
+    } 
+  }  // end of event loop
 
   // announce end of analysis
   PrintMessage(9);

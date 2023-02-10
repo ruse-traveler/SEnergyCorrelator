@@ -82,10 +82,18 @@ void SEnergyCorrelator::OpenInputFile() {
   if (m_inDebugMode) PrintDebug(11);
 
   // open file
-  m_inFile = new TFile(m_inFileName.data(), "read");
-  if (!m_inFile) {
-    PrintError(6);
-    assert(m_inFile);
+  const bool isTreeNotLoaded = (m_inTree == 0);
+  if (isTreeNotLoaded) {
+
+    // check list of files & open if needed
+    m_inFile = (TFile*) gROOT -> GetListOfFiles() -> FindObject(m_inFileName.data());
+    if (!m_inFile || !(m_inFile -> IsOpen())) {
+      m_inFile = new TFile(m_inFileName.data(), "read");
+      if (!m_inFile) {
+        PrintError(6);
+        assert(m_inFile);
+      }
+    }
   }
 
   // grab tree

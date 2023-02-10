@@ -18,6 +18,7 @@
 #include <utility>
 // root includes
 #include <TH1.h>
+#include <TROOT.h>
 #include <TFile.h>
 #include <TTree.h>
 #include <TMath.h>
