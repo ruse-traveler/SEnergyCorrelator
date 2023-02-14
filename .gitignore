@@ -5,8 +5,9 @@ src/*
 !src/SEnergyCorrelator.h
 !src/SEnergyCorrelator.cc
 !src/SEnergyCorrelator.io.h
-!src/SEnergyCorrelatorLinkDef.h
 !src/SEnergyCorrelator.sys.h
+!src/SEnergyCorrelator.ana.h
+!src/SEnergyCorrelatorLinkDef.h
 !src/autogen.sh
 !src/configure.ac
 !src/Makefile.am
