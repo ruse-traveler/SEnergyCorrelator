@@ -15,6 +15,8 @@ using namespace fastjet;
 
 
 
+// analysis methods -----------------------------------------------------------
+
 void SEnergyCorrelator::ExtractHistsFromCorr() {
 
   // print debug statement

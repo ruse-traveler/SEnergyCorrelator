@@ -15,6 +15,8 @@ using namespace fastjet;
 
 
 
+// system methods -------------------------------------------------------------
+
 void SEnergyCorrelator::InitializeMembers() {
 
   // print debug statement

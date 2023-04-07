@@ -1,9 +1,11 @@
+// ----------------------------------------------------------------------------
 // 'DoStandaloneCorrelatorCalculation.C'
 // Derek Anderson
 // 02.02.2023
 //
 // Use this to run the SEnergyCorrelator
 // class in standalone mode.
+// ----------------------------------------------------------------------------
 
 #ifndef DOSTANDALONECORRELATORCALCULATION_C
 #define DOSTANDALONECORRELATORCALCULATION_C
