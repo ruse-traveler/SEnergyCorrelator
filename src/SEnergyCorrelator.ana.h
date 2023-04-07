@@ -84,7 +84,6 @@ void SEnergyCorrelator::ExtractHistsFromCorr() {
       // check if bin is good & set content/error
       const bool areBinValuesNans = (isnan(binContent) || isnan(binError));
       if (areBinValuesNans) {
-        cout << "CHECK: binContent = " << binContent << ", binError = " << binError << endl;
         PrintError(13, 0, iDrBin);
       } else {
         m_outHistDrAxis[iPtBin]   -> SetBinContent(iDrBin, binContent);

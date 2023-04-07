@@ -270,7 +270,7 @@ void SEnergyCorrelator::PrintMessage(const uint32_t code, const uint64_t nEvts, 
       }
       break;
     case 7:
-      cout << "    Beginning event loop: " << nEvts << " to process..." << endl;
+      cout << "    Beginning event loop: " << nEvts << " events to process..." << endl;
       break;
     case 8:
       if (m_inBatchMode) {
