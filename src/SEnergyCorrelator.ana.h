@@ -107,7 +107,8 @@ bool SEnergyCorrelator::ApplyJetCuts(const double ptJet, const double etaJet) {
   if (m_inDebugMode && (m_verbosity > 7)) PrintDebug(26);
 
   const bool isInPtRange  = ((ptJet >= m_ptJetRange[0])  && (ptJet < m_ptJetRange[1]));
-  const bool isInEtaRange = ((etaJet > m_etaJetRange[0]) && (etaJet < m_etaJetRange[1]));
+  //const bool isInEtaRange = ((etaJet > m_etaJetRange[0]) && (etaJet < m_etaJetRange[1]));
+  const bool isInEtaRange = (abs(etaJet) < m_etaJetRange[1]);
   const bool isGoodJet    = (isInPtRange && isInEtaRange);
   return isGoodJet;
 
