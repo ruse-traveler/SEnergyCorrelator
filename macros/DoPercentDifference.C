@@ -40,7 +40,7 @@ static const UInt_t NVtx(4);
 static const UInt_t NTxt(3);
 
 // calculation parameters
-static const UInt_t FSubMode(3);
+static const UInt_t FSubMode(0);
 static const Bool_t DoRebin(false);
 static const Bool_t DoIntNorm(true);
 static const Bool_t DoFluctuationRemoval(true);
@@ -54,10 +54,10 @@ void DoPercentDifference() {
   cout << "\n  Beginning percent difference script..." << endl;
 
   // output and reference parameters
-  const TString sOut("tuningDetEffects.testingPerDiffVsDiff_absDiffLog_pt20.pp200py8jet40.d27m4y2023.root");
+  const TString sOut("tuningDetEffects.testingPerDiffVsDiff_perDiffOverComp_pt15.pp200py8jet40.d27m4y2023.root");
   const TString sRef("tuning_detector_effects/SphenixRecoUnscaledWithConstitHistos_output.root");
-  const TString sHistRef("EEC1");
-  const TString sNameRef("hRecoEEC_pt20");
+  const TString sHistRef("EEC0");
+  const TString sNameRef("hRecoEEC_pt15");
   const TString sLabelRef("Reco.");
 
   // comparison parameters
@@ -68,27 +68,27 @@ void DoPercentDifference() {
                                      "tuning_detector_effects/SphenixTruthShift.015Check_output.root",
                                      "tuning_detector_effects/SphenixTruthShift.02Check_output.root",
                                      "tuning_detector_effects/SphenixTruthShift.025Check_output.root"};
-  const TString sHistComp[NComp]  = {"EEC1",
-                                     "EEC1",
-                                     "EEC1",
-                                     "EEC1",
-                                     "EEC1",
-                                     "EEC1",
-                                     "EEC1"};
-  const TString sNameComp[NComp]  = {"hTrueEEC_pt20_noSmear",
-                                     "hTrueEEC_pt20_smear001",
-                                     "hTrueEEC_pt20_smear005",
-                                     "hTrueEEC_pt20_smear01",
-                                     "hTrueEEC_pt20_smear015",
-                                     "hTrueEEC_pt20_smear02",
-                                     "hTrueEEC_pt20_smear025"};
-  const TString sNameSub[NComp]   = {"hSub_pt20_noSmear",
-                                     "hSub_pt20_smear001",
-                                     "hSub_pt20_smear005",
-                                     "hSub_pt20_smear01",
-                                     "hSub_pt20_smear015",
-                                     "hSub_pt20_smear02",
-                                     "hSub_pt20_smear025"};
+  const TString sHistComp[NComp]  = {"EEC0",
+                                     "EEC0",
+                                     "EEC0",
+                                     "EEC0",
+                                     "EEC0",
+                                     "EEC0",
+                                     "EEC0"};
+  const TString sNameComp[NComp]  = {"hTrueEEC_pt15_noSmear",
+                                     "hTrueEEC_pt15_smear001",
+                                     "hTrueEEC_pt15_smear005",
+                                     "hTrueEEC_pt15_smear01",
+                                     "hTrueEEC_pt15_smear015",
+                                     "hTrueEEC_pt15_smear02",
+                                     "hTrueEEC_pt15_smear025"};
+  const TString sNameSub[NComp]   = {"hSub_pt15_noSmear",
+                                     "hSub_pt15_smear001",
+                                     "hSub_pt15_smear005",
+                                     "hSub_pt15_smear01",
+                                     "hSub_pt15_smear015",
+                                     "hSub_pt15_smear02",
+                                     "hSub_pt15_smear025"};
   const TString sLabelComp[NComp] = {"Truth (no smearing)",
                                      "Truth (smear width = 0.001)",
                                      "Truth (smear width = 0.005)",
@@ -294,7 +294,7 @@ void DoPercentDifference() {
       Double_t eSub(0.);
       switch (FSubMode) {
         case 0:
-          ySub  = (yRef - yComp) / yRef;
+          ySub  = (yRef - yComp) / yComp;
           eSub  = 0;  // FIXME do propagation of errors
           break;
         case 1:
