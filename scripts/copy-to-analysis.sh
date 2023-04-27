@@ -29,6 +29,9 @@ files_to_copy[8]="src/configure.ac"
 files_to_copy[9]="src/Makefile.am"
 files_to_copy[10]="DoStandaloneCorrelatorCalculation.C"
 files_to_copy[11]="DoStandaloneCorrelatorCalculation.sh"
+files_to_copy[12]="macros/MakePrettyPlot.C"
+files_to_copy[13]="macros/MakeRatioComparisonPlot.C"
+files_to_copy[14]="macros/DoPercentDifference.C"
 
 # do copying
 # TODO: automate detection/creation of sub-directories
