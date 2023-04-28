@@ -23,8 +23,7 @@ using namespace fastjet;
 
 // ctor/dtor ------------------------------------------------------------------
 
-//SEnergyCorrelator::SEnergyCorrelator(const string &name, const bool isComplex, const bool doDebug) : SubsysReco(name) {
-SEnergyCorrelator::SEnergyCorrelator(const string &name, const bool isComplex, const bool doDebug, const bool inBatch) {
+SEnergyCorrelator::SEnergyCorrelator(const string &name, const bool isComplex, const bool doDebug, const bool inBatch) : SubsysReco(name) {
 
   // initialize internal variables
   InitializeMembers();
@@ -39,11 +38,9 @@ SEnergyCorrelator::SEnergyCorrelator(const string &name, const bool isComplex, c
   }
 
   // set verbosity in complex mode
-/* TODO add back in complex mode
   if (m_inComplexMode) {
     m_verbosity = Verbosity();
   }
-*/
 
   // set debug/batch mode & print debug statement
   m_inDebugMode = doDebug;
@@ -86,7 +83,31 @@ SEnergyCorrelator::~SEnergyCorrelator() {
 
 // F4A methods ----------------------------------------------------------------
 
-/* TODO F4A methods will go here */
+int SEnergyCorrelator::Init(PHCompositeNode*) {
+
+  /* TODO init will go here */
+  return Fun4AllReturnCodes::EVENT_OK;
+
+}  // end 'Init(PHCompositeNode*)'
+
+
+
+
+int SEnergyCorrelator::process_event(PHCompositeNode*) {
+
+  /* TODO event processing will go here */
+  return Fun4AllReturnCodes::EVENT_OK;
+
+}  // end 'process_event(PHCompositeNode*)'
+
+
+
+int SEnergyCorrelator::End(PHCompositeNode*) {
+
+  /* TODO end will go here */
+  return Fun4AllReturnCodes::EVENT_OK;
+
+}  // end 'End(PHCompositeNode*)'
 
 
 

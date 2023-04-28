@@ -28,6 +28,16 @@
 #include "TString.h"
 #include "TVector3.h"  // TODO update to XYZvector
 #include "TDirectory.h"
+// f4a include
+#include <fun4all/SubsysReco.h>
+#include <fun4all/Fun4AllReturnCodes.h>
+#include <fun4all/Fun4AllHistoManager.h>
+// phool includes
+#include <phool/phool.h>
+#include <phool/getClass.h>
+#include <phool/PHIODataNode.h>
+#include <phool/PHNodeIterator.h>
+#include <phool/PHCompositeNode.h>
 // fastjet includes
 #include <fastjet/PseudoJet.hh>
 // eec include
@@ -44,18 +54,18 @@ static const size_t NMaxPtBins = 10;
 
 // SEnergyCorrelator definition -----------------------------------------------
 
-//class SEnergyCorrelator : public SubsysReco {
-class SEnergyCorrelator {
+class SEnergyCorrelator : public SubsysReco {
 
   public:
 
     // ctor/dtor
     SEnergyCorrelator(const string &name = "SEnergyCorrelator", const bool isComplex = false, const bool doDebug = false, const bool inBatch = false);
-    //~SEnergyCorrelator() override;
-    ~SEnergyCorrelator();
+    ~SEnergyCorrelator() override;
 
     // F4A methods
-    /* TODO F4A methods will go here */
+    int Init(PHCompositeNode*)          override;
+    int process_event(PHCompositeNode*) override;
+    int End(PHCompositeNode*)           override;
 
     // standalone-only methods
     void Init();
