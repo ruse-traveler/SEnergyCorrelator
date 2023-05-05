@@ -46,10 +46,6 @@
 using namespace std;
 using namespace fastjet;
 
-// global constants
-static const size_t NRange     = 2;
-static const size_t NMaxPtBins = 10;
-
 
 
 // SEnergyCorrelator definition -----------------------------------------------
@@ -112,11 +108,18 @@ class SEnergyCorrelator : public SubsysReco {
 
   private:
 
+    // constants
+    enum CONSTANTS {
+      NRANGE = 2
+    };
+
     // io methods (*.io.h)
     void GrabInputNode();
     void OpenInputFile();
     void OpenOutputFile();
     void SaveOutput();
+    void CloseInputFile();
+    void CloseOutputFile();
 
     // system methods (*.sys.h)
     void    InitializeMembers();
@@ -161,11 +164,11 @@ class SEnergyCorrelator : public SubsysReco {
     uint32_t                     m_nPointCorr;
     uint64_t                     m_nBinsDr;
     size_t                       m_nBinsJetPt;
-    double                       m_drBinRange[NRange];
-    double                       m_ptJetRange[NRange];
-    double                       m_etaJetRange[NRange];
-    double                       m_momCstRange[NRange];
-    double                       m_drCstRange[NRange];
+    double                       m_drBinRange[CONSTANTS::NRANGE];
+    double                       m_ptJetRange[CONSTANTS::NRANGE];
+    double                       m_etaJetRange[CONSTANTS::NRANGE];
+    double                       m_momCstRange[CONSTANTS::NRANGE];
+    double                       m_drCstRange[CONSTANTS::NRANGE];
     vector<PseudoJet>            m_jetCstVector;
     vector<pair<double, double>> m_ptJetBins;
 

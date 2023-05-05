@@ -250,7 +250,14 @@ void SEnergyCorrelator::End() {
     SaveOutput();
   }
 
-  // announce end
+  // close files and announce end
+  if (m_inComplexMode) {
+    PrintError(14);
+    assert(m_inStandaloneMode);
+  } else {
+    CloseInputFile();
+  }
+  CloseOutputFile();
   PrintMessage(11);
   return;
 
