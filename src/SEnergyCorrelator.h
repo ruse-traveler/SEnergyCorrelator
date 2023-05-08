@@ -134,6 +134,7 @@ class SEnergyCorrelator : public SubsysReco {
     int64_t GetEntry(const uint64_t entry);
 
     // analysis methods (*.ana.h)
+    void     DoCorrelatorCalculation();
     void     ExtractHistsFromCorr();
     bool     ApplyJetCuts(const double ptJet, const double etaJet);
     bool     ApplyCstCuts(const double momCst, const double drCst);

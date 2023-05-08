@@ -408,6 +408,9 @@ void SEnergyCorrelator::PrintDebug(const uint32_t code) {
     case 30:
       cout << "SEnergyCorrelator::CloseOutputFile() closing output file..." << endl;
       break;
+    case 31:
+      cout << "SEnergyCorrelator::DoCorrelatorCalculation() looping over events and calculating correlators..." << endl;
+      break;
   }
   return;
 
