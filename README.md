@@ -27,3 +27,11 @@ The latter macro illustrates how to run the module in standalone mode as an "aft
 ```
 root -b -q Fun4All_DoStandaloneCalculation.C
 ```
+
+---
+
+## To-Do:
+
+ - [Major] Add functionality to run multiple n-points per calculation
+ - [Minor] Implement flag to turn constituent cuts on/off
+ - [Minor] Implement flag to select returned errors on histograms (variance vs. sqrt(variance))
