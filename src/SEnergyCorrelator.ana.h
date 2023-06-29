@@ -134,6 +134,7 @@ void SEnergyCorrelator::ExtractHistsFromCorr() {
     // grab bin edges, content, and error
     drBinEdges          = m_eecLongSide[iPtBin] -> bin_edges();
     histContentAndError = m_eecLongSide[iPtBin] -> get_hist_vars();
+    //histContentAndError = m_eecLongSide[iPtBin] -> get_hist_errs();
 
     // create ln(dr) bin edges and arrays
     const size_t nDrBinEdges = drBinEdges.size();
