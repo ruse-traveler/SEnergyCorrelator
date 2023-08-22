@@ -1,11 +1,10 @@
 // ----------------------------------------------------------------------------
-// 'Fun4All_DoStandaloneCalculation.C'
+// 'Fun4All_RunCorrelatorJetTree.C'
 // Derek Anderson
-// 05.05.2023
+// 12.11.2022
 //
 // Use this to run the SCorrelatorJetTree
-// class and then the SEnergyCorrelator
-// class in standalone mode on the output.
+// class.
 //
 // Derived from code by Cameron Dean and
 // Antonio Silva (thanks!!)
@@ -22,25 +21,28 @@
 /*      cdean@bnl.gov       */
 /****************************/
 
-#ifndef FUN4ALL_DOSTANDALONECALCULATION_C
-#define FUN4ALL_DOSTANDALONECALCULATION_C
-
 // standard c includes
-#include <string>
 #include <vector>
+#include <string>
 #include <cstdlib>
 #include <utility>
 // f4a/sphenix includes
 #include <QA.C>
 #include <FROG.h>
-#include <fun4all/Fun4AllDstInputManager.h>
-// g4 includes
 #include <G4_Magnet.C>
-#include <G4_Tracking.C>
+#include <fun4all/Fun4AllDstInputManager.h>
+#include <g4main/Fun4AllDstPileupInputManager.h>
+// tracking includes
+#include <Trkr_QA.C>
+#include <Trkr_Reco.C>
+#include <Trkr_Eval.C>
+#include <Trkr_RecoInit.C>
+#include <Trkr_Clustering.C>
+#include <Trkr_Diagnostics.C>
+#include <G4_TrkrSimulation.C>
 #include <g4eval/SvtxEvaluator.h>
 #include <g4eval/SvtxTruthRecoTableEval.h>
-#include <g4main/Fun4AllDstPileupInputManager.h>
-// misc includes
+// calo/pf includes
 #include <caloreco/RawClusterBuilderTopo.h>
 #include <particleflowreco/ParticleFlowReco.h>
 // user includes
@@ -48,6 +50,7 @@
 #include "/sphenix/user/danderson/install/include/senergycorrelator/SEnergyCorrelator.h"
 
 // load libraries
+R__LOAD_LIBRARY(libg4eval.so)
 R__LOAD_LIBRARY(libfun4all.so)
 R__LOAD_LIBRARY(libcalo_reco.so)
 R__LOAD_LIBRARY(libparticleflow.so)
@@ -57,28 +60,31 @@ R__LOAD_LIBRARY(/sphenix/user/danderson/install/lib/libsenergycorrelator.so)
 using namespace std;
 
 // global constants
-static const int    NEvtDefault        = 10;
-static const int    VerbDefault        = 0;
-static const size_t NTopoClusts        = 2;
-static const size_t NTopoPar           = 3;
-static const size_t NHistRange         = 2;
-static const size_t NAcceptRange       = 2;
-static const size_t NEnergyCorrs       = 2;
+static const int            NEvtDefault = 10;
+static const int            VerbDefault = 0;
+static const size_t         NTopoClusts = 2;
+static const size_t         NTopoPar    = 3;
+static const string         SOutDefault = "testingPAuInput.root";
+static const vector<string> SInDefault  = {
+  "DST_GLOBAL_pythia8_Jet20_sHijing_pAu_0_10fm_500kHz_bkg_0_10fm-0000000006-00009.root",
+  "DST_TRKR_G4HIT_pythia8_Jet20_sHijing_pAu_0_10fm_500kHz_bkg_0_10fm-0000000006-00009.root",
+  "DST_TRACKSEEDS_pythia8_Jet20_sHijing_pAu_0_10fm_500kHz_bkg_0_10fm-0000000006-00009.root",
+  "DST_TRKR_CLUSTER_pythia8_Jet20_sHijing_pAu_0_10fm_500kHz_bkg_0_10fm-0000000006-00009.root",
+  "DST_TRACKS_pythia8_Jet20_sHijing_pAu_0_10fm_500kHz_bkg_0_10fm-0000000006-00009.root",
+  "DST_CALO_G4HIT_pythia8_Jet20_sHijing_pAu_0_10fm_500kHz_bkg_0_10fm-0000000006-00009.root",
+  "DST_CALO_CLUSTER_pythia8_Jet20_sHijing_pAu_0_10fm_500kHz_bkg_0_10fm-0000000006-00009.root",
+  "DST_TRUTH_G4HIT_pythia8_Jet20_sHijing_pAu_0_10fm_500kHz_bkg_0_10fm-0000000006-00009.root",
+  "DST_TRUTH_pythia8_Jet20_sHijing_pAu_0_10fm_500kHz_bkg_0_10fm-0000000006-00009.root",
+  "DST_VERTEX_pythia8_Jet20_sHijing_pAu_0_10fm_500kHz_bkg_0_10fm-0000000006-00009.root"
+};
 
-// jet tree io parameters
-static const string SInHitsDefault     = "/sphenix/lustre01/sphnxpro/mdc2/js_pp200_signal/g4hits/run0006/jet30/G4Hits_pythia8_Jet30-0000000006-06666.root";
-static const string SInCaloDefault     = "/sphenix/lustre01/sphnxpro/mdc2/js_pp200_signal/nopileup/calocluster/run0006/jet30/DST_CALO_CLUSTER_pythia8_Jet30-0000000006-06666.root";
-static const string SInSeedDefault     = "/sphenix/lustre01/sphnxpro/mdc2/js_pp200_signal/trackseeds/nopileup/run0006/jet30/DST_TRACKSEEDS_pythia8_Jet30-0000000006-06666.root";
-static const string SInTrksDefault     = "/sphenix/lustre01/sphnxpro/mdc2/js_pp200_signal/tracks/nopileup/run0006/jet30/DST_TRACKS_pythia8_Jet30-0000000006-06666.root";
-static const string SInTrueDefault     = "/sphenix/lustre01/sphnxpro/mdc2/js_pp200_signal/nopileup/trkrhit/run0006/jet30/DST_TRUTH_pythia8_Jet30-0000000006-06666.root";
-static const string SJetTreeDefault    = "correlatorJetTree.testingMacro.d5m5y2023.root";
 
 
-
-void Fun4All_DoStandaloneCalculation(const string sInHits = SInHitsDefault, const string sInCalo = SInCaloDefault, const string sInSeed = SInSeedDefault, const string sInTrks = SInTrksDefault, const string sInTrue = SInTrueDefault, const string sJetTree = SJetTreeDefault, const int nEvents = NEvtDefault, const int verbosity = VerbDefault) {
+void Fun4All_DoStandaloneCalculation(const vector<string>& sInput = SInDefault, const string sOutput = SOutDefault, const int nEvents = NEvtDefault, const int verbosity = VerbDefault) {
 
   // track & particle flow parameters
   const bool   runTracking(false);
+  const bool   doTruthTableReco(false);
   const double nSigma(1.5);
 
   // topo cluster parameters
@@ -93,7 +99,7 @@ void Fun4All_DoStandaloneCalculation(const string sInHits = SInHitsDefault, cons
 
   // jet tree general parameters
   const bool isMC(true);
-  const bool doDebug(false);
+  const bool doDebug(true);
   const bool saveDst(true);
   const bool doQuality(true);
   const bool addTracks(true);
@@ -119,28 +125,40 @@ void Fun4All_DoStandaloneCalculation(const string sInHits = SInHitsDefault, cons
   const pair<double, double> ptHCalRange   = {0.3,  9999.};
   const pair<double, double> etaHCalRange  = {-1.1, 1.1};
 
-  // io correlator parameters
-  const string inFile                = sJetTree;
-  const string inTree[NEnergyCorrs]  = {"RecoJetTree",
-                                        "TruthJetTree"};
-  const string outFile[NEnergyCorrs] = {"correlator_reco.testingMacro.d5m5y2023.root",
-                                        "correlator_true.testingMacro.d5m5y2023.root"};
+  // correlator io parameters
+  const vector<string> inTree = {
+    "RecoJetTree",
+    "TruthJetTree"
+  };
+  const vector<string> outFile = {
+    "pa200hijing50khzrun6jet20.reco.d22m8y2023.root",
+    "pa200hijing50khzrun6jet20.true.d22m8y2023.root"
+  };
+
+  // correlator module parameters
+  const vector<string> moduleName = {
+    "SRecoEnergyCorrelator",
+    "STrueEnergyCorrelator"
+  };
+  const vector<bool> isTruth = {
+    false,
+    true
+  };
 
   // correlator parameters
-  const uint32_t  nPointCorr             = 2;
-  const uint64_t  nBinsDr                = 75;
-  const double    binRangeDr[NHistRange] = {1e-5, 1.};
-  const bool      isTruth[NEnergyCorrs]  = {false, true};
+  const uint32_t             nPointCorr = 2;
+  const uint64_t             nBinsDr    = 75;
+  const pair<double, double> binRangeDr = {1e-5, 1.};
 
-  // jet/cst parameters
-  const double etaJetRange[NAcceptRange] = {-1., 1.};
-  const double momCstRange[NAcceptRange] = {0.,  100.};
-  const double drCstRange[NAcceptRange]  = {0.,  5.};
+  // correlator jet/cst parameters
+  const pair<double, double> etaJetRange = {-1., 1.};
+  const pair<double, double> momCstRange = {0.,  100.};
+  const pair<double, double> drCstRange  = {0.,  5.};
 
-  // jet pT bins
+  // correlator jet pT bins
   const vector<pair<double, double>> ptJetBins = {{5., 10.}, {10., 15.}, {15., 20.}, {20., 30.}, {30., 50.}};
 
-  // misc parameters
+  // correlator misc parameters
   const bool isComplex = false;
   const bool inBatch   = false;
 
@@ -148,27 +166,15 @@ void Fun4All_DoStandaloneCalculation(const string sInHits = SInHitsDefault, cons
   gSystem -> Load("libg4dst.so");
   gSystem -> Load("libFROG.so");
 
-  FROG          *frog      = new FROG();
-  Fun4AllServer *ffaServer = Fun4AllServer::instance();
+  FROG*          frog      = new FROG();
+  Fun4AllServer* ffaServer = Fun4AllServer::instance();
   ffaServer -> Verbosity(verbosity);
 
-  // add input files
-  Fun4AllInputManager *inHitsMan = new Fun4AllDstInputManager("InputDstManager_G4Hits");
-  Fun4AllInputManager *inCaloMan = new Fun4AllDstInputManager("InputDstManager_CaloClusts");
-  Fun4AllInputManager *inSeedMan = new Fun4AllDstInputManager("InputDstManager_TrackSeeds");
-  Fun4AllInputManager *inTrksMan = new Fun4AllDstInputManager("InputDstManager_Tracks");
-  Fun4AllInputManager *inTrueMan = new Fun4AllDstInputManager("InputDstManager_Truth");
-  inHitsMan -> AddFile(sInHits);
-  inCaloMan -> AddFile(sInCalo);
-  inSeedMan -> AddFile(sInSeed);
-  inTrksMan -> AddFile(sInTrks);
-  inTrueMan -> AddFile(sInTrue);
-  ffaServer -> registerInputManager(inHitsMan);
-  ffaServer -> registerInputManager(inCaloMan);
-  if (isMC) {
-    ffaServer -> registerInputManager(inSeedMan);
-    ffaServer -> registerInputManager(inTrksMan);
-    ffaServer -> registerInputManager(inTrueMan);
+  // add input files 
+  for (size_t iInput = 0; iInput < sInput.size(); iInput++) {
+    Fun4AllDstInputManager* inManager = new Fun4AllDstInputManager("InputDstManager" + to_string(iInput));
+    inManager -> AddFile(sInput.at(iInput));
+    ffaServer -> registerInputManager(inManager);
   }
 
   // run the tracking if not already done
@@ -200,47 +206,53 @@ void Fun4All_DoStandaloneCalculation(const string sInHits = SInHitsDefault, cons
   }
 
   // construct track/truth table
-  SvtxTruthRecoTableEval *tables = new SvtxTruthRecoTableEval();
-  tables -> Verbosity(verbosity);
-  if (runTracking) {
-    ffaServer -> registerSubsystem(tables);
+  if (doTruthTableReco) {
+    SvtxTruthRecoTableEval *tables = new SvtxTruthRecoTableEval();
+    tables -> Verbosity(verbosity);
+    if (runTracking) {
+      ffaServer -> registerSubsystem(tables);
+    }
   }
 
-  // build topo clusters
-  RawClusterBuilderTopo* ecalClusterBuilder = new RawClusterBuilderTopo("EcalRawClusterBuilderTopo");
-  ecalClusterBuilder -> Verbosity(verbosity);
-  ecalClusterBuilder -> set_nodename("TOPOCLUSTER_EMCAL");
-  ecalClusterBuilder -> set_enable_HCal(enableHCal[0]);
-  ecalClusterBuilder -> set_enable_EMCal(enableECal[0]);
-  ecalClusterBuilder -> set_noise(noiseLevels[0], noiseLevels[1], noiseLevels[2]);
-  ecalClusterBuilder -> set_significance(significance[0], significance[1], significance[2]);
-  ecalClusterBuilder -> allow_corner_neighbor(allowCorners);
-  ecalClusterBuilder -> set_do_split(doSplit);
-  ecalClusterBuilder -> set_minE_local_max(localMinE[0], localMinE[1], localMinE[2]);
-  ecalClusterBuilder -> set_R_shower(showerR);
-  ffaServer          -> registerSubsystem(ecalClusterBuilder);
+  // if using particle flow, run pf reconstruction
+  if (addParticleFlow) {
 
-  RawClusterBuilderTopo* hcalClusterBuilder = new RawClusterBuilderTopo("HcalRawClusterBuilderTopo");
-  hcalClusterBuilder -> Verbosity(verbosity);
-  hcalClusterBuilder -> set_nodename("TOPOCLUSTER_HCAL");
-  hcalClusterBuilder -> set_enable_HCal(enableHCal[1]);
-  hcalClusterBuilder -> set_enable_EMCal(enableECal[1]);
-  hcalClusterBuilder -> set_noise(noiseLevels[0], noiseLevels[1], noiseLevels[2]);
-  hcalClusterBuilder -> set_significance(significance[0], significance[1], significance[1]);
-  hcalClusterBuilder -> allow_corner_neighbor(allowCorners);
-  hcalClusterBuilder -> set_do_split(doSplit);
-  hcalClusterBuilder -> set_minE_local_max(localMinE[0], localMinE[1], localMinE[2]);
-  hcalClusterBuilder -> set_R_shower(showerR);
-  ffaServer          -> registerSubsystem(hcalClusterBuilder);
+    // build topo clusters
+    RawClusterBuilderTopo* ecalClusterBuilder = new RawClusterBuilderTopo("EcalRawClusterBuilderTopo");
+    ecalClusterBuilder -> Verbosity(verbosity);
+    ecalClusterBuilder -> set_nodename("TOPOCLUSTER_EMCAL");
+    ecalClusterBuilder -> set_enable_HCal(enableHCal[0]);
+    ecalClusterBuilder -> set_enable_EMCal(enableECal[0]);
+    ecalClusterBuilder -> set_noise(noiseLevels[0], noiseLevels[1], noiseLevels[2]);
+    ecalClusterBuilder -> set_significance(significance[0], significance[1], significance[2]);
+    ecalClusterBuilder -> allow_corner_neighbor(allowCorners);
+    ecalClusterBuilder -> set_do_split(doSplit);
+    ecalClusterBuilder -> set_minE_local_max(localMinE[0], localMinE[1], localMinE[2]);
+    ecalClusterBuilder -> set_R_shower(showerR);
+    ffaServer          -> registerSubsystem(ecalClusterBuilder);
 
-  // do particle flow
-  ParticleFlowReco *parFlowReco = new ParticleFlowReco();
-  parFlowReco -> set_energy_match_Nsigma(nSigma);
-  parFlowReco -> Verbosity(verbosity);
-  ffaServer   -> registerSubsystem(parFlowReco);
+    RawClusterBuilderTopo* hcalClusterBuilder = new RawClusterBuilderTopo("HcalRawClusterBuilderTopo");
+    hcalClusterBuilder -> Verbosity(verbosity);
+    hcalClusterBuilder -> set_nodename("TOPOCLUSTER_HCAL");
+    hcalClusterBuilder -> set_enable_HCal(enableHCal[1]);
+    hcalClusterBuilder -> set_enable_EMCal(enableECal[1]);
+    hcalClusterBuilder -> set_noise(noiseLevels[0], noiseLevels[1], noiseLevels[2]);
+    hcalClusterBuilder -> set_significance(significance[0], significance[1], significance[1]);
+    hcalClusterBuilder -> allow_corner_neighbor(allowCorners);
+    hcalClusterBuilder -> set_do_split(doSplit);
+    hcalClusterBuilder -> set_minE_local_max(localMinE[0], localMinE[1], localMinE[2]);
+    hcalClusterBuilder -> set_R_shower(showerR);
+    ffaServer          -> registerSubsystem(hcalClusterBuilder);
+
+    // do particle flow
+    ParticleFlowReco *parFlowReco = new ParticleFlowReco();
+    parFlowReco -> set_energy_match_Nsigma(nSigma);
+    parFlowReco -> Verbosity(verbosity);
+    ffaServer   -> registerSubsystem(parFlowReco);
+  }
 
   // create correlator jet tree
-  SCorrelatorJetTree *correlatorJetTree = new SCorrelatorJetTree("SCorrelatorJetTree", sJetTree, isMC, doDebug);
+  SCorrelatorJetTree *correlatorJetTree = new SCorrelatorJetTree("SCorrelatorJetTree", sOutput, isMC, doDebug);
   correlatorJetTree -> Verbosity(verbosity);
   correlatorJetTree -> SetDoQualityPlots(doQuality);
   correlatorJetTree -> SetAddTracks(addTracks);
@@ -261,45 +273,41 @@ void Fun4All_DoStandaloneCalculation(const string sInHits = SInHitsDefault, cons
   correlatorJetTree -> SetSaveDST(saveDst);
   ffaServer         -> registerSubsystem(correlatorJetTree);
 
-  // run reconstruction & end
+  // run reconstruction & close f4a
   ffaServer -> run(nEvents);
   ffaServer -> End();
+  delete ffaServer;
 
   // do correlator calculation on reco jets
-  SEnergyCorrelator *recoCorrelator = new SEnergyCorrelator("SRecoEnergyCorrelator", isComplex, doDebug, inBatch);
+  SEnergyCorrelator *recoCorrelator = new SEnergyCorrelator(moduleName[0], isComplex, doDebug, inBatch);
   recoCorrelator -> SetVerbosity(verbosity);
-  recoCorrelator -> SetInputFile(inFile);
+  recoCorrelator -> SetInputFile(sOutput);
   recoCorrelator -> SetInputTree(inTree[0], isTruth[0]);
   recoCorrelator -> SetOutputFile(outFile[0]);
-  recoCorrelator -> SetJetParameters(ptJetBins, etaJetRange[0], etaJetRange[1]);
-  recoCorrelator -> SetConstituentParameters(momCstRange[0], momCstRange[1], drCstRange[0], drCstRange[1]);
-  recoCorrelator -> SetCorrelatorParameters(nPointCorr, nBinsDr, binRangeDr[0], binRangeDr[1]);
+  recoCorrelator -> SetJetParameters(ptJetBins, etaJetRange.first, etaJetRange.second);
+  recoCorrelator -> SetConstituentParameters(momCstRange.first, momCstRange.second, drCstRange.first, drCstRange.second);
+  recoCorrelator -> SetCorrelatorParameters(nPointCorr, nBinsDr, binRangeDr.first, binRangeDr.second);
   recoCorrelator -> Init();
   recoCorrelator -> Analyze();
   recoCorrelator -> End();
 
   // do correlator calculation on truth jets
-  SEnergyCorrelator *trueCorrelator = new SEnergyCorrelator("STrueEnergyCorrelator", isComplex, doDebug, inBatch);
+  SEnergyCorrelator *trueCorrelator = new SEnergyCorrelator(moduleName[1], isComplex, doDebug, inBatch);
   trueCorrelator -> SetVerbosity(verbosity);
-  trueCorrelator -> SetInputFile(inFile);
+  trueCorrelator -> SetInputFile(sOutput);
   trueCorrelator -> SetInputTree(inTree[1], isTruth[1]);
   trueCorrelator -> SetOutputFile(outFile[1]);
-  trueCorrelator -> SetJetParameters(ptJetBins, etaJetRange[0], etaJetRange[1]);
-  trueCorrelator -> SetConstituentParameters(momCstRange[0], momCstRange[1], drCstRange[0], drCstRange[1]);
-  trueCorrelator -> SetCorrelatorParameters(nPointCorr, nBinsDr, binRangeDr[0], binRangeDr[1]);
+  trueCorrelator -> SetJetParameters(ptJetBins, etaJetRange.first, etaJetRange.second);
+  trueCorrelator -> SetConstituentParameters(momCstRange.first, momCstRange.second, drCstRange.first, drCstRange.second);
+  trueCorrelator -> SetCorrelatorParameters(nPointCorr, nBinsDr, binRangeDr.first, binRangeDr.second);
   trueCorrelator -> Init();
   trueCorrelator -> Analyze();
   trueCorrelator -> End();
 
-  // delete f4a server
-  delete ffaServer;
-
-  // announce end and exit
+  // announce end & exit
   gSystem -> Exit(0);
   return;
 
 }
-
-#endif
 
 // end ------------------------------------------------------------------------
