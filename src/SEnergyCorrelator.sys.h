@@ -22,34 +22,6 @@ void SEnergyCorrelator::InitializeMembers() {
   // print debug statement
   if (m_inDebugMode) PrintDebug(0);
 
-  m_inFile            = 0x0;
-  m_inTree            = 0x0;
-  m_outFile           = 0x0;
-  m_fCurrent          = 0;
-  m_verbosity         = 0;
-  m_inDebugMode       = false;
-  m_inBatchMode       = false;
-  m_inComplexMode     = false;
-  m_inStandaloneMode  = false;
-  m_isInputTreeTruth  = false;
-  m_moduleName        = "";
-  m_inFileName        = "";
-  m_inNodeName        = "";
-  m_inTreeName        = "";
-  m_outFileName       = "";
-  m_nPointCorr        = 0;
-  m_nBinsDr           = 0;
-  m_nBinsJetPt        = 0;
-  m_drBinRange[0]     = 0.;
-  m_drBinRange[1]     = 0.;
-  m_ptJetRange[0]     = 0.;
-  m_ptJetRange[1]     = 0.;
-  m_etaJetRange[0]    = 0.;
-  m_etaJetRange[1]    = 0.;
-  m_momCstRange[0]    = 0.;
-  m_momCstRange[1]    = 0.;
-  m_drCstRange[0]     = 0.;
-  m_drCstRange[1]     = 0.;
   m_ptJetBins.clear();
   m_eecLongSide.clear();
   m_jetCstVector.clear();

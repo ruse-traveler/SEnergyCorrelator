@@ -142,35 +142,35 @@ class SEnergyCorrelator : public SubsysReco {
     uint32_t GetJetPtBin(const double ptJet);
 
     // io members
-    TFile         *m_outFile;
-    TFile         *m_inFile;
-    TTree         *m_inTree;
-    vector<TH1D*>  m_outHistDrAxis;
-    vector<TH1D*>  m_outHistLnDrAxis;
+    TFile*        m_outFile = NULL;
+    TFile*        m_inFile  = NULL;
+    TTree*        m_inTree  = NULL;
+    vector<TH1D*> m_outHistDrAxis;
+    vector<TH1D*> m_outHistLnDrAxis;
 
     // system members
-    int    m_fCurrent;
-    int    m_verbosity;
-    bool   m_inDebugMode;
-    bool   m_inBatchMode;
-    bool   m_inComplexMode;
-    bool   m_inStandaloneMode;
-    bool   m_isInputTreeTruth;
-    string m_moduleName;
-    string m_inFileName;
-    string m_inNodeName;
-    string m_inTreeName;
-    string m_outFileName;
+    int    m_fCurrent         = 0;
+    int    m_verbosity        = 0;
+    bool   m_inDebugMode      = false;
+    bool   m_inBatchMode      = false;
+    bool   m_inComplexMode    = false;
+    bool   m_inStandaloneMode = false;
+    bool   m_isInputTreeTruth = false;
+    string m_moduleName       = "";
+    string m_inFileName       = "";
+    string m_inNodeName       = "";
+    string m_inTreeName       = "";
+    string m_outFileName      = "";
 
     // jet, cst, correlator parameters
-    uint32_t                     m_nPointCorr;
-    uint64_t                     m_nBinsDr;
-    size_t                       m_nBinsJetPt;
-    double                       m_drBinRange[CONST::NRANGE];
-    double                       m_ptJetRange[CONST::NRANGE];
-    double                       m_etaJetRange[CONST::NRANGE];
-    double                       m_momCstRange[CONST::NRANGE];
-    double                       m_drCstRange[CONST::NRANGE];
+    uint32_t                     m_nPointCorr                 = 0;
+    uint64_t                     m_nBinsDr                    = 0;
+    size_t                       m_nBinsJetPt                 = 0;
+    double                       m_drBinRange[CONST::NRANGE]  = {-999., -999.};
+    double                       m_ptJetRange[CONST::NRANGE]  = {-999., -999.};
+    double                       m_etaJetRange[CONST::NRANGE] = {-999., -999.};
+    double                       m_momCstRange[CONST::NRANGE] = {-999., -999.};
+    double                       m_drCstRange[CONST::NRANGE]  = {-999., -999.};
     vector<PseudoJet>            m_jetCstVector;
     vector<pair<double, double>> m_ptJetBins;
 
