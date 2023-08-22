@@ -109,8 +109,9 @@ class SEnergyCorrelator : public SubsysReco {
   private:
 
     // constants
-    enum CONSTANTS {
-      NRANGE = 2
+    enum CONST {
+      NRANGE   = 2,
+      NPARTONS = 2
     };
 
     // io methods (*.io.h)
@@ -165,11 +166,11 @@ class SEnergyCorrelator : public SubsysReco {
     uint32_t                     m_nPointCorr;
     uint64_t                     m_nBinsDr;
     size_t                       m_nBinsJetPt;
-    double                       m_drBinRange[CONSTANTS::NRANGE];
-    double                       m_ptJetRange[CONSTANTS::NRANGE];
-    double                       m_etaJetRange[CONSTANTS::NRANGE];
-    double                       m_momCstRange[CONSTANTS::NRANGE];
-    double                       m_drCstRange[CONSTANTS::NRANGE];
+    double                       m_drBinRange[CONST::NRANGE];
+    double                       m_ptJetRange[CONST::NRANGE];
+    double                       m_etaJetRange[CONST::NRANGE];
+    double                       m_momCstRange[CONST::NRANGE];
+    double                       m_drCstRange[CONST::NRANGE];
     vector<PseudoJet>            m_jetCstVector;
     vector<pair<double, double>> m_ptJetBins;
 
@@ -177,76 +178,70 @@ class SEnergyCorrelator : public SubsysReco {
     vector<contrib::eec::EECLongestSide<contrib::eec::hist::axis::log>*> m_eecLongSide;
 
     // input truth tree address members
-    int    m_truParton3_ID;
-    int    m_truParton4_ID;
-    double m_truParton3_MomX;
-    double m_truParton3_MomY;
-    double m_truParton3_MomZ;
-    double m_truParton4_MomX;
-    double m_truParton4_MomY;
-    double m_truParton4_MomZ;
+    int                  m_trueNumChrgPars                 = -999;
+    int                  m_truePartonID[CONST::NPARTONS]   = {-999,  -999};
+    double               m_truePartonMomX[CONST::NPARTONS] = {-999., -999.};
+    double               m_truePartonMomY[CONST::NPARTONS] = {-999., -999.};
+    double               m_truePartonMomZ[CONST::NPARTONS] = {-999., -999.};
+    double               m_trueSumPar                      = -999.;
+    vector<vector<int>>* m_trueCstID                       = NULL;
     // input reco. tree address members
-    int    m_recParton3_ID;
-    int    m_recParton4_ID;
-    double m_recParton3_MomX;
-    double m_recParton3_MomY;
-    double m_recParton3_MomZ;
-    double m_recParton4_MomX;
-    double m_recParton4_MomY;
-    double m_recParton4_MomZ;
+    int                  m_recoNumTrks    = -999;
+    double               m_recoSumECal    = -999.;
+    double               m_recoSumHCal    = -999.;
+    vector<vector<int>>* m_recoCstMatchID = NULL;
 
     // generic input tree address members
-    int                     m_evtNumJets;
-    vector<unsigned long>  *m_jetNumCst;
-    vector<unsigned int>   *m_jetID;
-    vector<unsigned int>   *m_jetTruthID;
-    vector<double>         *m_jetEnergy;
-    vector<double>         *m_jetPt;
-    vector<double>         *m_jetEta;
-    vector<double>         *m_jetPhi;
-    vector<double>         *m_jetArea;
-    vector<vector<double>> *m_cstZ;
-    vector<vector<double>> *m_cstDr;
-    vector<vector<double>> *m_cstEnergy;
-    vector<vector<double>> *m_cstJt;
-    vector<vector<double>> *m_cstEta;
-    vector<vector<double>> *m_cstPhi;
+    int                     m_evtNumJets = -999;
+    double                  m_evtVtxX    = -999.;
+    double                  m_evtVtxY    = -999.;
+    double                  m_evtVtxZ    = -999.;
+    vector<unsigned long>*  m_jetNumCst  = NULL;
+    vector<unsigned int>*   m_jetID      = NULL;
+    vector<unsigned int>*   m_jetTruthID = NULL;
+    vector<double>*         m_jetEnergy  = NULL;
+    vector<double>*         m_jetPt      = NULL;
+    vector<double>*         m_jetEta     = NULL;
+    vector<double>*         m_jetPhi     = NULL;
+    vector<double>*         m_jetArea    = NULL;
+    vector<vector<double>>* m_cstZ       = NULL;
+    vector<vector<double>>* m_cstDr      = NULL;
+    vector<vector<double>>* m_cstEnergy  = NULL;
+    vector<vector<double>>* m_cstJt      = NULL;
+    vector<vector<double>>* m_cstEta     = NULL;
+    vector<vector<double>>* m_cstPhi     = NULL;
 
     // input truth tree branch members
-    TBranch *m_brTruParton3_ID;
-    TBranch *m_brTruParton4_ID;
-    TBranch *m_brTruParton3_MomX;
-    TBranch *m_brTruParton3_MomY;
-    TBranch *m_brTruParton3_MomZ;
-    TBranch *m_brTruParton4_MomX;
-    TBranch *m_brTruParton4_MomY;
-    TBranch *m_brTruParton4_MomZ;
+    TBranch* m_brTruePartonID[CONST::NPARTONS]   = {NULL, NULL};
+    TBranch* m_brTruePartonMomX[CONST::NPARTONS] = {NULL, NULL};
+    TBranch* m_brTruePartonMomY[CONST::NPARTONS] = {NULL, NULL};
+    TBranch* m_brTruePartonMomZ[CONST::NPARTONS] = {NULL, NULL};
+    TBranch* m_brTrueSumPar                      = NULL;
+    TBranch* m_brTrueCstID                       = NULL;
     // input reco. tree branch members
-    TBranch *m_brRecParton3_ID;
-    TBranch *m_brRecParton4_ID;
-    TBranch *m_brRecParton3_MomX;
-    TBranch *m_brRecParton3_MomY;
-    TBranch *m_brRecParton3_MomZ;
-    TBranch *m_brRecParton4_MomX;
-    TBranch *m_brRecParton4_MomY;
-    TBranch *m_brRecParton4_MomZ;
+    TBranch* m_brRecoNumTrks    = NULL;
+    TBranch* m_brRecoSumECal    = NULL;
+    TBranch* m_brRecoSumHCal    = NULL;
+    TBranch* m_brRecoCstMatchID = NULL;
 
     // generic input tree branch members
-    TBranch *m_brEvtNumJets;
-    TBranch *m_brJetNumCst;
-    TBranch *m_brJetID;
-    TBranch *m_brJetTruthID;
-    TBranch *m_brJetEnergy;
-    TBranch *m_brJetPt;
-    TBranch *m_brJetEta;
-    TBranch *m_brJetPhi;
-    TBranch *m_brJetArea;
-    TBranch *m_brCstZ;
-    TBranch *m_brCstDr;
-    TBranch *m_brCstEnergy;
-    TBranch *m_brCstJt;
-    TBranch *m_brCstEta;
-    TBranch *m_brCstPhi;
+    TBranch* m_brEvtNumJets = NULL;
+    TBranch* m_brEvtVtxX    = NULL;
+    TBranch* m_brEvtVtxY    = NULL;
+    TBranch* m_brEvtVtxZ    = NULL;
+    TBranch* m_brJetNumCst  = NULL;
+    TBranch* m_brJetID      = NULL;
+    TBranch* m_brJetEnergy  = NULL;
+    TBranch* m_brJetPt      = NULL;
+    TBranch* m_brJetEta     = NULL;
+    TBranch* m_brJetPhi     = NULL;
+    TBranch* m_brJetArea    = NULL;
+    TBranch* m_brCstZ       = NULL;
+    TBranch* m_brCstDr      = NULL;
+    TBranch* m_brCstEnergy  = NULL;
+    TBranch* m_brCstJt      = NULL;
+    TBranch* m_brCstEta     = NULL;
+    TBranch* m_brCstPhi     = NULL;
 
 };
 
