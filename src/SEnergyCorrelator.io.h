@@ -54,7 +54,7 @@ void SEnergyCorrelator::SetJetParameters(const vector<pair<double, double>> &pTj
 
 
 
-void SEnergyCorrelator::SetConstituentParameters(const double minMom, const double maxMom, const double minDr, const double maxDr) {
+void SEnergyCorrelator::SetConstituentParameters(const double minMom, const double maxMom, const double minDr, const double maxDr, const bool applyCstCuts) {
 
   // print debug statement
   if (m_inDebugMode) PrintDebug(24);
@@ -63,6 +63,7 @@ void SEnergyCorrelator::SetConstituentParameters(const double minMom, const doub
   m_momCstRange[1] = maxMom;
   m_drCstRange[0]  = minDr;
   m_drCstRange[1]  = maxDr;
+  m_applyCstCuts   = applyCstCuts;
 
   // announce cst parameters
   if (m_inStandaloneMode) PrintMessage(12);

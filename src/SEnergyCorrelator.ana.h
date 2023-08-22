@@ -71,6 +71,7 @@ void SEnergyCorrelator::DoCorrelatorCalculation() {
         const TVector3 pVecCst = zCst * pVecJet;
 
         // get cst info
+        const double drCst   = (m_cstDr  -> at(iJet)).at(iCst);
         const double etaCst  = (m_cstEta -> at(iJet)).at(iCst);
         const double phiCst  = (m_cstPhi -> at(iJet)).at(iCst);
         const double jtCst   = (m_cstJt  -> at(iJet)).at(iCst);
@@ -79,6 +80,10 @@ void SEnergyCorrelator::DoCorrelatorCalculation() {
         const double pxCst   = pTotCst * cosh(etaCst) * cos(phiCst);
         const double pyCst   = pTotCst * cosh(etaCst) * sin(phiCst);
         const double pzCst   = pTotCst * sinh(etaCst);
+
+        // if needed, apply constituent cuts
+        const bool isGoodCst = ApplyCstCuts(pCst, drCst);
+        if (m_applyCstCuts && !isGoodCst) continue;
 
         // create pseudojet & add to list
         PseudoJet constituent(pxCst, pyCst, pzCst, pTotCst);
@@ -134,7 +139,6 @@ void SEnergyCorrelator::ExtractHistsFromCorr() {
     // grab bin edges, content, and error
     drBinEdges          = m_eecLongSide[iPtBin] -> bin_edges();
     histContentAndError = m_eecLongSide[iPtBin] -> get_hist_vars();
-    //histContentAndError = m_eecLongSide[iPtBin] -> get_hist_errs();
 
     // create ln(dr) bin edges and arrays
     const size_t nDrBinEdges = drBinEdges.size();
@@ -197,8 +201,7 @@ bool SEnergyCorrelator::ApplyJetCuts(const double ptJet, const double etaJet) {
   if (m_inDebugMode && (m_verbosity > 7)) PrintDebug(26);
 
   const bool isInPtRange  = ((ptJet >= m_ptJetRange[0])  && (ptJet < m_ptJetRange[1]));
-  //const bool isInEtaRange = ((etaJet > m_etaJetRange[0]) && (etaJet < m_etaJetRange[1]));
-  const bool isInEtaRange = (abs(etaJet) < m_etaJetRange[1]);
+  const bool isInEtaRange = ((etaJet > m_etaJetRange[0]) && (etaJet < m_etaJetRange[1]));
   const bool isGoodJet    = (isInPtRange && isInEtaRange);
   return isGoodJet;
 

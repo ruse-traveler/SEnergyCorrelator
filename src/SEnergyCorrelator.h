@@ -77,7 +77,7 @@ class SEnergyCorrelator : public SubsysReco {
     // setters (*.io.h)
     void SetInputTree(const string &iTreeName, const bool isTruthTree = false);
     void SetJetParameters(const vector<pair<double, double>> &pTjetBins, const double minEta, const double maxEta);
-    void SetConstituentParameters(const double minMom, const double maxMom, const double minDr, const double maxDr);
+    void SetConstituentParameters(const double minMom, const double maxMom, const double minDr, const double maxDr, const bool applyCstCuts = false);
     void SetCorrelatorParameters(const uint32_t nPointCorr, const uint64_t nBinsDr, const double minDr, const double maxDr);
 
     // system getters
@@ -85,6 +85,8 @@ class SEnergyCorrelator : public SubsysReco {
     bool     GetInDebugMode()      {return m_inDebugMode;}
     bool     GetInComplexMode()    {return m_inComplexMode;}
     bool     GetInStandaloneMode() {return m_inStandaloneMode;}
+    bool     GetApplyCstCuts()     {return m_applyCstCuts;}
+    string   GetModuleName()       {return m_moduleName;}
     string   GetInputFileName()    {return m_inFileName;}
     string   GetInputNodeName()    {return m_inNodeName;}
     string   GetInputTreeName()    {return m_inTreeName;}
@@ -156,6 +158,7 @@ class SEnergyCorrelator : public SubsysReco {
     bool   m_inComplexMode    = false;
     bool   m_inStandaloneMode = false;
     bool   m_isInputTreeTruth = false;
+    bool   m_applyCstCuts     = false;
     string m_moduleName       = "";
     string m_inFileName       = "";
     string m_inNodeName       = "";

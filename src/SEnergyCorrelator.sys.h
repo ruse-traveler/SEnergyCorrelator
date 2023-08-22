@@ -98,8 +98,8 @@ void SEnergyCorrelator::InitializeHists() {
   if (m_inDebugMode) PrintDebug(5);
 
   for (size_t iPtBin = 0; iPtBin < m_nBinsJetPt; iPtBin++) {
-    TH1D *hInitialDrAxis   = 0x0;
-    TH1D *hInitialLnDrAxis = 0x0;
+    TH1D* hInitialDrAxis   = NULL;
+    TH1D* hInitialLnDrAxis = NULL;
     m_outHistDrAxis.push_back(hInitialDrAxis);
     m_outHistLnDrAxis.push_back(hInitialLnDrAxis);
   }
@@ -201,8 +201,9 @@ void SEnergyCorrelator::PrintMessage(const uint32_t code, const uint64_t nEvts, 
       break;
     case 12:
       cout << "    Set constituent parameters:\n"
-           << "      momentum range = (" << m_momCstRange[0] << ", " << m_momCstRange[1] << ")\n"
-           << "      dr range       = (" << m_drCstRange[0]  << ", " << m_drCstRange[1]  << ")"
+           << "      apply constituent cuts? = " << m_applyCstCuts   << "\n"
+           << "      momentum range = ("         << m_momCstRange[0] << ", " << m_momCstRange[1] << ")\n"
+           << "      dr range       = ("         << m_drCstRange[0]  << ", " << m_drCstRange[1]  << ")"
            << endl;
       break;
     case 13:
