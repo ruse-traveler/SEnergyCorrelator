@@ -33,11 +33,15 @@ static const size_t NEnergyCorrs = 2;
 void DoStandaloneCorrelatorCalculation() {
 
   // io parameters
-  const string inFile("/sphenix/user/danderson/eec/SCorrelatorJetTree/output/condor/final_merge/correlatorJetTree.pp200py8jet30run6_trksAndChrgPars.d24m2y2023.root");
-  const string inTree[NEnergyCorrs]  = {"RecoJetTree",
-                                        "TruthJetTree"};
-  const string outFile[NEnergyCorrs] = {"pp200run6jet40.forErrorTest_getHistVars_reco.d16m4y2023.root",
-                                        "pp200run6jet40.forErrorTest_getHistVars_true.d16m4y2023.root"};
+  const string inFile("../SCorrelatorJetTree/output/condor/final_merge/correlatorJetTree.pa200hijing500bkg010jet20run6_trks.d17m8y2023.root");
+  const string inTree[NEnergyCorrs]  = {
+    "RecoJetTree",
+    "TruthJetTree"
+  };
+  const string outFile[NEnergyCorrs] = {
+    "pa200hijing50khzrun6jet20.reco.d22m8y2023.root",
+    "pa200hijing50khzrun6jet20.true.d22m8y2023.root"
+  };
 
   // correlator parameters
   const uint32_t  nPointCorr             = 2;
