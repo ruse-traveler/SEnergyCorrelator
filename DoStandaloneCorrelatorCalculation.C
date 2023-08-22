@@ -71,7 +71,7 @@ void DoStandaloneCorrelatorCalculation() {
   const bool inBatch   = false;
 
   // do correlator calculation on reco jets
-  SEnergyCorrelator *recoCorrelator = new SEnergyCorrelator(moduleName[0], isComplex, doDebug, inBatch);
+  SEnergyCorrelator* recoCorrelator = new SEnergyCorrelator(moduleName[0], isComplex, doDebug, inBatch);
   recoCorrelator -> SetVerbosity(verbosity);
   recoCorrelator -> SetInputFile(inFile[0]);
   recoCorrelator -> SetInputTree(inTree[0], isTruth[0]);
@@ -84,7 +84,7 @@ void DoStandaloneCorrelatorCalculation() {
   recoCorrelator -> End();
 
   // do correlator calculation on truth jets
-  SEnergyCorrelator *trueCorrelator = new SEnergyCorrelator(moduleName[1], isComplex, doDebug, inBatch);
+  SEnergyCorrelator* trueCorrelator = new SEnergyCorrelator(moduleName[1], isComplex, doDebug, inBatch);
   trueCorrelator -> SetVerbosity(verbosity);
   trueCorrelator -> SetInputFile(inFile[1]);
   trueCorrelator -> SetInputTree(inTree[1], isTruth[1]);
@@ -95,6 +95,7 @@ void DoStandaloneCorrelatorCalculation() {
   trueCorrelator -> Init();
   trueCorrelator -> Analyze();
   trueCorrelator -> End();
+  return;
 
 }
 
