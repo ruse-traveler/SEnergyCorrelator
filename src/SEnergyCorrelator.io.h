@@ -16,13 +16,14 @@ using namespace std;
 
 // i/o methods ----------------------------------------------------------------
 
-void SEnergyCorrelator::SetInputTree(const string &iTreeName, const bool isTruthTree) {
+void SEnergyCorrelator::SetInputTree(const string &iTreeName, const bool isTruthTree, const bool isEmbedTree) {
 
   // print debug statemet
   if (m_inDebugMode) PrintDebug(18);
   
   m_inTreeName       = iTreeName;
   m_isInputTreeTruth = isTruthTree; 
+  m_isInputTreeEmbed = isEmbedTree;
   return;
 
 }  // end 'SetInputTree(string&, bool)'
@@ -88,6 +89,34 @@ void SEnergyCorrelator::SetCorrelatorParameters(const uint32_t nPointCorr, const
   return;
 
 }  // end 'SetCorrelatorParameters(uint32_t, uint64_t, double, double)'
+
+
+
+void SEnergyCorrelator::SetSubEventsToUse(const uint16_t subEvtOpt, const vector<int> vecSubEvtsToUse) {
+
+  // print debug statement
+  if (m_inDebugMode) PrintDebug(32);
+
+  // parse options
+  m_subEvtOpt = subEvtOpt;
+  if (m_subEvtOpt != 0) {
+    m_selectSubEvts = true;
+  }
+
+  // if vector isn't empty, load specific emebedding IDs and set flags accordingly
+  if (vecSubEvtsToUse.size() > 0) {
+    m_selectSubEvts = true;
+    m_subEvtOpt     = 5;
+    for (const int subEvtToUse : vecSubEvtsToUse) {
+      m_subEvtsToUse.push_back(subEvtToUse);
+    }
+  }
+
+  // announce sub-events being used
+  if (m_inStandaloneMode) PrintMessage(15);
+  return;
+
+}  // end 'SetSubEventsToUse(uint16_t, vector<int>)'
 
 
 

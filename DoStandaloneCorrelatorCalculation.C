@@ -64,6 +64,10 @@ void DoStandaloneCorrelatorCalculation() {
   // jet pT bins
   const vector<pair<double, double>> ptJetBins = {{5., 10.}, {10., 15.}, {15., 20.}, {20., 30.}, {30., 50.}};
 
+  // embedding-specific options
+  const int  subEvtOpt = 0;
+  const bool isEmbed   = true;
+
   // misc parameters
   const int  verbosity = 0;
   const bool isComplex = false;
@@ -87,11 +91,14 @@ void DoStandaloneCorrelatorCalculation() {
   SEnergyCorrelator* trueCorrelator = new SEnergyCorrelator(moduleName[1], isComplex, doDebug, inBatch);
   trueCorrelator -> SetVerbosity(verbosity);
   trueCorrelator -> SetInputFile(inFile[1]);
-  trueCorrelator -> SetInputTree(inTree[1], isTruth[1]);
+  trueCorrelator -> SetInputTree(inTree[1], isTruth[1], isEmbed);
   trueCorrelator -> SetOutputFile(outFile[1]);
   trueCorrelator -> SetJetParameters(ptJetBins, etaJetRange.first, etaJetRange.second);
   trueCorrelator -> SetConstituentParameters(momCstRange.first, momCstRange.second, drCstRange.first, drCstRange.second);
   trueCorrelator -> SetCorrelatorParameters(nPointCorr, nBinsDr, binRangeDr.first, binRangeDr.second);
+  if (isEmbed) {
+    trueCorrelator -> SetSubEventsToUse(subEvtOpt);
+  }
   trueCorrelator -> Init();
   trueCorrelator -> Analyze();
   trueCorrelator -> End();

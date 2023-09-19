@@ -75,22 +75,28 @@ class SEnergyCorrelator : public SubsysReco {
     void SetOutputFile(const string &oFileName) {m_outFileName = oFileName;}
 
     // setters (*.io.h)
-    void SetInputTree(const string &iTreeName, const bool isTruthTree = false);
+    void SetInputTree(const string &iTreeName, const bool isTruthTree = false, const bool isEmbedTree = false);
     void SetJetParameters(const vector<pair<double, double>> &pTjetBins, const double minEta, const double maxEta);
     void SetConstituentParameters(const double minMom, const double maxMom, const double minDr, const double maxDr, const bool applyCstCuts = false);
     void SetCorrelatorParameters(const uint32_t nPointCorr, const uint64_t nBinsDr, const double minDr, const double maxDr);
+    void SetSubEventsToUse(const uint16_t subEvtOpt = 0, const vector<int> vecSubEvtsToUse = {});
 
     // system getters
     int      GetVerbosity()        {return m_verbosity;}
     bool     GetInDebugMode()      {return m_inDebugMode;}
+    bool     GetInBatchMode()      {return m_inBatchMode;}
     bool     GetInComplexMode()    {return m_inComplexMode;}
     bool     GetInStandaloneMode() {return m_inStandaloneMode;}
+    bool     GetIsInputTreeTruth() {return m_isInputTreeTruth;}
+    bool     GetIsInputTreeEmbed() {return m_isInputTreeEmbed;}
     bool     GetApplyCstCuts()     {return m_applyCstCuts;}
+    bool     GetSelectSubEvts()    {return m_selectSubEvts;}
     string   GetModuleName()       {return m_moduleName;}
     string   GetInputFileName()    {return m_inFileName;}
     string   GetInputNodeName()    {return m_inNodeName;}
     string   GetInputTreeName()    {return m_inTreeName;}
     string   GetOutputFileName()   {return m_outFileName;}
+    uint16_t GetSubEvtOpt()        {return m_subEvtOpt;}
 
     // correlator getters
     double   GetMinDrBin()   {return m_drBinRange[0];}
@@ -141,6 +147,7 @@ class SEnergyCorrelator : public SubsysReco {
     void     ExtractHistsFromCorr();
     bool     ApplyJetCuts(const double ptJet, const double etaJet);
     bool     ApplyCstCuts(const double momCst, const double drCst);
+    bool     CheckIfSubEvtGood(const int embedID);
     uint32_t GetJetPtBin(const double ptJet);
 
     // io members
@@ -151,19 +158,22 @@ class SEnergyCorrelator : public SubsysReco {
     vector<TH1D*> m_outHistLnDrAxis;
 
     // system members
-    int    m_fCurrent         = 0;
-    int    m_verbosity        = 0;
-    bool   m_inDebugMode      = false;
-    bool   m_inBatchMode      = false;
-    bool   m_inComplexMode    = false;
-    bool   m_inStandaloneMode = false;
-    bool   m_isInputTreeTruth = false;
-    bool   m_applyCstCuts     = false;
-    string m_moduleName       = "";
-    string m_inFileName       = "";
-    string m_inNodeName       = "";
-    string m_inTreeName       = "";
-    string m_outFileName      = "";
+    int      m_fCurrent         = 0;
+    int      m_verbosity        = 0;
+    bool     m_inDebugMode      = false;
+    bool     m_inBatchMode      = false;
+    bool     m_inComplexMode    = false;
+    bool     m_inStandaloneMode = false;
+    bool     m_isInputTreeTruth = false;
+    bool     m_isInputTreeEmbed = false;
+    bool     m_applyCstCuts     = false;
+    bool     m_selectSubEvts    = false;
+    string   m_moduleName       = "";
+    string   m_inFileName       = "";
+    string   m_inNodeName       = "";
+    string   m_inTreeName       = "";
+    string   m_outFileName      = "";
+    uint16_t m_subEvtOpt        = 0;
 
     // jet, cst, correlator parameters
     uint32_t                     m_nPointCorr                 = 0;
@@ -174,6 +184,7 @@ class SEnergyCorrelator : public SubsysReco {
     double                       m_etaJetRange[CONST::NRANGE] = {-999., -999.};
     double                       m_momCstRange[CONST::NRANGE] = {-999., -999.};
     double                       m_drCstRange[CONST::NRANGE]  = {-999., -999.};
+    vector<int>                  m_subEvtsToUse;
     vector<PseudoJet>            m_jetCstVector;
     vector<pair<double, double>> m_ptJetBins;
 
@@ -181,18 +192,19 @@ class SEnergyCorrelator : public SubsysReco {
     vector<contrib::eec::EECLongestSide<contrib::eec::hist::axis::log>*> m_eecLongSide;
 
     // input truth tree address members
-    int                  m_trueNumChrgPars                 = -999;
-    int                  m_truePartonID[CONST::NPARTONS]   = {-999,  -999};
-    double               m_truePartonMomX[CONST::NPARTONS] = {-999., -999.};
-    double               m_truePartonMomY[CONST::NPARTONS] = {-999., -999.};
-    double               m_truePartonMomZ[CONST::NPARTONS] = {-999., -999.};
-    double               m_trueSumPar                      = -999.;
-    vector<vector<int>>* m_trueCstID                       = NULL;
+    int                  m_evtNumChrgPars              = -999;
+    int                  m_partonID[CONST::NPARTONS]   = {-999,  -999};
+    double               m_partonMomX[CONST::NPARTONS] = {-999., -999.};
+    double               m_partonMomY[CONST::NPARTONS] = {-999., -999.};
+    double               m_partonMomZ[CONST::NPARTONS] = {-999., -999.};
+    double               m_evtSumPar                   = -999.;
+    vector<vector<int>>* m_cstID                       = NULL;
+    vector<vector<int>>* m_cstEmbedID                  = NULL;
     // input reco. tree address members
-    int                  m_recoNumTrks    = -999;
-    double               m_recoSumECal    = -999.;
-    double               m_recoSumHCal    = -999.;
-    vector<vector<int>>* m_recoCstMatchID = NULL;
+    int                  m_evtNumTrks = -999;
+    double               m_evtSumECal = -999.;
+    double               m_evtSumHCal = -999.;
+    vector<vector<int>>* m_cstMatchID = NULL;
 
     // generic input tree address members
     int                     m_evtNumJets = -999;
@@ -215,17 +227,18 @@ class SEnergyCorrelator : public SubsysReco {
     vector<vector<double>>* m_cstPhi     = NULL;
 
     // input truth tree branch members
-    TBranch* m_brTruePartonID[CONST::NPARTONS]   = {NULL, NULL};
-    TBranch* m_brTruePartonMomX[CONST::NPARTONS] = {NULL, NULL};
-    TBranch* m_brTruePartonMomY[CONST::NPARTONS] = {NULL, NULL};
-    TBranch* m_brTruePartonMomZ[CONST::NPARTONS] = {NULL, NULL};
-    TBranch* m_brTrueSumPar                      = NULL;
-    TBranch* m_brTrueCstID                       = NULL;
+    TBranch* m_brPartonID[CONST::NPARTONS]   = {NULL, NULL};
+    TBranch* m_brPartonMomX[CONST::NPARTONS] = {NULL, NULL};
+    TBranch* m_brPartonMomY[CONST::NPARTONS] = {NULL, NULL};
+    TBranch* m_brPartonMomZ[CONST::NPARTONS] = {NULL, NULL};
+    TBranch* m_brEvtSumPar                   = NULL;
+    TBranch* m_brCstID                       = NULL;
+    TBranch* m_brCstEmbedID                  = NULL;
     // input reco. tree branch members
-    TBranch* m_brRecoNumTrks    = NULL;
-    TBranch* m_brRecoSumECal    = NULL;
-    TBranch* m_brRecoSumHCal    = NULL;
-    TBranch* m_brRecoCstMatchID = NULL;
+    TBranch* m_brEvtNumTrks = NULL;
+    TBranch* m_brEvtSumECal = NULL;
+    TBranch* m_brEvtSumHCal = NULL;
+    TBranch* m_brCstMatchID = NULL;
 
     // generic input tree branch members
     TBranch* m_brEvtNumJets = NULL;

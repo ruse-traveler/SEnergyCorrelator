@@ -81,6 +81,13 @@ void SEnergyCorrelator::DoCorrelatorCalculation() {
         const double pyCst   = pTotCst * cosh(etaCst) * sin(phiCst);
         const double pzCst   = pTotCst * sinh(etaCst);
 
+        // if truth tree and needed, check embedding ID
+        if (m_isInputTreeTruth && m_selectSubEvts) {
+          const int  embedCst    = (m_cstEmbedID -> at(iJet)).at(iCst);
+          const bool isSubEvtGood = CheckIfSubEvtGood(embedCst);
+          if (!isSubEvtGood) continue;
+        }
+
         // if needed, apply constituent cuts
         const bool isGoodCst = ApplyCstCuts(pCst, drCst);
         if (m_applyCstCuts && !isGoodCst) continue;
@@ -220,6 +227,63 @@ bool SEnergyCorrelator::ApplyCstCuts(const double momCst, const double drCst) {
   return isGoodCst;
 
 }  // end 'ApplyCstCuts(double, double)'
+
+
+
+bool SEnergyCorrelator::CheckIfSubEvtGood(const int embedID) {
+
+  // print debug statement
+  if (m_inDebugMode && (m_verbosity > 7)) PrintDebug(33);
+
+  // set ID of signal and background events
+  int signalID = 1;
+  if (m_isInputTreeEmbed) {
+    signalID = 2;
+  }
+  const int bkgdID   = 0;
+
+  bool isSubEvtGood = true;
+  switch (m_subEvtOpt) {
+
+    // only consider signal event
+    case 1:
+      isSubEvtGood = (embedID == signalID);
+      break;
+
+    // only consider background events
+    case 2:
+      isSubEvtGood = (embedID <= bkgdID);
+      break;
+
+    // only consider primary background event
+    case 3:
+      isSubEvtGood = (embedID == bkgdID);
+      break;
+
+    // only consider pileup events
+    case 4:
+      isSubEvtGood = (embedID < bkgdID);
+      break;
+
+    // consider only specific events
+    case 5:
+      isSubEvtGood = false;
+      for (const int evtToUse : m_subEvtsToUse) {
+        if (embedID == evtToUse) {
+          isSubEvtGood = true;
+          break;
+        }
+      }
+      break;
+
+    // by default do nothing
+    default:
+      isSubEvtGood = true;
+      break;
+  }
+  return isSubEvtGood;
+
+}  // end 'CheckIfSubEvtGood(int)'
 
 
 

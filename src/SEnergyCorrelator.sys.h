@@ -24,6 +24,7 @@ void SEnergyCorrelator::InitializeMembers() {
 
   m_ptJetBins.clear();
   m_eecLongSide.clear();
+  m_subEvtsToUse.clear();
   m_jetCstVector.clear();
   m_outHistDrAxis.clear();
   m_outHistLnDrAxis.clear();
@@ -48,21 +49,22 @@ void SEnergyCorrelator::InitializeTree() {
 
   // set truth vs. reco branch addresses
   if (m_isInputTreeTruth) {
-    m_inTree -> SetBranchAddress("Parton3_ID",   &m_truePartonID[0],   &m_brTruePartonID[0]);
-    m_inTree -> SetBranchAddress("Parton4_ID",   &m_truePartonID[1],   &m_brTruePartonID[1]);
-    m_inTree -> SetBranchAddress("Parton3_MomX", &m_truePartonMomX[0], &m_brTruePartonMomX[0]);
-    m_inTree -> SetBranchAddress("Parton3_MomY", &m_truePartonMomY[0], &m_brTruePartonMomY[0]);
-    m_inTree -> SetBranchAddress("Parton3_MomZ", &m_truePartonMomZ[0], &m_brTruePartonMomZ[0]);
-    m_inTree -> SetBranchAddress("Parton4_MomX", &m_truePartonMomX[1], &m_brTruePartonMomX[1]);
-    m_inTree -> SetBranchAddress("Parton4_MomY", &m_truePartonMomY[1], &m_brTruePartonMomY[1]);
-    m_inTree -> SetBranchAddress("Parton4_MomZ", &m_truePartonMomZ[1], &m_brTruePartonMomZ[1]);
-    m_inTree -> SetBranchAddress("EvtSumParEne", &m_trueSumPar,        &m_brTrueSumPar);
-    m_inTree -> SetBranchAddress("CstID",        &m_trueCstID,         &m_brTrueCstID);
+    m_inTree -> SetBranchAddress("Parton3_ID",   &m_partonID[0],   &m_brPartonID[0]);
+    m_inTree -> SetBranchAddress("Parton4_ID",   &m_partonID[1],   &m_brPartonID[1]);
+    m_inTree -> SetBranchAddress("Parton3_MomX", &m_partonMomX[0], &m_brPartonMomX[0]);
+    m_inTree -> SetBranchAddress("Parton3_MomY", &m_partonMomY[0], &m_brPartonMomY[0]);
+    m_inTree -> SetBranchAddress("Parton3_MomZ", &m_partonMomZ[0], &m_brPartonMomZ[0]);
+    m_inTree -> SetBranchAddress("Parton4_MomX", &m_partonMomX[1], &m_brPartonMomX[1]);
+    m_inTree -> SetBranchAddress("Parton4_MomY", &m_partonMomY[1], &m_brPartonMomY[1]);
+    m_inTree -> SetBranchAddress("Parton4_MomZ", &m_partonMomZ[1], &m_brPartonMomZ[1]);
+    m_inTree -> SetBranchAddress("EvtSumParEne", &m_evtSumPar,     &m_brEvtSumPar);
+    m_inTree -> SetBranchAddress("CstID",        &m_cstID,         &m_brCstID);
+    m_inTree -> SetBranchAddress("CstEmbedID",   &m_cstEmbedID,    &m_brCstEmbedID);
   } else {
-    m_inTree -> SetBranchAddress("EvtNumTrks",    &m_recoNumTrks,    &m_brRecoNumTrks);
-    m_inTree -> SetBranchAddress("EvtSumECalEne", &m_recoSumECal,    &m_brRecoSumECal);
-    m_inTree -> SetBranchAddress("EvtSumHCalEne", &m_recoSumHCal,    &m_brRecoSumHCal);
-    m_inTree -> SetBranchAddress("CstMatchID",    &m_recoCstMatchID, &m_brRecoCstMatchID);
+    m_inTree -> SetBranchAddress("EvtNumTrks",    &m_evtNumTrks, &m_brEvtNumTrks);
+    m_inTree -> SetBranchAddress("EvtSumECalEne", &m_evtSumECal, &m_brEvtSumECal);
+    m_inTree -> SetBranchAddress("EvtSumHCalEne", &m_evtSumHCal, &m_brEvtSumHCal);
+    m_inTree -> SetBranchAddress("CstMatchID",    &m_cstMatchID, &m_brCstMatchID);
   }
 
   // set generic branch addresses
@@ -212,6 +214,37 @@ void SEnergyCorrelator::PrintMessage(const uint32_t code, const uint64_t nEvts, 
     case 14:
       cout << "    Extracted output histograms from correlators." << endl;
       break;
+    case 15:
+      cout << "    Set which sub-events to use:" << endl;
+      switch (m_subEvtOpt) {
+        case 1:
+          cout << "      Option " << m_subEvtOpt << ": use only signal event" << endl;
+          break;
+        case 2:
+          cout << "      Option " << m_subEvtOpt << ": use only background events" << endl;
+          break;
+        case 3:
+          cout << "      Option " << m_subEvtOpt << ": use only primary background event" << endl;
+          break;
+        case 4:
+          cout << "      Option " << m_subEvtOpt << ": use only pileup events" << endl;
+          break;
+        case 5:
+          cout << "      Option " << m_subEvtOpt << ": use events only with these embedding IDs: ";
+          for (size_t iEvtToUse = 0; iEvtToUse < m_subEvtsToUse.size(); iEvtToUse++) {
+            cout << m_subEvtsToUse[iEvtToUse];
+            if ((iEvtToUse + 1) < m_subEvtsToUse.size()) {
+              cout << ", ";
+            } else {
+              cout << endl;
+            }
+          }  // end sub-event id loop
+          break;
+        default:
+          cout << "     Option " << m_subEvtOpt << ": use everything (check what you entered)" << endl;
+          break;
+      }
+      break;
   }
   return;
 
@@ -321,6 +354,12 @@ void SEnergyCorrelator::PrintDebug(const uint32_t code) {
       break;
     case 31:
       cout << "SEnergyCorrelator::DoCorrelatorCalculation() looping over events and calculating correlators..." << endl;
+      break;
+    case 32:
+      cout << "SEnergyCorrelator::SetSubEventsToUse(uint16_t, vector<int>) setting sub-events to use..." << endl;
+      break;
+    case 33:
+      cout << "SEnergyCorrelator::CheckIfSubEvtGood(int) checking if sub-event is good..." << endl;
       break;
   }
   return;
