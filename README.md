@@ -4,12 +4,10 @@ A class to implement Peter Komiske's [Energy-Energy Correlator](https://github.c
 
 ## Usage
 
-After copying the source files (located in `src/`), compile the pacakge in the usual manner:
+After copying the source files (located in `src/`), compile the module with the `sphx-build` script in `src`:
 
 ```
-./autogen.sh --prefix=$MYINSTALL
-make -j 4
-make install
+./sphx-build
 ```
 
 ### Standalone Mode
