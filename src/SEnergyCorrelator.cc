@@ -69,13 +69,17 @@ SEnergyCorrelator::~SEnergyCorrelator() {
   // delete pointers to correlators/histograms
   for (size_t iPtBin = 0; iPtBin < m_nBinsJetPt; iPtBin++) {
     delete m_eecLongSide.at(iPtBin);
-    delete m_outHistDrAxis.at(iPtBin);
-    delete m_outHistLnDrAxis.at(iPtBin);
+    delete m_outHistVarDrAxis.at(iPtBin);
+    delete m_outHistErrDrAxis.at(iPtBin);
+    delete m_outHistVarLnDrAxis.at(iPtBin);
+    delete m_outHistErrLnDrAxis.at(iPtBin);
   }
-  m_outHistLnDrAxis.clear();
-  m_outHistDrAxis.clear();
-  m_eecLongSide.clear();
   m_ptJetBins.clear();
+  m_eecLongSide.clear();
+  m_outHistVarDrAxis.clear();
+  m_outHistErrDrAxis.clear();
+  m_outHistVarLnDrAxis.clear();
+  m_outHistErrLnDrAxis.clear();
 
 }  // end dtor
 
@@ -178,7 +182,7 @@ void SEnergyCorrelator::End() {
 
   // close files and announce end
   if (m_inComplexMode) {
-    PrintError(14);
+    PrintError(15);
     assert(m_inStandaloneMode);
   } else {
     CloseInputFile();

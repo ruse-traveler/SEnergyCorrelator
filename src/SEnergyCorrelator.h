@@ -151,11 +151,15 @@ class SEnergyCorrelator : public SubsysReco {
     uint32_t GetJetPtBin(const double ptJet);
 
     // io members
-    TFile*        m_outFile = NULL;
-    TFile*        m_inFile  = NULL;
-    TTree*        m_inTree  = NULL;
-    vector<TH1D*> m_outHistDrAxis;
-    vector<TH1D*> m_outHistLnDrAxis;
+    TFile* m_outFile = NULL;
+    TFile* m_inFile  = NULL;
+    TTree* m_inTree  = NULL;
+
+    // output histograms
+    vector<TH1D*> m_outHistVarDrAxis;
+    vector<TH1D*> m_outHistErrDrAxis;
+    vector<TH1D*> m_outHistVarLnDrAxis;
+    vector<TH1D*> m_outHistErrLnDrAxis;
 
     // system members
     int      m_fCurrent         = 0;

@@ -26,8 +26,10 @@ void SEnergyCorrelator::InitializeMembers() {
   m_eecLongSide.clear();
   m_subEvtsToUse.clear();
   m_jetCstVector.clear();
-  m_outHistDrAxis.clear();
-  m_outHistLnDrAxis.clear();
+  m_outHistVarDrAxis.clear();
+  m_outHistErrDrAxis.clear();
+  m_outHistVarLnDrAxis.clear();
+  m_outHistErrLnDrAxis.clear();
   return;
 
 }  // end 'InitializeMembers()'
@@ -100,10 +102,14 @@ void SEnergyCorrelator::InitializeHists() {
   if (m_inDebugMode) PrintDebug(5);
 
   for (size_t iPtBin = 0; iPtBin < m_nBinsJetPt; iPtBin++) {
-    TH1D* hInitialDrAxis   = NULL;
-    TH1D* hInitialLnDrAxis = NULL;
-    m_outHistDrAxis.push_back(hInitialDrAxis);
-    m_outHistLnDrAxis.push_back(hInitialLnDrAxis);
+    TH1D* hInitialVarDrAxis   = NULL;
+    TH1D* hInitialErrDrAxis   = NULL;
+    TH1D* hInitialVarLnDrAxis = NULL;
+    TH1D* hInitialErrLnDrAxis = NULL;
+    m_outHistVarDrAxis.push_back(hInitialVarDrAxis);
+    m_outHistVarLnDrAxis.push_back(hInitialVarLnDrAxis);
+    m_outHistErrDrAxis.push_back(hInitialErrDrAxis);
+    m_outHistErrLnDrAxis.push_back(hInitialErrLnDrAxis);
   }
 
   // announce histogram initialization
@@ -469,10 +475,15 @@ void SEnergyCorrelator::PrintError(const uint32_t code, const size_t nDrBinEdges
       break;
     case 13:
       if (m_inStandaloneMode) {
-        cerr << "WARNING: dR bin #" << iDrBin << " has a NAN as content or error..." << endl;
+        cerr << "WARNING: dR bin #" << iDrBin << " with variance has a NAN as content or error..." << endl;
       }
       break;
     case 14:
+      if (m_inStandaloneMode) {
+        cerr << "WARNING: dR bin #" << iDrBin << " with statistical error has a NAN as content or error..." << endl;
+      }
+      break;
+    case 15:
       if (m_inComplexMode) {
         cerr << "SEnergyCorrelatorFile::End() PANIC: calling standalone method in complex mode! Aborting!" << endl;
       } else {

@@ -188,8 +188,10 @@ void SEnergyCorrelator::SaveOutput() {
 
   m_outFile -> cd();
   for (size_t iPtBin = 0; iPtBin < m_nBinsJetPt; iPtBin++) {
-    m_outHistDrAxis[iPtBin]   -> Write();
-    m_outHistLnDrAxis[iPtBin] -> Write();
+    m_outHistVarDrAxis[iPtBin]   -> Write();
+    m_outHistErrDrAxis[iPtBin]   -> Write();
+    m_outHistVarLnDrAxis[iPtBin] -> Write();
+    m_outHistErrLnDrAxis[iPtBin] -> Write();
   }
 
   // announce saving
