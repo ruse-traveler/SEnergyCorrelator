@@ -5,6 +5,17 @@
 //
 // Use this to run the SEnergyCorrelator
 // class in standalone mode.
+//
+// NOTE: subEvtOpt controls which sub-event
+// to use in MC
+//   0 -- use everything
+//   1 -- use only signal subevent
+//   2 -- use only background subevents
+//        (pileup and underlying event)
+//   3 -- use only primary background
+//        (i.e. underlying event)
+//   4 -- use only pileup subevents
+//   5 -- use specific set of subevents
 // ----------------------------------------------------------------------------
 
 #ifndef DOSTANDALONECORRELATORCALCULATION_C
