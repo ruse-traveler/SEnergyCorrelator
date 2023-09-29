@@ -23,8 +23,9 @@
 #include "TH1.h"
 #include "TROOT.h"
 #include "TFile.h"
-#include "TTree.h"
+//#include "TTree.h"  // CHANGE
 #include "TMath.h"
+#include "TChain.h"
 #include "TString.h"
 #include "TVector3.h"  // TODO update to XYZvector
 #include "TDirectory.h"
@@ -69,10 +70,10 @@ class SEnergyCorrelator : public SubsysReco {
     void End();
 
     // setters (inline)
-    void SetVerbosity(const int verb)           {m_verbosity   = verb;}
-    void SetInputNode(const string &iNodeName)  {m_inNodeName  = iNodeName;}
-    void SetInputFile(const string &iFileName)  {m_inFileName  = iFileName;}
-    void SetOutputFile(const string &oFileName) {m_outFileName = oFileName;}
+    void SetVerbosity(const int verb)                        {m_verbosity   = verb;}
+    void SetInputNode(const string &iNodeName)               {m_inNodeName  = iNodeName;}
+    void SetOutputFile(const string &oFileName)              {m_outFileName = oFileName;}
+    void SetInputFiles(const vector<string> &vecInFileNames) {m_inFileNames = vecInFileNames;}
 
     // setters (*.io.h)
     void SetInputTree(const string &iTreeName, const bool isTruthTree = false, const bool isEmbedTree = false);
@@ -82,21 +83,21 @@ class SEnergyCorrelator : public SubsysReco {
     void SetSubEventsToUse(const uint16_t subEvtOpt = 0, const vector<int> vecSubEvtsToUse = {});
 
     // system getters
-    int      GetVerbosity()        {return m_verbosity;}
-    bool     GetInDebugMode()      {return m_inDebugMode;}
-    bool     GetInBatchMode()      {return m_inBatchMode;}
-    bool     GetInComplexMode()    {return m_inComplexMode;}
-    bool     GetInStandaloneMode() {return m_inStandaloneMode;}
-    bool     GetIsInputTreeTruth() {return m_isInputTreeTruth;}
-    bool     GetIsInputTreeEmbed() {return m_isInputTreeEmbed;}
-    bool     GetApplyCstCuts()     {return m_applyCstCuts;}
-    bool     GetSelectSubEvts()    {return m_selectSubEvts;}
-    string   GetModuleName()       {return m_moduleName;}
-    string   GetInputFileName()    {return m_inFileName;}
-    string   GetInputNodeName()    {return m_inNodeName;}
-    string   GetInputTreeName()    {return m_inTreeName;}
-    string   GetOutputFileName()   {return m_outFileName;}
-    uint16_t GetSubEvtOpt()        {return m_subEvtOpt;}
+    int            GetVerbosity()        {return m_verbosity;}
+    bool           GetInDebugMode()      {return m_inDebugMode;}
+    bool           GetInBatchMode()      {return m_inBatchMode;}
+    bool           GetInComplexMode()    {return m_inComplexMode;}
+    bool           GetInStandaloneMode() {return m_inStandaloneMode;}
+    bool           GetIsInputTreeTruth() {return m_isInputTreeTruth;}
+    bool           GetIsInputTreeEmbed() {return m_isInputTreeEmbed;}
+    bool           GetApplyCstCuts()     {return m_applyCstCuts;}
+    bool           GetSelectSubEvts()    {return m_selectSubEvts;}
+    string         GetModuleName()       {return m_moduleName;}
+    string         GetInputNodeName()    {return m_inNodeName;}
+    string         GetInputTreeName()    {return m_inTreeName;}
+    string         GetOutputFileName()   {return m_outFileName;}
+    uint16_t       GetSubEvtOpt()        {return m_subEvtOpt;}
+    vector<string> GetInputFileNames()   {return m_inFileNames;}
 
     // correlator getters
     double   GetMinDrBin()   {return m_drBinRange[0];}
@@ -112,7 +113,6 @@ class SEnergyCorrelator : public SubsysReco {
     size_t   GetNBinsJetPt() {return m_nBinsJetPt;}
     uint32_t GetNPointCorr() {return m_nPointCorr;}
     uint64_t GetNBinsDr()    {return m_nBinsDr;}
-    
 
   private:
 
@@ -124,10 +124,10 @@ class SEnergyCorrelator : public SubsysReco {
 
     // io methods (*.io.h)
     void GrabInputNode();
-    void OpenInputFile();
+    void OpenInputFiles();
     void OpenOutputFile();
     void SaveOutput();
-    void CloseInputFile();
+    //void CloseInputFiles();  // CHANGE
     void CloseOutputFile();
 
     // system methods (*.sys.h)
@@ -137,7 +137,7 @@ class SEnergyCorrelator : public SubsysReco {
     void    InitializeTree();
     void    PrintMessage(const uint32_t code, const uint64_t nEvts = 0, const uint64_t event = 0);
     void    PrintDebug(const uint32_t code);
-    void    PrintError(const uint32_t code, const size_t nDrBinEdges = 0, const size_t iDrBin = 0);
+    void    PrintError(const uint32_t code, const size_t nDrBinEdges = 0, const size_t iDrBin = 0, const string sInFileName = "");
     bool    CheckCriticalParameters();
     int64_t LoadTree(const uint64_t entry);
     int64_t GetEntry(const uint64_t entry);
@@ -151,9 +151,9 @@ class SEnergyCorrelator : public SubsysReco {
     uint32_t GetJetPtBin(const double ptJet);
 
     // io members
-    TFile* m_outFile = NULL;
-    TFile* m_inFile  = NULL;
-    TTree* m_inTree  = NULL;
+    TFile*  m_outFile = NULL;
+    TFile*  m_inFile  = NULL;
+    TChain* m_inChain = NULL;
 
     // output histograms
     vector<TH1D*> m_outHistVarDrAxis;
@@ -173,11 +173,13 @@ class SEnergyCorrelator : public SubsysReco {
     bool     m_applyCstCuts     = false;
     bool     m_selectSubEvts    = false;
     string   m_moduleName       = "";
-    string   m_inFileName       = "";
     string   m_inNodeName       = "";
     string   m_inTreeName       = "";
     string   m_outFileName      = "";
     uint16_t m_subEvtOpt        = 0;
+
+    // vector of input files (standalone mode only)
+    vector<string> m_inFileNames;
 
     // jet, cst, correlator parameters
     uint32_t                     m_nPointCorr                 = 0;

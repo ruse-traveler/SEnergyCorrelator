@@ -61,10 +61,10 @@ SEnergyCorrelator::~SEnergyCorrelator() {
   if (m_inDebugMode) PrintDebug(14);
 
   // delete pointers to files
-  if (!m_inTree) {
-    delete m_inFile;
+  if (!m_inChain) {
     delete m_outFile;
   }
+  m_inFileNames.clear();
 
   // delete pointers to correlators/histograms
   for (size_t iPtBin = 0; iPtBin < m_nBinsJetPt; iPtBin++) {
@@ -127,7 +127,7 @@ void SEnergyCorrelator::Init() {
     PrintError(5);
     assert(m_inStandaloneMode);
   } else {
-    OpenInputFile();
+    OpenInputFiles();
   }
   OpenOutputFile();
 
@@ -184,8 +184,6 @@ void SEnergyCorrelator::End() {
   if (m_inComplexMode) {
     PrintError(15);
     assert(m_inStandaloneMode);
-  } else {
-    CloseInputFile();
   }
   CloseOutputFile();
   PrintMessage(11);

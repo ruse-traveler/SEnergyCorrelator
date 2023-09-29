@@ -39,9 +39,12 @@ using namespace std;
 void DoStandaloneCorrelatorCalculation() {
 
   // io parameters
-  const vector<string> inFile = {
-    "../SCorrelatorJetTree/output/condor/final_merge/correlatorJetTree.pa200hijing500bkg010jet20run6_trks.d17m8y2023.root",
-    "../SCorrelatorJetTree/output/condor/final_merge/correlatorJetTree.pa200hijing500bkg010jet20run6_trks.d17m8y2023.root"
+  const vector<vector<string>> inFile = {
+    {"../SCorrelatorJetTree/output/condor/final_merge/correlatorJetTree.pa200hijing500bkg010jet20run6_trks.d17m8y2023.root"},
+    {
+      "../SCorrelatorJetTree/output/condor/final_merge/correlatorJetTree.pa200hijing500bkgd010jet10run6_trksWithBkgdFlags.d26m9y2023.root",
+      "../SCorrelatorJetTree/output/condor/final_merge/correlatorJetTree.pa200hijing500bkgd010jet10run6_trksWithBkgdFlags.d26m9y2023_1.root"
+    }
   };
   const vector<string> inTree = {
     "RecoJetTree",
@@ -88,7 +91,7 @@ void DoStandaloneCorrelatorCalculation() {
   // do correlator calculation on reco jets
   SEnergyCorrelator* recoCorrelator = new SEnergyCorrelator(moduleName[0], isComplex, doDebug, inBatch);
   recoCorrelator -> SetVerbosity(verbosity);
-  recoCorrelator -> SetInputFile(inFile[0]);
+  recoCorrelator -> SetInputFiles(inFile[0]);
   recoCorrelator -> SetInputTree(inTree[0], isTruth[0]);
   recoCorrelator -> SetOutputFile(outFile[0]);
   recoCorrelator -> SetJetParameters(ptJetBins, etaJetRange.first, etaJetRange.second);
@@ -101,7 +104,7 @@ void DoStandaloneCorrelatorCalculation() {
   // do correlator calculation on truth jets
   SEnergyCorrelator* trueCorrelator = new SEnergyCorrelator(moduleName[1], isComplex, doDebug, inBatch);
   trueCorrelator -> SetVerbosity(verbosity);
-  trueCorrelator -> SetInputFile(inFile[1]);
+  trueCorrelator -> SetInputFiles(inFile[1]);
   trueCorrelator -> SetInputTree(inTree[1], isTruth[1], isEmbed);
   trueCorrelator -> SetOutputFile(outFile[1]);
   trueCorrelator -> SetJetParameters(ptJetBins, etaJetRange.first, etaJetRange.second);

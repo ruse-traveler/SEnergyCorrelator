@@ -23,7 +23,7 @@ void SEnergyCorrelator::DoCorrelatorCalculation() {
   if (m_inDebugMode) PrintDebug(31);
 
   // announce start of event loop
-  const uint64_t nEvts = m_inTree -> GetEntriesFast();
+  const uint64_t nEvts = m_inChain -> GetEntriesFast();
   PrintMessage(7, nEvts);
 
   // event loop

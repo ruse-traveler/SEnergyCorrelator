@@ -132,32 +132,54 @@ void SEnergyCorrelator::GrabInputNode() {
 
 
 
-void SEnergyCorrelator::OpenInputFile() {
+void SEnergyCorrelator::OpenInputFiles() {
 
   // print debug statement
   if (m_inDebugMode) PrintDebug(11);
 
-  // open file
-  const bool isTreeNotLoaded = (m_inTree == 0);
-  if (isTreeNotLoaded) {
+  // insantiate input chain
+  m_inChain = new TChain(m_inTreeName.data());
+  if (!m_inChain) {
+    PrintError(6);
+    assert(m_inChain);
+  }
 
-    // check list of files & open if needed
-    m_inFile = (TFile*) gROOT -> GetListOfFiles() -> FindObject(m_inFileName.data());
-    if (!m_inFile || !(m_inFile -> IsOpen())) {
-      m_inFile = new TFile(m_inFileName.data(), "read");
-      if (!m_inFile) {
-        PrintError(6);
-        assert(m_inFile);
+  // loop over provided input files
+  bool     isFileGood = true;
+  uint64_t bytes      = 0;
+  for (const string& inFileName : m_inFileNames) {
+
+    bytes      = m_inChain -> Add(inFileName.data(), 0);
+    isFileGood = (bytes > 0);
+    if (!isFileGood) {
+      PrintError(7, 0, 0, inFileName);
+      assert(isFileGood);
+    }
+
+/* CHANGE
+    // open file and add tree to chain
+    const bool isTreeNotLoaded = (m_inChain == 0);
+    if (isTreeNotLoaded) {
+
+      // check list of files & open if needed
+      TFile *newFile = (TFile*) gROOT -> GetListOfFiles() -> FindObject(inFile.data());
+      if (!m_inFile || !(m_inFile -> IsOpen())) {
+        m_inFile = new TFile(m_inFileName.data(), "read");
+        if (!m_inFile) {
+          PrintError(6);
+          assert(m_inFile);
+        }
       }
     }
-  }
 
-  // grab tree
-  m_inFile -> GetObject(m_inTreeName.data(), m_inTree);
-  if (!m_inTree) {
-    PrintError(7);
-    assert(m_inTree);
-  }
+    // grab tree
+    m_inFile -> GetObject(m_inTreeName.data(), m_inChain);
+    if (!m_inChain) {
+      PrintError(7);
+      assert(m_inChain);
+    }
+*/
+  }  // end input file loop
   return;
 
 }  // end 'OpenInputFile()'
@@ -202,6 +224,7 @@ void SEnergyCorrelator::SaveOutput() {
 
 
 
+/* CHANGE
 void SEnergyCorrelator::CloseInputFile() {
 
   // print debug statement
@@ -212,6 +235,7 @@ void SEnergyCorrelator::CloseInputFile() {
   return;
 
 }  // end 'CloseInputFile()'
+*/
 
 
 

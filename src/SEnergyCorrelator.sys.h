@@ -23,6 +23,7 @@ void SEnergyCorrelator::InitializeMembers() {
   if (m_inDebugMode) PrintDebug(0);
 
   m_ptJetBins.clear();
+  m_inFileNames.clear();
   m_eecLongSide.clear();
   m_subEvtsToUse.clear();
   m_jetCstVector.clear();
@@ -42,51 +43,51 @@ void SEnergyCorrelator::InitializeTree() {
   if (m_inDebugMode) PrintDebug(4);
 
   // check for tree
-  if (!m_inTree) {
+  if (!m_inChain) {
     PrintError(10);
-    assert(m_inTree);
+    assert(m_inChain);
   }
   m_fCurrent = -1;
-  m_inTree   -> SetMakeClass(1);
+  m_inChain -> SetMakeClass(1);
 
   // set truth vs. reco branch addresses
   if (m_isInputTreeTruth) {
-    m_inTree -> SetBranchAddress("Parton3_ID",   &m_partonID[0],   &m_brPartonID[0]);
-    m_inTree -> SetBranchAddress("Parton4_ID",   &m_partonID[1],   &m_brPartonID[1]);
-    m_inTree -> SetBranchAddress("Parton3_MomX", &m_partonMomX[0], &m_brPartonMomX[0]);
-    m_inTree -> SetBranchAddress("Parton3_MomY", &m_partonMomY[0], &m_brPartonMomY[0]);
-    m_inTree -> SetBranchAddress("Parton3_MomZ", &m_partonMomZ[0], &m_brPartonMomZ[0]);
-    m_inTree -> SetBranchAddress("Parton4_MomX", &m_partonMomX[1], &m_brPartonMomX[1]);
-    m_inTree -> SetBranchAddress("Parton4_MomY", &m_partonMomY[1], &m_brPartonMomY[1]);
-    m_inTree -> SetBranchAddress("Parton4_MomZ", &m_partonMomZ[1], &m_brPartonMomZ[1]);
-    m_inTree -> SetBranchAddress("EvtSumParEne", &m_evtSumPar,     &m_brEvtSumPar);
-    m_inTree -> SetBranchAddress("CstID",        &m_cstID,         &m_brCstID);
-    m_inTree -> SetBranchAddress("CstEmbedID",   &m_cstEmbedID,    &m_brCstEmbedID);
+    m_inChain -> SetBranchAddress("Parton3_ID",   &m_partonID[0],   &m_brPartonID[0]);
+    m_inChain -> SetBranchAddress("Parton4_ID",   &m_partonID[1],   &m_brPartonID[1]);
+    m_inChain -> SetBranchAddress("Parton3_MomX", &m_partonMomX[0], &m_brPartonMomX[0]);
+    m_inChain -> SetBranchAddress("Parton3_MomY", &m_partonMomY[0], &m_brPartonMomY[0]);
+    m_inChain -> SetBranchAddress("Parton3_MomZ", &m_partonMomZ[0], &m_brPartonMomZ[0]);
+    m_inChain -> SetBranchAddress("Parton4_MomX", &m_partonMomX[1], &m_brPartonMomX[1]);
+    m_inChain -> SetBranchAddress("Parton4_MomY", &m_partonMomY[1], &m_brPartonMomY[1]);
+    m_inChain -> SetBranchAddress("Parton4_MomZ", &m_partonMomZ[1], &m_brPartonMomZ[1]);
+    m_inChain -> SetBranchAddress("EvtSumParEne", &m_evtSumPar,     &m_brEvtSumPar);
+    m_inChain -> SetBranchAddress("CstID",        &m_cstID,         &m_brCstID);
+    m_inChain -> SetBranchAddress("CstEmbedID",   &m_cstEmbedID,    &m_brCstEmbedID);
   } else {
-    m_inTree -> SetBranchAddress("EvtNumTrks",    &m_evtNumTrks, &m_brEvtNumTrks);
-    m_inTree -> SetBranchAddress("EvtSumECalEne", &m_evtSumECal, &m_brEvtSumECal);
-    m_inTree -> SetBranchAddress("EvtSumHCalEne", &m_evtSumHCal, &m_brEvtSumHCal);
-    m_inTree -> SetBranchAddress("CstMatchID",    &m_cstMatchID, &m_brCstMatchID);
+    m_inChain -> SetBranchAddress("EvtNumTrks",    &m_evtNumTrks, &m_brEvtNumTrks);
+    m_inChain -> SetBranchAddress("EvtSumECalEne", &m_evtSumECal, &m_brEvtSumECal);
+    m_inChain -> SetBranchAddress("EvtSumHCalEne", &m_evtSumHCal, &m_brEvtSumHCal);
+    m_inChain -> SetBranchAddress("CstMatchID",    &m_cstMatchID, &m_brCstMatchID);
   }
 
   // set generic branch addresses
-  m_inTree -> SetBranchAddress("EvtVtxX",    &m_evtVtxX,    &m_brEvtVtxX);
-  m_inTree -> SetBranchAddress("EvtVtxY",    &m_evtVtxY,    &m_brEvtVtxY);
-  m_inTree -> SetBranchAddress("EvtVtxZ",    &m_evtVtxZ,    &m_brEvtVtxZ);
-  m_inTree -> SetBranchAddress("EvtNumJets", &m_evtNumJets, &m_brEvtNumJets);
-  m_inTree -> SetBranchAddress("JetNumCst",  &m_jetNumCst,  &m_brJetNumCst);
-  m_inTree -> SetBranchAddress("JetID",      &m_jetID,      &m_brJetID);
-  m_inTree -> SetBranchAddress("JetEnergy",  &m_jetEnergy,  &m_brJetEnergy);
-  m_inTree -> SetBranchAddress("JetPt",      &m_jetPt,      &m_brJetPt);
-  m_inTree -> SetBranchAddress("JetEta",     &m_jetEta,     &m_brJetEta);
-  m_inTree -> SetBranchAddress("JetPhi",     &m_jetPhi,     &m_brJetPhi);
-  m_inTree -> SetBranchAddress("JetArea",    &m_jetArea,    &m_brJetArea);
-  m_inTree -> SetBranchAddress("CstZ",       &m_cstZ,       &m_brCstZ);
-  m_inTree -> SetBranchAddress("CstDr",      &m_cstDr,      &m_brCstDr);
-  m_inTree -> SetBranchAddress("CstEnergy",  &m_cstEnergy,  &m_brCstEnergy);
-  m_inTree -> SetBranchAddress("CstJt",      &m_cstJt,      &m_brCstJt);
-  m_inTree -> SetBranchAddress("CstEta",     &m_cstEta,     &m_brCstEta);
-  m_inTree -> SetBranchAddress("CstPhi",     &m_cstPhi,     &m_brCstPhi);
+  m_inChain -> SetBranchAddress("EvtVtxX",    &m_evtVtxX,    &m_brEvtVtxX);
+  m_inChain -> SetBranchAddress("EvtVtxY",    &m_evtVtxY,    &m_brEvtVtxY);
+  m_inChain -> SetBranchAddress("EvtVtxZ",    &m_evtVtxZ,    &m_brEvtVtxZ);
+  m_inChain -> SetBranchAddress("EvtNumJets", &m_evtNumJets, &m_brEvtNumJets);
+  m_inChain -> SetBranchAddress("JetNumCst",  &m_jetNumCst,  &m_brJetNumCst);
+  m_inChain -> SetBranchAddress("JetID",      &m_jetID,      &m_brJetID);
+  m_inChain -> SetBranchAddress("JetEnergy",  &m_jetEnergy,  &m_brJetEnergy);
+  m_inChain -> SetBranchAddress("JetPt",      &m_jetPt,      &m_brJetPt);
+  m_inChain -> SetBranchAddress("JetEta",     &m_jetEta,     &m_brJetEta);
+  m_inChain -> SetBranchAddress("JetPhi",     &m_jetPhi,     &m_brJetPhi);
+  m_inChain -> SetBranchAddress("JetArea",    &m_jetArea,    &m_brJetArea);
+  m_inChain -> SetBranchAddress("CstZ",       &m_cstZ,       &m_brCstZ);
+  m_inChain -> SetBranchAddress("CstDr",      &m_cstDr,      &m_brCstDr);
+  m_inChain -> SetBranchAddress("CstEnergy",  &m_cstEnergy,  &m_brCstEnergy);
+  m_inChain -> SetBranchAddress("CstJt",      &m_cstJt,      &m_brCstJt);
+  m_inChain -> SetBranchAddress("CstEta",     &m_cstEta,     &m_brCstEta);
+  m_inChain -> SetBranchAddress("CstPhi",     &m_cstPhi,     &m_brCstPhi);
 
   // announce tree setting
   if (m_inStandaloneMode) PrintMessage(2);
@@ -156,12 +157,16 @@ void SEnergyCorrelator::PrintMessage(const uint32_t code, const uint64_t nEvts, 
       break;
     case 1:
       cout << "    Opened files:\n"
-           << "      input  = " << m_inFileName.data() << "\n"
-           << "      output = " << m_outFileName.data()
+           << "      output = " << m_outFileName.data() << "\n"
+           << "      inputs = {"
            << endl;
+      for (const string& inFileName : m_inFileNames) {
+        cout << "        " << inFileName.data() << endl;
+      }
+      cout << "      }" << endl;
       break;
     case 2:
-      cout << "    Initialized input tree:\n"
+      cout << "    Initialized input chain:\n"
            << "      tree name = " << m_inTreeName.data()
            << endl;
       break;
@@ -374,7 +379,7 @@ void SEnergyCorrelator::PrintDebug(const uint32_t code) {
 
 
 
-void SEnergyCorrelator::PrintError(const uint32_t code, const size_t nDrBinEdges, const size_t iDrBin) {
+void SEnergyCorrelator::PrintError(const uint32_t code, const size_t nDrBinEdges, const size_t iDrBin, const string sInFileName) {
 
   // print debug statement
   if (m_inDebugMode && (m_verbosity > 5)) PrintDebug(23);
@@ -424,16 +429,16 @@ void SEnergyCorrelator::PrintError(const uint32_t code, const size_t nDrBinEdges
       break;
     case 6:
       if (m_inComplexMode) {
-        cerr << "SEnergyCorrelator::OpenInputFile() PANIC: couldn't open file \"" << m_inFileName << "\"! Aborting!" << endl;
+        cerr << "SEnergyCorrelator::OpenInputFiles() PANIC: couldn't create input TChain! Aborting" << endl;
       } else {
-        cerr << "PANIC: couldn't open file \"" << m_inFileName << "\"! Aborting!" << endl;
+        cerr << "PANIC: couldn't create input TChain! Aborting!" << endl;
       }
       break;
     case 7:
       if (m_inComplexMode) {
-        cerr << "SEnergyCorrelator::OpenInputFile() PANIC: couldn't grab tree \"" << m_inTreeName << "\" from file \"" << m_inFileName << "\"! Aborting!" << endl;
+        cerr << "SEnergyCorrelator::OpenInputFiles() PANIC: couldn't grab tree \"" << m_inTreeName << "\" from file \"" << sInFileName << "\"! Aborting!" << endl;
       } else {
-        cerr << "PANIC: couldn't grab tree \"" << m_inTreeName << "\" from file \"" << m_inFileName << "\"! Aborting!" << endl;
+        cerr << "PANIC: couldn't grab tree \"" << m_inTreeName << "\" from file \"" << sInFileName << "\"! Aborting!" << endl;
       }
       break;
     case 8:
@@ -515,10 +520,10 @@ int64_t SEnergyCorrelator::GetEntry(const uint64_t entry) {
   if (m_inDebugMode && (m_verbosity > 5)) PrintDebug(16);
 
   int64_t entryStatus(-1);
-  if (!m_inTree) {
+  if (!m_inChain) {
     entryStatus = 0;
   } else {
-    entryStatus = m_inTree -> GetEntry(entry);
+    entryStatus = m_inChain -> GetEntry(entry);
   }
   return entryStatus;
 
@@ -534,18 +539,18 @@ int64_t SEnergyCorrelator::LoadTree(const uint64_t entry) {
   // check for tree & load
   int     treeNumber(-1);
   int64_t treeStatus(-1);
-  if (!m_inTree) {
+  if (!m_inChain) {
     treeStatus = -5;
   } else {
-    treeNumber = m_inTree -> GetTreeNumber();
-    treeStatus = m_inTree -> LoadTree(entry);
+    treeNumber = m_inChain -> GetTreeNumber();
+    treeStatus = m_inChain -> LoadTree(entry);
   }
 
   // update current tree number if need be
   const bool isTreeStatusGood = (treeStatus >= 0);
   const bool isNotCurrentTree = (treeNumber != m_fCurrent);
   if (isTreeStatusGood && isNotCurrentTree) {
-    m_fCurrent = m_inTree -> GetTreeNumber();
+    m_fCurrent = m_inChain -> GetTreeNumber();
   }
   return treeStatus;
 
