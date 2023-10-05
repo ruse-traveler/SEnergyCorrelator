@@ -71,7 +71,7 @@ void DoStandaloneCorrelatorCalculation() {
   const pair<double, double> binRangeDr = {1e-5, 1.};
 
   // jet/cst parameters
-  const pair<double, double> etaJetRange = {-1., 1.};
+  const pair<double, double> etaJetRange = {0.7, 0.7};
   const pair<double, double> momCstRange = {0.,  100.};
   const pair<double, double> drCstRange  = {0.,  5.};
 
