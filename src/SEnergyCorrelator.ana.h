@@ -234,8 +234,8 @@ namespace SColdQcdCorrelatorAnalysis {
     // print debug statement
     if (m_inDebugMode && (m_verbosity > 7)) PrintDebug(26);
 
-    const bool isInPtRange  = ((ptJet >= m_ptJetRange[0])  && (ptJet < m_ptJetRange[1]));
-    const bool isInEtaRange = ((etaJet > m_etaJetRange[0]) && (etaJet < m_etaJetRange[1]));
+    const bool isInPtRange  = ((ptJet >= m_ptJetRange.first)  && (ptJet < m_ptJetRange.second));
+    const bool isInEtaRange = ((etaJet > m_etaJetRange.first) && (etaJet < m_etaJetRange.second));
     const bool isGoodJet    = (isInPtRange && isInEtaRange);
     return isGoodJet;
 
@@ -248,8 +248,8 @@ namespace SColdQcdCorrelatorAnalysis {
     // print debug statement
     if (m_inDebugMode && (m_verbosity > 7)) PrintDebug(27);
 
-    const bool isInMomRange = ((momCst >= m_momCstRange[0]) && (momCst < m_momCstRange[1]));
-    const bool isInDrRange  = ((drCst >= m_drCstRange[0])   && (drCst < m_drCstRange[1]));
+    const bool isInMomRange = ((momCst >= m_momCstRange.first) && (momCst < m_momCstRange.second));
+    const bool isInDrRange  = ((drCst >= m_drCstRange.first)   && (drCst < m_drCstRange.second));
     const bool isGoodCst    = (isInMomRange && isInDrRange);
     return isGoodCst;
 

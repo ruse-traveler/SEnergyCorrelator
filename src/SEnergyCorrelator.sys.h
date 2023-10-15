@@ -130,7 +130,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
     // initialize correlator for each jet pt bin
     for (size_t iPtBin = 0; iPtBin < m_nBinsJetPt; iPtBin++) {
-      m_eecLongSide.push_back(new contrib::eec::EECLongestSide<contrib::eec::hist::axis::log>(m_nPointCorr, m_nBinsDr, {m_drBinRange[0], m_drBinRange[1]}));
+      m_eecLongSide.push_back(new contrib::eec::EECLongestSide<contrib::eec::hist::axis::log>(m_nPointCorr, m_nBinsDr, {m_drBinRange.first, m_drBinRange.second}));
     }
 
     // announce correlator initialization
@@ -180,14 +180,14 @@ namespace SColdQcdCorrelatorAnalysis {
         break;
       case 5:
         cout << "    Set correlator parameters:\n"
-             << "      n-point = "       << m_nPointCorr    << ", number of dR bins = " << m_nBinsDr       << "\n"
-             << "      dR bin range = (" << m_drBinRange[0] << ", "                     << m_drBinRange[1] << ")"
+             << "      n-point = "       << m_nPointCorr       << ", number of dR bins = " << m_nBinsDr           << "\n"
+             << "      dR bin range = (" << m_drBinRange.first << ", "                     << m_drBinRange.second << ")"
              << endl;
         break;
       case 6:
         cout << "    Set jet parameters:\n"
-             << "      eta range = (" << m_etaJetRange[0] << ", " << m_etaJetRange[1] << ")\n"
-             << "      pt range  = (" << m_ptJetRange[0]  << ", " << m_ptJetRange[1]  << ")\n"
+             << "      eta range = (" << m_etaJetRange.first << ", " << m_etaJetRange.second << ")\n"
+             << "      pt range  = (" << m_ptJetRange.first  << ", " << m_ptJetRange.second  << ")\n"
              << "    Set pTjet bins:"
              << endl;
         for (uint32_t iPtBin = 0; iPtBin < m_nBinsJetPt; iPtBin++) {
@@ -217,8 +217,8 @@ namespace SColdQcdCorrelatorAnalysis {
       case 12:
         cout << "    Set constituent parameters:\n"
              << "      apply constituent cuts? = " << m_applyCstCuts   << "\n"
-             << "      momentum range = ("         << m_momCstRange[0] << ", " << m_momCstRange[1] << ")\n"
-             << "      dr range       = ("         << m_drCstRange[0]  << ", " << m_drCstRange[1]  << ")"
+             << "      momentum range = ("         << m_momCstRange.first << ", " << m_momCstRange.second << ")\n"
+             << "      dr range       = ("         << m_drCstRange.first  << ", " << m_drCstRange.second  << ")"
              << endl;
         break;
       case 13:
@@ -330,10 +330,10 @@ namespace SColdQcdCorrelatorAnalysis {
         cout << "SEnergyCorrelator::SetInputTree(string, bool) setting input tree name..." << endl;
         break;
       case 19:
-        cout << "SEnergyCorrelator::SetCorrelatorParameters(uint32_t, uint64_t, double, double) setting correlator parameters..." << endl;
+        cout << "SEnergyCorrelator::SetCorrelatorParameters(uint32_t, uint64_t, pair<double, double>) setting correlator parameters..." << endl;
         break;
       case 20:
-        cout << "SEnergyCorrelator::SetJetParameters(vector<pair<double, double>>, double, double) setting jet parameters..." << endl;
+        cout << "SEnergyCorrelator::SetJetParameters(vector<pair<double, double>>, pair<double, double>) setting jet parameters..." << endl;
         break;
       case 21:
         cout << "SEnergyCorrelators:CheckCriticalParameters() checking critical parameters..." << endl;
@@ -345,7 +345,7 @@ namespace SColdQcdCorrelatorAnalysis {
         cout << "SEnergyCorrelator::PrintError(uint32_t) printing an error..." << endl;
         break;
       case 24:
-        cout << "SEnergyCorrelator::SetConstituentParameters(double, double, double, double) setting constituent parameters..." << endl;
+        cout << "SEnergyCorrelator::SetConstituentParameters(pair<double, double>, pair<double, double>) setting constituent parameters..." << endl;
         break;
       case 25:
         cout << "SEnergyCorrelator::ExtractHistsFromCorr() extracting output histograms..." << endl;
