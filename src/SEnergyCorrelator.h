@@ -26,8 +26,8 @@
 #include <TMath.h>
 #include <TChain.h>
 #include <TString.h>
-#include <TVector3.h>  // TODO update to XYZvector
 #include <TDirectory.h>
+#include <Math/Vector4D.h>
 // f4a include
 #include <fun4all/SubsysReco.h>
 #include <fun4all/Fun4AllReturnCodes.h>
@@ -227,7 +227,7 @@ namespace SColdQcdCorrelatorAnalysis {
       vector<vector<double>>* m_cstZ       = NULL;
       vector<vector<double>>* m_cstDr      = NULL;
       vector<vector<double>>* m_cstEnergy  = NULL;
-      vector<vector<double>>* m_cstJt      = NULL;
+      vector<vector<double>>* m_cstJt      = NULL;  // FIXME m_cstJt should m_cstPt
       vector<vector<double>>* m_cstEta     = NULL;
       vector<vector<double>>* m_cstPhi     = NULL;
 
@@ -260,7 +260,7 @@ namespace SColdQcdCorrelatorAnalysis {
       TBranch* m_brCstZ       = NULL;
       TBranch* m_brCstDr      = NULL;
       TBranch* m_brCstEnergy  = NULL;
-      TBranch* m_brCstJt      = NULL;
+      TBranch* m_brCstJt      = NULL;  // FIXME should be m_brCstJt
       TBranch* m_brCstEta     = NULL;
       TBranch* m_brCstPhi     = NULL;
 
