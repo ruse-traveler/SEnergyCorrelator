@@ -69,6 +69,43 @@ namespace SColdQcdCorrelatorAnalysis {
           const double phiCst = (m_cstPhi -> at(iJet)).at(iCst);
           const double ptCst  = (m_cstJt  -> at(iJet)).at(iCst);  // FIXME m_cstJt should be m_cstPt
 
+          // for weird cst check
+          if (m_doSecondCstLoop) {
+            for (uint64_t jCst = 0; jCst < nCsts; jCst++) {
+
+              // skip over the same cst
+              if (jCst == iCst) continue;
+
+              // get cst info
+              const double etaCstB = (m_cstEta -> at(iJet)).at(jCst);
+              const double phiCstB = (m_cstPhi -> at(iJet)).at(jCst);
+              const double ptCstB  = (m_cstJt  -> at(iJet)).at(jCst);
+
+              // calculate separation and pt-weight
+              const double dhCstAB  = (etaCst - etaCstB);
+              const double dfCstAB  = (phiCst - phiCstB);
+              const double drCstAB  = sqrt((dhCstAB * dhCstAB) + (dfCstAB * dfCstAB));
+              const double ptFrac   = ptCst / ptCstB;
+              const double ztJetA   = ptCst / ptJet;
+              const double ztJetB   = ptCstB / ptJet;
+              const double ptWeight = (ptCst * ptCstB) / (ptJet * ptJet);
+              hCstPtOneVsDr      -> Fill(drCstAB, ptCst);
+              hCstPtTwoVsDr      -> Fill(drCstAB, ptCstB);
+              hCstPtFracVsDr     -> Fill(drCstAB, ptFrac);
+              hCstPhiOneVsDr     -> Fill(drCstAB, phiCst);
+              hCstPhiTwoVsDr     -> Fill(drCstAB, phiCstB);
+              hCstEtaOneVsDr     -> Fill(drCstAB, etaCst);
+              hCstEtaTwoVsDr     -> Fill(drCstAB, etaCstB);
+              hDeltaPhiOneVsDr   -> Fill(drCstAB, dfCstAB);
+              hDeltaPhiTwoVsDr   -> Fill(drCstAB, dfCstAB);
+              hDeltaEtaOneVsDr   -> Fill(drCstAB, dhCstAB);
+              hDeltaEtaTwoVsDr   -> Fill(drCstAB, dhCstAB);
+              hJetPtFracOneVsDr  -> Fill(drCstAB, ztJetA);
+              hJetPtFracTwoVsDr  -> Fill(drCstAB, ztJetB);
+              hCstPairWeightVsDr -> Fill(drCstAB, ptWeight);
+            }  // end 2nd cst loop
+          }
+
           // create cst 4-vector
           ROOT::Math::PtEtaPhiMVector rVecCst(ptCst, etaCst, phiCst, 0.140);  // FIXME move pion mass to a constant in utilities namespace
 

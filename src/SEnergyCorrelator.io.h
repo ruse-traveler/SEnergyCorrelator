@@ -189,6 +189,25 @@ namespace SColdQcdCorrelatorAnalysis {
       m_outHistErrLnDrAxis[iPtBin] -> Write();
     }
 
+    // for weird cst check
+    if (m_doSecondCstLoop) {
+      m_outFile          -> cd();
+      hCstPtOneVsDr      -> Write();
+      hCstPtTwoVsDr      -> Write();
+      hCstPtFracVsDr     -> Write();
+      hCstPhiOneVsDr     -> Write();
+      hCstPhiTwoVsDr     -> Write();
+      hCstEtaOneVsDr     -> Write();
+      hCstEtaTwoVsDr     -> Write();
+      hDeltaPhiOneVsDr   -> Write();
+      hDeltaPhiTwoVsDr   -> Write();
+      hDeltaEtaOneVsDr   -> Write();
+      hDeltaEtaTwoVsDr   -> Write();
+      hJetPtFracOneVsDr  -> Write();
+      hJetPtFracTwoVsDr  -> Write();
+      hCstPairWeightVsDr -> Write();
+    }
+
     // announce saving
     if (m_inStandaloneMode) PrintMessage(10);
     return;

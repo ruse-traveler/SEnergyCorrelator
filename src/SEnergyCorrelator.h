@@ -21,6 +21,7 @@
 #include <utility>
 // root includes
 #include <TH1.h>
+#include <TH2.h>  // TEST [10.25.2023]
 #include <TROOT.h>
 #include <TFile.h>
 #include <TMath.h>
@@ -71,10 +72,11 @@ namespace SColdQcdCorrelatorAnalysis {
       void End();
 
       // setters (inline)
-      void SetVerbosity(const int verb)                        {m_verbosity   = verb;}
-      void SetInputNode(const string &iNodeName)               {m_inNodeName  = iNodeName;}
-      void SetOutputFile(const string &oFileName)              {m_outFileName = oFileName;}
-      void SetInputFiles(const vector<string> &vecInFileNames) {m_inFileNames = vecInFileNames;}
+      void SetVerbosity(const int verb)                        {m_verbosity       = verb;}
+      void SetInputNode(const string &iNodeName)               {m_inNodeName      = iNodeName;}
+      void SetOutputFile(const string &oFileName)              {m_outFileName     = oFileName;}
+      void SetDoSecondCstLoop(const bool loop)                 {m_doSecondCstLoop = loop;}
+      void SetInputFiles(const vector<string> &vecInFileNames) {m_inFileNames     = vecInFileNames;}
 
       // setters (*.io.h)
       void SetInputTree(const string &iTreeName, const bool isTruthTree = false, const bool isEmbedTree = false);
@@ -93,6 +95,7 @@ namespace SColdQcdCorrelatorAnalysis {
       bool           GetIsInputTreeEmbed() {return m_isInputTreeEmbed;}
       bool           GetApplyCstCuts()     {return m_applyCstCuts;}
       bool           GetSelectSubEvts()    {return m_selectSubEvts;}
+      bool           GetDoSecondCstLoop()  {return m_doSecondCstLoop;}
       string         GetModuleName()       {return m_moduleName;}
       string         GetInputNodeName()    {return m_inNodeName;}
       string         GetInputTreeName()    {return m_inTreeName;}
@@ -160,6 +163,22 @@ namespace SColdQcdCorrelatorAnalysis {
       vector<TH1D*> m_outHistVarLnDrAxis;
       vector<TH1D*> m_outHistErrLnDrAxis;
 
+      // for weird cst check
+      TH2D* hCstPtOneVsDr;
+      TH2D* hCstPtTwoVsDr;
+      TH2D* hCstPtFracVsDr;
+      TH2D* hCstPhiOneVsDr;
+      TH2D* hCstPhiTwoVsDr;
+      TH2D* hCstEtaOneVsDr;
+      TH2D* hCstEtaTwoVsDr;
+      TH2D* hDeltaPhiOneVsDr;
+      TH2D* hDeltaPhiTwoVsDr;
+      TH2D* hDeltaEtaOneVsDr;
+      TH2D* hDeltaEtaTwoVsDr;
+      TH2D* hJetPtFracOneVsDr;
+      TH2D* hJetPtFracTwoVsDr;
+      TH2D* hCstPairWeightVsDr;
+
       // system members
       int      m_fCurrent         = 0;
       int      m_verbosity        = 0;
@@ -171,6 +190,7 @@ namespace SColdQcdCorrelatorAnalysis {
       bool     m_isInputTreeEmbed = false;
       bool     m_applyCstCuts     = false;
       bool     m_selectSubEvts    = false;
+      bool     m_doSecondCstLoop  = false;
       string   m_moduleName       = "";
       string   m_inNodeName       = "";
       string   m_inTreeName       = "";

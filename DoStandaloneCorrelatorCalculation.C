@@ -41,16 +41,16 @@ void DoStandaloneCorrelatorCalculation() {
 
   // io parameters
   const vector<vector<string>> inFile = {
-    {"../SCorrelatorJetTree/output/condor/final_merge/correlatorJetTree.pp200py8jet10run8_trksForGettingCuts.d18m9y2023.root"},
-    {"../SCorrelatorJetTree/output/condor/final_merge/correlatorJetTree.pp200py8jet10run8_trksForGettingCuts.d18m9y2023.root"}
+    {"../SCorrelatorJetTree/output/condor/final_merge/correlatorJetTree.pp200py8jet10run8_trksWithRoughCuts.d26m9y2023.root"},
+    {"../SCorrelatorJetTree/output/condor/final_merge/correlatorJetTree.pp200py8jet10run8_trksWithRoughCuts.d26m9y2023.root"}
   };
   const vector<string> inTree = {
     "RecoJetTree",
     "TruthJetTree"
   };
   const vector<string> outFile = {
-    "eec.pp200py8jet10run8.testingCuts_newEtaAndNewMom_reco.d13m10y2023.root",
-    "eec.pp200py8jet10run8.testingCuts_newEtaAndNewMom_true.d13m8102023.root"
+    "twoPoint.pp200py8jet10run8.testCstPtUpperLimit_pt10100_roughCutsWithGoodJetEta_reco.d25m10y2023.root",
+    "twoPoint.pp200py8jet10run8.testCstPtUpperLimit_pt10100_roughCutsWithGoodJetEta_true.d25m10y2023.root"
   };
 
   // module parameters
@@ -70,7 +70,7 @@ void DoStandaloneCorrelatorCalculation() {
 
   // jet/cst parameters
   const pair<double, double> etaJetRange = {-0.7, 0.7};
-  const pair<double, double> momCstRange = {1.,  100.};
+  const pair<double, double> momCstRange = {10., 100.};
   const pair<double, double> drCstRange  = {0.,  100.};
 
   // jet pT bins
@@ -81,11 +81,12 @@ void DoStandaloneCorrelatorCalculation() {
   const bool isEmbed   = false;
 
   // misc parameters
-  const int  verbosity = 0;
-  const bool isComplex = false;
-  const bool doCstCuts = true;
-  const bool doDebug   = false;
-  const bool inBatch   = false;
+  const int  verbosity  = 0;
+  const bool isComplex  = false;
+  const bool doCstCuts  = true;
+  const bool doDebug    = false;
+  const bool doCstLoop2 = false;
+  const bool inBatch    = false;
 
   // do correlator calculation on reco jets
   SEnergyCorrelator* recoCorrelator = new SEnergyCorrelator(moduleName[0], isComplex, doDebug, inBatch);
@@ -96,6 +97,7 @@ void DoStandaloneCorrelatorCalculation() {
   recoCorrelator -> SetJetParameters(ptJetBins, etaJetRange);
   recoCorrelator -> SetConstituentParameters(momCstRange, drCstRange, doCstCuts);
   recoCorrelator -> SetCorrelatorParameters(nPointCorr, nBinsDr, binRangeDr);
+  recoCorrelator -> SetDoSecondCstLoop(doCstLoop2);
   recoCorrelator -> Init();
   recoCorrelator -> Analyze();
   recoCorrelator -> End();
@@ -112,6 +114,7 @@ void DoStandaloneCorrelatorCalculation() {
   if (isEmbed) {
     trueCorrelator -> SetSubEventsToUse(subEvtOpt);
   }
+  trueCorrelator -> SetDoSecondCstLoop(doCstLoop2);
   trueCorrelator -> Init();
   trueCorrelator -> Analyze();
   trueCorrelator -> End();
