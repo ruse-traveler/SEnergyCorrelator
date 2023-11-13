@@ -67,7 +67,7 @@ namespace SColdQcdCorrelatorAnalysis {
           const double drCst  = (m_cstDr  -> at(iJet)).at(iCst);
           const double etaCst = (m_cstEta -> at(iJet)).at(iCst);
           const double phiCst = (m_cstPhi -> at(iJet)).at(iCst);
-          const double ptCst  = (m_cstJt  -> at(iJet)).at(iCst);  // FIXME m_cstJt should be m_cstPt
+          const double ptCst  = (m_cstPt  -> at(iJet)).at(iCst);
 
           // for weird cst check
           if (m_doSecondCstLoop) {
@@ -79,7 +79,7 @@ namespace SColdQcdCorrelatorAnalysis {
               // get cst info
               const double etaCstB = (m_cstEta -> at(iJet)).at(jCst);
               const double phiCstB = (m_cstPhi -> at(iJet)).at(jCst);
-              const double ptCstB  = (m_cstJt  -> at(iJet)).at(jCst);
+              const double ptCstB  = (m_cstPt  -> at(iJet)).at(jCst);
 
               // calculate separation and pt-weight
               const double dhCstAB  = (etaCst - etaCstB);

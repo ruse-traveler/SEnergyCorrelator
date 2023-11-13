@@ -21,7 +21,7 @@
 #include <utility>
 // root includes
 #include <TH1.h>
-#include <TH2.h>  // TEST [10.25.2023]
+#include <TH2.h>
 #include <TROOT.h>
 #include <TFile.h>
 #include <TMath.h>
@@ -247,7 +247,7 @@ namespace SColdQcdCorrelatorAnalysis {
       vector<vector<double>>* m_cstZ       = NULL;
       vector<vector<double>>* m_cstDr      = NULL;
       vector<vector<double>>* m_cstEnergy  = NULL;
-      vector<vector<double>>* m_cstJt      = NULL;  // FIXME m_cstJt should m_cstPt
+      vector<vector<double>>* m_cstPt      = NULL;
       vector<vector<double>>* m_cstEta     = NULL;
       vector<vector<double>>* m_cstPhi     = NULL;
 
@@ -279,8 +279,8 @@ namespace SColdQcdCorrelatorAnalysis {
       TBranch* m_brJetArea    = NULL;
       TBranch* m_brCstZ       = NULL;
       TBranch* m_brCstDr      = NULL;
+      TBranch* m_brCstPt      = NULL;
       TBranch* m_brCstEnergy  = NULL;
-      TBranch* m_brCstJt      = NULL;  // FIXME should be m_brCstJt
       TBranch* m_brCstEta     = NULL;
       TBranch* m_brCstPhi     = NULL;
 
