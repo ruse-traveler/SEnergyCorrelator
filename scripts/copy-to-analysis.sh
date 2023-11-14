@@ -14,7 +14,7 @@ declare -a files_to_copy
 
 # top directory to copy from/to
 copy_from="/sphenix/user/danderson/eec/SEnergyCorrelator"
-copy_to="/sphenix/user/danderson/analysis/AndersonAnalysisModules/SEnergyCorrelator"
+copy_to="/sphenix/user/danderson/analysis/AndersonAnalysisModules/ColdQcdCorrelatorAnalysis/SEnergyCorrelator"
 
 # what files to copy
 files_to_copy[0]="README.md"
