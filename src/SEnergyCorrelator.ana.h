@@ -40,7 +40,7 @@ namespace SColdQcdCorrelatorAnalysis {
         break;
       } else {
         nBytes += bytes;
-        //PrintMessage(8, nEvts, iEvt);
+        PrintMessage(8, nEvts, iEvt);
       }
 
       // jet loop
