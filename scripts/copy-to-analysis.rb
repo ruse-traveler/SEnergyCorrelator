@@ -27,6 +27,7 @@ to_copy = [
   "src/SEnergyCorrelator.io.h",
   "src/SEnergyCorrelator.sys.h",
   "src/SEnergyCorrelator.ana.h",
+  "src/SEnergyCorrelatorConfig.h",
   "src/SEnergyCorrelatorLinkDef.h",
   "src/autogen.sh",
   "src/configure.ac",
