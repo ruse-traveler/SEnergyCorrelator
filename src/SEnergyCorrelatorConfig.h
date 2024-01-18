@@ -30,17 +30,23 @@ namespace SColdQcdCorrelatorAnalysis {
   struct SEnergyCorrelatorConfig {
 
     // system options
-    int      verbosity  = 0;
-    bool     debug      = false;
-    bool     batch      = false;
-    bool     standalone = true; 
-    string   name       = "SEnergyCorrelator";
-    string   inputNode  = "";
-    string   inputTree  = "";
-    string   outputFile = "";
-    uint16_t subEvtOpt  = 0;
+    int            verbosity     = 0;
+    bool           isDebugOn     = false;
+    bool           isBatchOn     = false;
+    bool           isEmbed       = false;
+    bool           isStandalone  = true;
+    bool           isInTreeTruth = false;
+    string         moduleName    = "SEnergyCorrelator";
+    string         inNodeName    = "";
+    string         inTreeName    = "";
+    string         outFileName   = "";
+    vector<string> inFileNames;
 
     // calculation options
+    bool                         applyCstCuts  = false;
+    bool                         selectSubEvts = false;
+    uint16_t                     subEvtOpt     = 0;
+    uint64_t                     nBinsDr;
     vector<int>                  subEvtsToUse;
     vector<size_t>               nBinsJetPt;
     vector<uint32_t>             nPoints;

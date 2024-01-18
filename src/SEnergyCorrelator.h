@@ -11,7 +11,7 @@
 #ifndef SENERGYCORRELATOR_H
 #define SENERGYCORRELATOR_H
 
-// standard c includes
+// c++ utilities
 #include <cmath>
 #include <string>
 #include <vector>
@@ -19,7 +19,7 @@
 #include <sstream>
 #include <cstdlib>
 #include <utility>
-// root includes
+// root libraries
 #include <TH1.h>
 #include <TH2.h>
 #include <TROOT.h>
@@ -29,20 +29,22 @@
 #include <TString.h>
 #include <TDirectory.h>
 #include <Math/Vector4D.h>
-// f4a include
+// f4a utilities
 #include <fun4all/SubsysReco.h>
 #include <fun4all/Fun4AllReturnCodes.h>
 #include <fun4all/Fun4AllHistoManager.h>
-// phool includes
+// phool utilities
 #include <phool/phool.h>
 #include <phool/getClass.h>
 #include <phool/PHIODataNode.h>
 #include <phool/PHNodeIterator.h>
 #include <phool/PHCompositeNode.h>
-// fastjet includes
+// fastjet libraries
 #include <fastjet/PseudoJet.hh>
-// eec include
+// eec library
 #include "/sphenix/user/danderson/eec/EnergyEnergyCorrelators/eec/include/EECLongestSide.hh"
+// analysis libraries
+#include "SEnergyCorrealtorConfig.h"
 
 using namespace std;
 using namespace fastjet;
@@ -72,51 +74,16 @@ namespace SColdQcdCorrelatorAnalysis {
       void End();
 
       // setters (inline)
-      void SetVerbosity(const int verb)                        {m_verbosity       = verb;}
-      void SetInputNode(const string &iNodeName)               {m_inNodeName      = iNodeName;}
-      void SetOutputFile(const string &oFileName)              {m_outFileName     = oFileName;}
-      void SetDoSecondCstLoop(const bool loop)                 {m_doSecondCstLoop = loop;}
-      void SetInputFiles(const vector<string> &vecInFileNames) {m_inFileNames     = vecInFileNames;}
-
-      // setters (*.io.h)
-      void SetInputTree(const string &iTreeName, const bool isTruthTree = false, const bool isEmbedTree = false);
-      void SetJetParameters(const vector<pair<double, double>> &pTjetBins, const pair<double, double> etaJetRange);
-      void SetConstituentParameters(const pair<double, double> momCstRange, const pair<double, double> drCstRange, const bool applyCstCuts = false);
-      void SetCorrelatorParameters(const uint32_t nPointCorr, const uint64_t nBinsDr, const pair<double, double> drBinRange);
-      void SetSubEventsToUse(const uint16_t subEvtOpt = 0, const vector<int> vecSubEvtsToUse = {});
+      void SetConfig(const SEnergyCorrelatorConfig& config) {m_config = config;}
+      void SetDoSecondCstLoop(const bool loop)              {m_doSecondCstLoop = loop;}  // FIXME remove when ready
 
       // system getters
-      int            GetVerbosity()        {return m_verbosity;}
-      bool           GetInDebugMode()      {return m_inDebugMode;}
-      bool           GetInBatchMode()      {return m_inBatchMode;}
-      bool           GetInComplexMode()    {return m_inComplexMode;}
-      bool           GetInStandaloneMode() {return m_inStandaloneMode;}
-      bool           GetIsInputTreeTruth() {return m_isInputTreeTruth;}
-      bool           GetIsInputTreeEmbed() {return m_isInputTreeEmbed;}
-      bool           GetApplyCstCuts()     {return m_applyCstCuts;}
-      bool           GetSelectSubEvts()    {return m_selectSubEvts;}
-      bool           GetDoSecondCstLoop()  {return m_doSecondCstLoop;}
-      string         GetModuleName()       {return m_moduleName;}
-      string         GetInputNodeName()    {return m_inNodeName;}
-      string         GetInputTreeName()    {return m_inTreeName;}
-      string         GetOutputFileName()   {return m_outFileName;}
-      uint16_t       GetSubEvtOpt()        {return m_subEvtOpt;}
-      vector<string> GetInputFileNames()   {return m_inFileNames;}
+      bool GetIsInputTreeTruth() {return m_isInputTreeTruth;}
+      bool GetIsInputTreeEmbed() {return m_isInputTreeEmbed;}
+      bool GetDoSecondCstLoop()  {return m_doSecondCstLoop;}
 
       // correlator getters
-      double   GetMinDrBin()   {return m_drBinRange.first;}
-      double   GetMaxDrBin()   {return m_drBinRange.second;}
-      double   GetMinJetPt()   {return m_ptJetRange.first;}
-      double   GetMaxJetPt()   {return m_ptJetRange.second;}
-      double   GetMinJetEta()  {return m_etaJetRange.first;}
-      double   GetMaxJetEta()  {return m_etaJetRange.second;}
-      double   GetMinCstMom()  {return m_momCstRange.first;}
-      double   GetMaxCstMom()  {return m_momCstRange.second;}
-      double   GetMinCstDr()   {return m_drCstRange.first;}
-      double   GetMaxCstDr()   {return m_drCstRange.second;}
-      size_t   GetNBinsJetPt() {return m_nBinsJetPt;}
-      uint32_t GetNPointCorr() {return m_nPointCorr;}
-      uint64_t GetNBinsDr()    {return m_nBinsDr;}
+      SEnergyCorrelatorConfig GetConfig() {return m_config;}
 
     private:
 
@@ -152,6 +119,9 @@ namespace SColdQcdCorrelatorAnalysis {
       bool     CheckIfSubEvtGood(const int embedID);
       uint32_t GetJetPtBin(const double ptJet);
 
+      // configuration
+      SEnergyCorrelatorConfig m_config;
+
       // io members
       TFile*  m_outFile = NULL;
       TFile*  m_inFile  = NULL;
@@ -180,22 +150,10 @@ namespace SColdQcdCorrelatorAnalysis {
       TH2D* hCstPairWeightVsDr;
 
       // system members
-      int      m_fCurrent         = 0;
-      int      m_verbosity        = 0;
-      bool     m_inDebugMode      = false;
-      bool     m_inBatchMode      = false;
-      bool     m_inComplexMode    = false;
-      bool     m_inStandaloneMode = false;
-      bool     m_isInputTreeTruth = false;
-      bool     m_isInputTreeEmbed = false;
-      bool     m_applyCstCuts     = false;
-      bool     m_selectSubEvts    = false;
-      bool     m_doSecondCstLoop  = false;
-      string   m_moduleName       = "";
-      string   m_inNodeName       = "";
-      string   m_inTreeName       = "";
-      string   m_outFileName      = "";
-      uint16_t m_subEvtOpt        = 0;
+      int  m_fCurrent         = 0;
+      bool m_isInputTreeTruth = false;
+      bool m_isInputTreeEmbed = false;
+      bool m_doSecondCstLoop  = false;
 
       // vector of input files (standalone mode only)
       vector<string> m_inFileNames;
