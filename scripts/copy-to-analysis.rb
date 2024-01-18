@@ -19,7 +19,7 @@ copy_to   = "/sphenix/user/danderson/test"
 to_copy = [
   "README.md",
   "DoStandaloneCorrelatorCalculation.C",
-  "DoStandaloneCorrelatorCalculation.sh",
+  "DoStandaloneCorrelatorCalculation.rb",
   "scripts/copy-to-analysis.sh",
   "scripts/wipe-source.sh",
   "src/SEnergyCorrelator.cc",

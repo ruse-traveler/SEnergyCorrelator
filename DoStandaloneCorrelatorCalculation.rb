@@ -1,13 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env ruby
 # -----------------------------------------------------------------------------
-# 'DoStandaloneCorrelatorCalculation.sh'
+# 'DoStandaloneCorrelatorCalculation.rb'
 # Derek Anderson
-# 02.09.2023
+# 01.18.2024
 #
-# Use this to run the 'DoStandaloneCorrelator-
-# Calculation.C' macro.
+# Short script to run the 'DoStandaloneCorrelatorCalculation.C' macro.
 # -----------------------------------------------------------------------------
 
-root -b -q DoStandaloneCorrelatorCalculation.C
+exec("root -b -q DoStandaloneCorrelatorCalculation.C")
 
 # end -------------------------------------------------------------------------
