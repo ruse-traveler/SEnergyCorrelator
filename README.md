@@ -31,4 +31,3 @@ root -b -q Fun4All_DoStandaloneCalculation.C
 ## To-Do:
 
  - [Major] Add functionality to run multiple n-points per calculation
- - [Minor] Move weird constituent check to QA module
