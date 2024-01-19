@@ -114,27 +114,6 @@ namespace SColdQcdCorrelatorAnalysis {
     // for weird cst check
     //   FIXME remove when ready
     if (m_doSecondCstLoop) {
-      vector<double> drBinEdges  = m_eecLongSide[0] -> bin_edges();
-      size_t         nDrBinEdges = drBinEdges.size();
- 
-      double drBinEdgeArray[nDrBinEdges];
-      for (size_t iDrEdge = 0; iDrEdge < nDrBinEdges; iDrEdge++) {
-        drBinEdgeArray[iDrEdge] = drBinEdges.at(iDrEdge);
-      }
-      hCstPtOneVsDr      = new TH2D("hCstPtOneVsDr",      "", m_nBinsDr, drBinEdgeArray, 200,  0.,   100.);
-      hCstPtTwoVsDr      = new TH2D("hCstPtTwoVsDr",      "", m_nBinsDr, drBinEdgeArray, 200,  0.,   100.);
-      hCstPtFracVsDr     = new TH2D("hCstPtFracVsDr",     "", m_nBinsDr, drBinEdgeArray, 500,  0.,   5.);
-      hCstPhiOneVsDr     = new TH2D("hCstPhiOneVsDr",     "", m_nBinsDr, drBinEdgeArray, 360, -3.15, 3.15);;
-      hCstPhiTwoVsDr     = new TH2D("hCstPhiTwoVsDr",     "", m_nBinsDr, drBinEdgeArray, 360, -3.15, 3.15);
-      hCstEtaOneVsDr     = new TH2D("hCstEtaOneVsDr",     "", m_nBinsDr, drBinEdgeArray, 400, -2.,   2.);
-      hCstEtaTwoVsDr     = new TH2D("hCstEtaTwoVsDr",     "", m_nBinsDr, drBinEdgeArray, 400, -2.,   2.);
-      hDeltaPhiOneVsDr   = new TH2D("hDeltaPhiOneVsDr",   "", m_nBinsDr, drBinEdgeArray, 720, -6.30, 6.30);
-      hDeltaPhiTwoVsDr   = new TH2D("hDeltaPhiTwoVsDr",   "", m_nBinsDr, drBinEdgeArray, 720, -6.30, 6.30);
-      hDeltaEtaOneVsDr   = new TH2D("hDeltaEtaOneVsDr",   "", m_nBinsDr, drBinEdgeArray, 800, -4.,   4.);
-      hDeltaEtaTwoVsDr   = new TH2D("hDeltaEtaTwoVsDr",   "", m_nBinsDr, drBinEdgeArray, 800, -4.,   4.);
-      hJetPtFracOneVsDr  = new TH2D("hJetPtFracOneVsDr",  "", m_nBinsDr, drBinEdgeArray, 500, 0.,    5.);
-      hJetPtFracTwoVsDr  = new TH2D("hJetPtFracTwoVsDr",  "", m_nBinsDr, drBinEdgeArray, 500, 0.,    5.);
-      hCstPairWeightVsDr = new TH2D("hCstPairWeightVsDr", "", m_nBinsDr, drBinEdgeArray, 100,  0.,   1.);
     }
 
     // announce histogram initialization
@@ -190,7 +169,7 @@ namespace SColdQcdCorrelatorAnalysis {
              << "      output = " << m_config.outFileName.data() << "\n"
              << "      inputs = {"
              << endl;
-        for (const string& inFileName : m_config.inFileNames) {
+        for (const string& inFileName : sInFileNames) {
           cout << "        " << inFileName.data() << endl;
         }
         cout << "      }" << endl;
@@ -424,16 +403,16 @@ namespace SColdQcdCorrelatorAnalysis {
         break;
       case 1:
         if (!m_config.isStandalone) {
-          cerr << "SEnergyCorrelator::GrabInputNode() PANIC: couldn't grab node \"" << m_inNodeName << "\"! Aborting!" << endl;
+          cerr << "SEnergyCorrelator::GrabInputNode() PANIC: couldn't grab node \"" << m_config.inNodeName << "\"! Aborting!" << endl;
         } else {
           cerr << "PANIC: couldn't grab node \"" << m_config.inNodeName << "\"! Aborting!" << endl;
         }
         break;
       case 2:
         if (!m_config.isStandalone) {
-          cerr << "SEnergyCorrelator::GrabInputNode() PANIC: couldn't grab tree \"" << m_inTreeName << "\" from node \"" << m_inNodeName << "\"! Aborting!" << endl;
+          cerr << "SEnergyCorrelator::GrabInputNode() PANIC: couldn't grab tree \"" << m_config.inTreeName << "\" from node \"" << m_config.inNodeName << "\"! Aborting!" << endl;
         } else {
-          cerr << "PANIC: couldn't grab tree \"" << m_inTreeName << "\" from node \"" << m_inNodeName << "\"! Aborting!" << endl;
+          cerr << "PANIC: couldn't grab tree \"" << m_config.inTreeName << "\" from node \"" << m_config.inNodeName << "\"! Aborting!" << endl;
         }
         break;
       case 3:
@@ -466,9 +445,9 @@ namespace SColdQcdCorrelatorAnalysis {
         break;
       case 7:
         if (!m_config.isStandalone) {
-          cerr << "SEnergyCorrelator::OpenInputFiles() PANIC: couldn't grab tree \"" << m_inTreeName << "\" from file \"" << sInFileName << "\"! Aborting!" << endl;
+          cerr << "SEnergyCorrelator::OpenInputFiles() PANIC: couldn't grab tree \"" << m_config.inTreeName << "\" from file \"" << sInFileName << "\"! Aborting!" << endl;
         } else {
-          cerr << "PANIC: couldn't grab tree \"" << m_inTreeName << "\" from file \"" << sInFileName << "\"! Aborting!" << endl;
+          cerr << "PANIC: couldn't grab tree \"" << m_config.inTreeName << "\" from file \"" << sInFileName << "\"! Aborting!" << endl;
         }
         break;
       case 8:
@@ -541,50 +520,6 @@ namespace SColdQcdCorrelatorAnalysis {
     return true;
 
   }  // end 'CheckCriticalParameters()'
-
-
-
-  int64_t SEnergyCorrelator::GetEntry(const uint64_t entry) {
-
-    // print debugging statemet
-    if (m_config.isDebugOn && (m_config.verbosity > 5)) PrintDebug(16);
-
-    int64_t entryStatus(-1);
-    if (!m_inChain) {
-      entryStatus = 0;
-    } else {
-      entryStatus = m_inChain -> GetEntry(entry);
-    }
-    return entryStatus;
-
-  }  // end 'GetEntry(uint64_t)'
-
-
-
-  int64_t SEnergyCorrelator::LoadTree(const uint64_t entry) {
-
-    // print debugging statemet
-    if (m_config.isDebugOn && (m_config.verbosity > 5)) PrintDebug(17);
-
-    // check for tree & load
-    int     treeNumber(-1);
-    int64_t treeStatus(-1);
-    if (!m_inChain) {
-      treeStatus = -5;
-    } else {
-      treeNumber = m_inChain -> GetTreeNumber();
-      treeStatus = m_inChain -> LoadTree(entry);
-    }
-
-    // update current tree number if need be
-    const bool isTreeStatusGood = (treeStatus >= 0);
-    const bool isNotCurrentTree = (treeNumber != m_fCurrent);
-    if (isTreeStatusGood && isNotCurrentTree) {
-      m_fCurrent = m_inChain -> GetTreeNumber();
-    }
-    return treeStatus;
-
-  }  // end 'LoadTree(uint64_t)'
 
 }  // end SColdQcdCorrelatorAnalysis namespace
 

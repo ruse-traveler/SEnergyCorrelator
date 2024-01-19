@@ -43,6 +43,7 @@ namespace SColdQcdCorrelatorAnalysis {
     vector<string> inFileNames;
 
     // calculation options
+    //   FIXME remove redundant information
     bool                         applyCstCuts  = false;
     bool                         selectSubEvts = false;
     uint16_t                     subEvtOpt     = 0;

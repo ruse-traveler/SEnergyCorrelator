@@ -44,7 +44,7 @@
 // eec library
 #include "/sphenix/user/danderson/eec/EnergyEnergyCorrelators/eec/include/EECLongestSide.hh"
 // analysis libraries
-#include "SEnergyCorrealtorConfig.h"
+#include "SEnergyCorrelatorConfig.h"
 
 using namespace std;
 using namespace fastjet;
@@ -75,12 +75,10 @@ namespace SColdQcdCorrelatorAnalysis {
 
       // setters (inline)
       void SetConfig(const SEnergyCorrelatorConfig& config) {m_config = config;}
-      void SetDoSecondCstLoop(const bool loop)              {m_doSecondCstLoop = loop;}  // FIXME remove when ready
 
       // system getters
       bool GetIsInputTreeTruth() {return m_isInputTreeTruth;}
       bool GetIsInputTreeEmbed() {return m_isInputTreeEmbed;}
-      bool GetDoSecondCstLoop()  {return m_doSecondCstLoop;}
 
       // correlator getters
       SEnergyCorrelatorConfig GetConfig() {return m_config;}
@@ -133,43 +131,8 @@ namespace SColdQcdCorrelatorAnalysis {
       vector<TH1D*> m_outHistVarLnDrAxis;
       vector<TH1D*> m_outHistErrLnDrAxis;
 
-      // for weird cst check
-      TH2D* hCstPtOneVsDr;
-      TH2D* hCstPtTwoVsDr;
-      TH2D* hCstPtFracVsDr;
-      TH2D* hCstPhiOneVsDr;
-      TH2D* hCstPhiTwoVsDr;
-      TH2D* hCstEtaOneVsDr;
-      TH2D* hCstEtaTwoVsDr;
-      TH2D* hDeltaPhiOneVsDr;
-      TH2D* hDeltaPhiTwoVsDr;
-      TH2D* hDeltaEtaOneVsDr;
-      TH2D* hDeltaEtaTwoVsDr;
-      TH2D* hJetPtFracOneVsDr;
-      TH2D* hJetPtFracTwoVsDr;
-      TH2D* hCstPairWeightVsDr;
-
       // system members
-      int  m_fCurrent         = 0;
-      bool m_isInputTreeTruth = false;
-      bool m_isInputTreeEmbed = false;
-      bool m_doSecondCstLoop  = false;
-
-      // vector of input files (standalone mode only)
-      vector<string> m_inFileNames;
-
-      // jet, cst, correlator parameters
-      uint32_t                     m_nPointCorr  = 0;
-      uint64_t                     m_nBinsDr     = 0;
-      size_t                       m_nBinsJetPt  = 0;
-      pair<double, double>         m_drBinRange  = {-999., -999.};
-      pair<double, double>         m_ptJetRange  = {-999., -999.};
-      pair<double, double>         m_etaJetRange = {-999., -999.};
-      pair<double, double>         m_momCstRange = {-999., -999.};
-      pair<double, double>         m_drCstRange  = {-999., -999.};
-      vector<pair<double, double>> m_ptJetBins;
-      vector<PseudoJet>            m_jetCstVector;
-      vector<int>                  m_subEvtsToUse;
+      int  m_fCurrent = 0;
 
       // correlators
       vector<contrib::eec::EECLongestSide<contrib::eec::hist::axis::log>*> m_eecLongSide;
