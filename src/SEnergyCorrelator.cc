@@ -25,8 +25,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
   // ctor/dtor ----------------------------------------------------------------
 
-  // TODO also add name-only ctor
-  SEnergyCorrelator::SEnergyCorrelator(SEnergyCorrelatorConfig config) : SubsysReco(config.name) {
+  SEnergyCorrelator::SEnergyCorrelator(SEnergyCorrelatorConfig& config) : SubsysReco(config.moduleName) {
 
     // set config & initialize internal variables
     m_config = config;
@@ -35,7 +34,7 @@ namespace SColdQcdCorrelatorAnalysis {
     // announce start of calculation
     if (m_config.isStandalone) PrintMessage(0);
 
-  }  // end ctor(string, bool, bool)
+  }  // end ctor(SEnergyCorrelatorConfig&)
 
 
 

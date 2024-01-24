@@ -60,7 +60,7 @@ namespace SColdQcdCorrelatorAnalysis {
     public:
 
       // ctor/dtor
-      SEnergyCorrelator(const string &name = "SEnergyCorrelator", const bool isComplex = false, const bool doDebug = false, const bool inBatch = false);
+      SEnergyCorrelator(SEnergyCorrelatorConfig& config);
       ~SEnergyCorrelator() override;
 
       // F4A methods
@@ -73,14 +73,10 @@ namespace SColdQcdCorrelatorAnalysis {
       void Analyze();
       void End();
 
-      // setters (inline)
+      // setters
       void SetConfig(const SEnergyCorrelatorConfig& config) {m_config = config;}
 
-      // system getters
-      bool GetIsInputTreeTruth() {return m_isInputTreeTruth;}
-      bool GetIsInputTreeEmbed() {return m_isInputTreeEmbed;}
-
-      // correlator getters
+      // getters
       SEnergyCorrelatorConfig GetConfig() {return m_config;}
 
     private:
