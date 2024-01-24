@@ -7,6 +7,6 @@
 # Short script to run the 'DoStandaloneCorrelatorCalculation.C' macro.
 # -----------------------------------------------------------------------------
 
-exec("root -b -q DoStandaloneCorrelatorCalculation.C")
+exec("root -b -q DoStandaloneCorrelatorCalculation.cxx")
 
 # end -------------------------------------------------------------------------
