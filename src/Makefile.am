@@ -13,7 +13,8 @@ AM_CPPFLAGS = \
   -I$(ROOTSYS)/include
 
 pkginclude_HEADERS = \
-  SEnergyCorrelator.h
+  SEnergyCorrelator.h \
+  SEnergyCorrelatorConfig.h
 
 if ! MAKEROOT6
   ROOT5_DICTS = \
