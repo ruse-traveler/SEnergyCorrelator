@@ -31,7 +31,6 @@
 // make common namespaces implicit
 using namespace std;
 using namespace fastjet;
-using namespace findNode;
 
 // forward declarations
 class PHCompositeNode;

@@ -21,7 +21,6 @@
 
 using namespace std;
 using namespace SColdQcdCorrelatorAnalysis;
-using namespace SColdQcdCorrelatorAnalysis::ScorrelatorUtilities;
 
 // load libraries
 R__LOAD_LIBRARY(/sphenix/user/danderson/install/lib/libsenergycorrelator.so)

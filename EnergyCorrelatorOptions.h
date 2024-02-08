@@ -55,7 +55,7 @@ namespace EnergyCorrelatorOptions {
   };
 
   // misc options
-  const int       verbsoity = 0;
+  const int       verbosity = 0;
   const bool      isEmbed   = false;
   const bool      doCstCuts = true;
   const bool      doDebug   = false;
@@ -85,7 +85,7 @@ namespace EnergyCorrelatorOptions {
 
   pair<CstInfo, CstInfo> GetCstAccept() {
 
-    pair<CstInfo, CstInfo> cfg_cstAccept;
+    pair<CstInfo, CstInfo> cstAccept;
     cstAccept.first.dr   = drCstRange.first;
     cstAccept.first.ene  = eneCstRange.first;
     cstAccept.second.dr  = drCstRange.second;
@@ -105,23 +105,22 @@ namespace EnergyCorrelatorOptions {
   ) {
 
     SEnergyCorrelatorConfig cfg_reco {
-      .verbosity    = cfg_verbosity,
-      .isDebugOn    = doDebug,
-      .isEmbed      = isEmbed,
-      .sInTreeTruth = false,
-      .moduleName   = "SRecoEnergyCorrelator",
-      .inTreeName   = "RecoJetTree",
-      .outFileName  = cfg_outFile,
-      .applyCstCuts = doCstCuts,
-      .subEvtOpt    = subEvtOpt,
-      .inFileNames  = cfg_inFiles,
-      .nPoints      = nPoints,
-      .nBinsDr      = nBinsDr,
-      .drBinRange   = binRangeDr,
-      .ptJetBins    = ptJetBins,
-      .inFileNames  = cfg_inFiles,
-      .jetAccept    = GetJetAccept(),
-      .cstAccept    = GetCstAccept()
+      .verbosity     = cfg_verbosity,
+      .isDebugOn     = doDebug,
+      .isEmbed       = isEmbed,
+      .isInTreeTruth = false,
+      .moduleName    = "SRecoEnergyCorrelator",
+      .inTreeName    = "RecoJetTree",
+      .outFileName   = cfg_outFile,
+      .applyCstCuts  = doCstCuts,
+      .subEvtOpt     = subEvtOpt,
+      .inFileNames   = cfg_inFiles,
+      .nPoints       = nPoints,
+      .nBinsDr       = nBinsDr,
+      .drBinRange    = binRangeDr,
+      .ptJetBins     = ptJetBins,
+      .jetAccept     = GetJetAccept(),
+      .cstAccept     = GetCstAccept()
     };
     return cfg_reco;
 
@@ -136,27 +135,29 @@ namespace EnergyCorrelatorOptions {
   ) {
 
     SEnergyCorrelatorConfig cfg_true {
-      .verbosity    = cfg_verbosity,
-      .isDebugOn    = doDebug,
-      .isEmbed      = isEmbed,
-      .sInTreeTruth = true,
-      .moduleName   = "TrueEnergyCorrelator",
-      .inTreeName   = "TruthJetTree",
-      .outFileName  = cfg_outFile,
-      .applyCstCuts = doCstCuts,
-      .subEvtOpt    = subEvtOpt,
-      .inFileNames  = cfg_inFiles,
-      .nPoints      = nPoints,
-      .nBinsDr      = nBinsDr,
-      .drBinRange   = binRangeDr,
-      .ptJetBins    = ptJetBins,
-      .jetAccept    = GetJetAccept(),
-      .cstAccept    = GetCstAccept()
+      .verbosity     = cfg_verbosity,
+      .isDebugOn     = doDebug,
+      .isEmbed       = isEmbed,
+      .isInTreeTruth = true,
+      .moduleName    = "TrueEnergyCorrelator",
+      .inTreeName    = "TruthJetTree",
+      .outFileName   = cfg_outFile,
+      .applyCstCuts  = doCstCuts,
+      .subEvtOpt     = subEvtOpt,
+      .inFileNames   = cfg_inFiles,
+      .nPoints       = nPoints,
+      .nBinsDr       = nBinsDr,
+      .drBinRange    = binRangeDr,
+      .ptJetBins     = ptJetBins,
+      .jetAccept     = GetJetAccept(),
+      .cstAccept     = GetCstAccept()
     };
     return cfg_true;
 
   }  // end 'GetConfig(vector<string>, string, int)'
 
 }  // end EnergyCorrelatorOptions namespace
+
+#endif
 
 // end -----------------------------------------------------------------
