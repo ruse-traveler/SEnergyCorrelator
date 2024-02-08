@@ -10,8 +10,25 @@
 
 #pragma once
 
+// c++ utilities
+#include <cmath>
+#include <cassert>
+// root libraries
+#include <TString.h>
+#include <Math/Vector4D.h>
+// fastjet libraries
+#include <fastjet/PseudoJet.hh>
+// anlysis utilities
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/CstTools.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/GenTools.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/JetTools.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Constants.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Interfaces.h"
+
+// make common namespaces implicit
 using namespace std;
 using namespace fastjet;
+using namespace SColdQcdCorrelatorAnalysis::SCorrelatorUtilities;
 
 
 
@@ -28,14 +45,17 @@ namespace SColdQcdCorrelatorAnalysis {
     const uint64_t nEvts = m_inChain -> GetEntriesFast();
     PrintMessage(7, nEvts);
 
+    // for eec calculation
+    vector<PseudoJet> jetCstVector;
+
     // event loop
     uint64_t nBytes = 0;
     for (uint64_t iEvt = 0; iEvt < nEvts; iEvt++) {
 
-      const uint64_t entry = LoadTree(iEvt);
+      const uint64_t entry = LoadTree(m_inChain, iEvt, m_fCurrent);
       if (entry < 0) break;
 
-      const uint64_t bytes = GetEntry(iEvt);
+      const uint64_t bytes = GetEntry(m_inChain, iEvt);
       if (bytes < 0) {
         break;
       } else {
@@ -48,7 +68,7 @@ namespace SColdQcdCorrelatorAnalysis {
       for (uint64_t iJet = 0; iJet < nJets; iJet++) {
 
         // clear vector for correlator
-        m_jetCstVector.clear();
+        jetCstVector.clear();
 
         // get jet info
         const uint64_t nCsts  = m_jetNumCst -> at(iJet);
@@ -70,31 +90,31 @@ namespace SColdQcdCorrelatorAnalysis {
           const double ptCst  = (m_cstPt  -> at(iJet)).at(iCst);
 
           // create cst 4-vector
-          ROOT::Math::PtEtaPhiMVector rVecCst(ptCst, etaCst, phiCst, 0.140);  // FIXME move pion mass to a constant in utilities namespace
+          ROOT::Math::PtEtaPhiMVector rVecCst(ptCst, etaCst, phiCst, MassPion);
 
           // if truth tree and needed, check embedding ID
           if (m_config.isInTreeTruth && m_config.selectSubEvts) {
             const int  embedCst     = (m_cstEmbedID -> at(iJet)).at(iCst);
-            const bool isSubEvtGood = CheckIfSubEvtGood(embedCst);
+            const bool isSubEvtGood = IsSubEvtGood(embedCst, m_config.subEvtOpt, m_config.isEmbed);
             if (!isSubEvtGood) continue;
           }
 
           // if needed, apply constituent cuts
           const bool isGoodCst = ApplyCstCuts(ptCst, drCst);
-          if (m_applyCstCuts && !isGoodCst) continue;
+          if (m_config.applyCstCuts && !isGoodCst) continue;
 
           // create pseudojet & add to list
           PseudoJet constituent(rVecCst.Px(), rVecCst.Py(), rVecCst.Pz(), rVecCst.E());
           constituent.set_user_index(iCst);
-          m_jetCstVector.push_back(constituent);
+          jetCstVector.push_back(constituent);
         }  // end cst loop
 
         // run eec computation
-        for (size_t iPtBin = 0; iPtBin < m_config.nBinsJetPt; iPtBin++) {
+        for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
           const bool isInPtBin = ((ptJet >= m_config.ptJetBins[iPtBin].first) && (ptJet < m_config.ptJetBins[iPtBin].second));
           if (isInPtBin) {
-            if (m_jetCstVector.size() > 0) {
-              m_eecLongSide[iPtJetBin] -> compute(m_jetCstVector);
+            if (jetCstVector.size() > 0) {
+              m_eecLongSide[iPtJetBin] -> compute(jetCstVector);
             }
           }
         }  // end pTjet bin loop
@@ -118,7 +138,7 @@ namespace SColdQcdCorrelatorAnalysis {
     vector<double>                       lnDrBinEdges;
     pair<vector<double>, vector<double>> histContentAndVariance;
     pair<vector<double>, vector<double>> histContentAndError;
-    for (size_t iPtBin = 0; iPtBin < m_config.nBinsJetPt; iPtBin++) {
+    for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
 
       // create names
       TString sPtJetBin("_ptJet");
@@ -170,10 +190,10 @@ namespace SColdQcdCorrelatorAnalysis {
       }
 
       // create output histograms
-      m_outHistVarDrAxis[iPtBin]   = new TH1D(sVarDrAxisName.Data(),   "", m_nBinsDr, drBinEdgeArray);
-      m_outHistErrDrAxis[iPtBin]   = new TH1D(sErrDrAxisName.Data(),   "", m_nBinsDr, drBinEdgeArray);
-      m_outHistVarLnDrAxis[iPtBin] = new TH1D(sVarLnDrAxisName.Data(), "", m_nBinsDr, lnDrBinEdgeArray);
-      m_outHistErrLnDrAxis[iPtBin] = new TH1D(sErrLnDrAxisName.Data(), "", m_nBinsDr, lnDrBinEdgeArray);
+      m_outHistVarDrAxis[iPtBin]   = new TH1D(sVarDrAxisName.Data(),   "", m_config.nBinsDr, drBinEdgeArray);
+      m_outHistErrDrAxis[iPtBin]   = new TH1D(sErrDrAxisName.Data(),   "", m_config.nBinsDr, drBinEdgeArray);
+      m_outHistVarLnDrAxis[iPtBin] = new TH1D(sVarLnDrAxisName.Data(), "", m_config.nBinsDr, lnDrBinEdgeArray);
+      m_outHistErrLnDrAxis[iPtBin] = new TH1D(sErrLnDrAxisName.Data(), "", m_config.nBinsDr, lnDrBinEdgeArray);
       m_outHistVarDrAxis[iPtBin]   -> Sumw2();
       m_outHistErrDrAxis[iPtBin]   -> Sumw2();
       m_outHistVarLnDrAxis[iPtBin] -> Sumw2();
@@ -223,10 +243,13 @@ namespace SColdQcdCorrelatorAnalysis {
     // print debug statement
     if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(26);
 
-    const bool isInPtRange  = ((ptJet >= m_config.ptJetRange.first)    && (ptJet < m_config.ptJetRange.second));
-    const bool isInEtaRange = ((etaJet > m_config.jetAccept.first.eta) && (etaJet < m_config.jetAccept.second.eta));
-    const bool isGoodJet    = (isInPtRange && isInEtaRange);
-    return isGoodJet;
+    // grab info
+    JetInfo jet;
+    jet.pt  = ptJet;
+    jet.eta = etaJet;
+
+    const bool isInJetAccept = IsInAcceptance(jet, m_config.jetAccept.first, m_config.jetAccept.second);
+    return isInJetAccept;
 
   }  // end 'ApplyJetCuts(double, double)'
 
@@ -237,11 +260,13 @@ namespace SColdQcdCorrelatorAnalysis {
     // print debug statement
     if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(27);
 
-    // FIXME make sure I'm cutting on the right momentum 
-    const bool isInMomRange = ((momCst >= m_config.cstAccept.first.pt) && (momCst < m_config.second.pt));
-    const bool isInDrRange  = ((drCst >= m_config.cstAccept.first.dr)  && (drCst < m_config.cstAccept.second.dr));
-    const bool isGoodCst    = (isInMomRange && isInDrRange);
-    return isGoodCst;
+    // grab info
+    CstInfo cst;
+    cst.dr  = drCst;
+    cst.ene = hypot(momCst, MassPion);
+
+    const bool isInCstAccept = IsInAcceptance(cst, m_config.cstAccept.first, m_config.cstAccept.second);
+    return isInCstAccept;
 
   }  // end 'ApplyCstCuts(double, double)'
 
@@ -254,7 +279,7 @@ namespace SColdQcdCorrelatorAnalysis {
  
     bool     isInPtBin(false);
     uint32_t iJetPtBin(0);
-    for (size_t iPtBin = 0; iPtBin < m_config.nBinsJetPt; iPtBin++) {
+    for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
       isInPtBin = ((ptJet >= m_config.ptJetBins[iPtBin].first) && (ptJet < m_config.ptJetBins[iPtBin].second));
       if (isInPtBin) {
         iJetPtBin = iPtBin;

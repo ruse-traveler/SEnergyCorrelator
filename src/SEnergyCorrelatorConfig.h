@@ -44,10 +44,10 @@ namespace SColdQcdCorrelatorAnalysis {
     vector<string> inFileNames;
 
     // calculation options
+    int                          subEvtOpt     = SubEvtOpt::Everything;
     bool                         applyCstCuts  = false;
     bool                         selectSubEvts = false;
     uint64_t                     nBinsDr       = 75;
-    SubEvtOpt                    subEvtOpt     = SubEvtOpt::Everything;
     vector<int>                  subEvtsToUse  = {};
     vector<uint32_t>             nPoints       = {2};
     vector<pair<double, double>> ptJetBins     = {{0., 100.}};

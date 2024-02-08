@@ -12,33 +12,15 @@
 #define SENERGYCORRELATOR_H
 
 // c++ utilities
-#include <cmath>
 #include <string>
 #include <vector>
-#include <cassert>
-#include <sstream>
-#include <cstdlib>
 #include <utility>
 // root libraries
 #include <TH1.h>
-#include <TH2.h>
-#include <TROOT.h>
 #include <TFile.h>
-#include <TMath.h>
 #include <TChain.h>
-#include <TString.h>
-#include <TDirectory.h>
-#include <Math/Vector4D.h>
 // f4a utilities
 #include <fun4all/SubsysReco.h>
-#include <fun4all/Fun4AllReturnCodes.h>
-#include <fun4all/Fun4AllHistoManager.h>
-// phool utilities
-#include <phool/phool.h>
-#include <phool/getClass.h>
-#include <phool/PHIODataNode.h>
-#include <phool/PHNodeIterator.h>
-#include <phool/PHCompositeNode.h>
 // fastjet libraries
 #include <fastjet/PseudoJet.hh>
 // eec library
@@ -46,8 +28,13 @@
 // analysis libraries
 #include "SEnergyCorrelatorConfig.h"
 
+// make common namespaces implicit
 using namespace std;
 using namespace fastjet;
+using namespace findNode;
+
+// forward declarations
+class PHCompositeNode;
 
 
 
@@ -81,11 +68,6 @@ namespace SColdQcdCorrelatorAnalysis {
 
     private:
 
-      // constants
-      enum CONST {
-        NPARTONS = 2
-      };
-
       // io methods (*.io.h)
       void GrabInputNode();
       void OpenInputFiles();
@@ -102,15 +84,12 @@ namespace SColdQcdCorrelatorAnalysis {
       void    PrintDebug(const uint32_t code);
       void    PrintError(const uint32_t code, const size_t nDrBinEdges = 0, const size_t iDrBin = 0, const string sInFileName = "");
       bool    CheckCriticalParameters();
-      int64_t LoadTree(const uint64_t entry);
-      int64_t GetEntry(const uint64_t entry);
 
       // analysis methods (*.ana.h)
       void     DoCorrelatorCalculation();
       void     ExtractHistsFromCorr();
       bool     ApplyJetCuts(const double ptJet, const double etaJet);
       bool     ApplyCstCuts(const double momCst, const double drCst);
-      bool     CheckIfSubEvtGood(const int embedID);
       uint32_t GetJetPtBin(const double ptJet);
 
       // configuration
@@ -121,34 +100,36 @@ namespace SColdQcdCorrelatorAnalysis {
       TFile*  m_inFile  = NULL;
       TChain* m_inChain = NULL;
 
+      // system members
+      int m_fCurrent = 0;
+
       // output histograms
       vector<TH1D*> m_outHistVarDrAxis;
       vector<TH1D*> m_outHistErrDrAxis;
       vector<TH1D*> m_outHistVarLnDrAxis;
       vector<TH1D*> m_outHistErrLnDrAxis;
 
-      // system members
-      int  m_fCurrent = 0;
-
       // correlators
       vector<contrib::eec::EECLongestSide<contrib::eec::hist::axis::log>*> m_eecLongSide;
 
-      // input truth tree address members
-      int                  m_evtNumChrgPars              = -999;
-      int                  m_partonID[CONST::NPARTONS]   = {-999,  -999};
-      double               m_partonMomX[CONST::NPARTONS] = {-999., -999.};
-      double               m_partonMomY[CONST::NPARTONS] = {-999., -999.};
-      double               m_partonMomZ[CONST::NPARTONS] = {-999., -999.};
-      double               m_evtSumPar                   = -999.;
-      vector<vector<int>>* m_cstID                       = NULL;
-      vector<vector<int>>* m_cstEmbedID                  = NULL;
-      // input reco. tree address members
+      // input truth tree addresses
+      //   - FIXME swap out for utlity types when ready
+      int                  m_evtNumChrgPars = -999;
+      double               m_evtSumPar      = -999.;
+      pair<int, int>       m_partonID       = {-999,  -999};
+      pair<double, double> m_partonMomX     = {-999., -999.};
+      pair<double, double> m_partonMomY     = {-999., -999.};
+      pair<double, double> m_partonMomZ     = {-999., -999.};
+      vector<vector<int>>* m_cstID          = NULL;
+      vector<vector<int>>* m_cstEmbedID     = NULL;
+      // input reco. tree addresses
       int                  m_evtNumTrks = -999;
       double               m_evtSumECal = -999.;
       double               m_evtSumHCal = -999.;
       vector<vector<int>>* m_cstMatchID = NULL;
 
       // generic input tree address members
+      //   - FIXME swap out for utlity types when ready
       int                     m_evtNumJets = -999;
       double                  m_evtVtxX    = -999.;
       double                  m_evtVtxY    = -999.;
@@ -169,13 +150,14 @@ namespace SColdQcdCorrelatorAnalysis {
       vector<vector<double>>* m_cstPhi     = NULL;
 
       // input truth tree branch members
-      TBranch* m_brPartonID[CONST::NPARTONS]   = {NULL, NULL};
-      TBranch* m_brPartonMomX[CONST::NPARTONS] = {NULL, NULL};
-      TBranch* m_brPartonMomY[CONST::NPARTONS] = {NULL, NULL};
-      TBranch* m_brPartonMomZ[CONST::NPARTONS] = {NULL, NULL};
-      TBranch* m_brEvtSumPar                   = NULL;
-      TBranch* m_brCstID                       = NULL;
-      TBranch* m_brCstEmbedID                  = NULL;
+      //   - FIXME swap out for utlity types when ready
+      TBranch*                 m_brEvtSumPar  = NULL;
+      TBranch*                 m_brCstID      = NULL;
+      TBranch*                 m_brCstEmbedID = NULL;
+      pair<TBranch*, TBranch*> m_brPartonID   = {NULL, NULL};
+      pair<TBranch*, TBranch*> m_brPartonMomX = {NULL, NULL};
+      pair<TBranch*, TBranch*> m_brPartonMomY = {NULL, NULL};
+      pair<TBranch*, TBranch*> m_brPartonMomZ = {NULL, NULL};
       // input reco. tree branch members
       TBranch* m_brEvtNumTrks = NULL;
       TBranch* m_brEvtSumECal = NULL;
@@ -183,6 +165,7 @@ namespace SColdQcdCorrelatorAnalysis {
       TBranch* m_brCstMatchID = NULL;
 
       // generic input tree branch members
+      //   - FIXME swap out for utlity types when ready
       TBranch* m_brEvtNumJets = NULL;
       TBranch* m_brEvtVtxX    = NULL;
       TBranch* m_brEvtVtxY    = NULL;

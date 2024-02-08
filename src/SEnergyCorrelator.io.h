@@ -10,7 +10,16 @@
 
 #pragma once
 
+// c++ utilities
+#include <cassert>
+// root libraries
+#include <TFile.h>
+#include <TChain.h>
+#include <TDirectory.h>
+
+// make common namespaces implicit
 using namespace std;
+using namespace findNode;
 
 
 
@@ -45,7 +54,7 @@ namespace SColdQcdCorrelatorAnalysis {
     // loop over provided input files
     bool     isFileGood = true;
     uint64_t bytes      = 0;
-    for (const string& inFileName : m_inFileNames) {
+    for (const string& inFileName : m_config.inFileNames) {
       bytes      = m_inChain -> Add(inFileName.data(), 0);
       isFileGood = (bytes > 0);
       if (!isFileGood) {
@@ -82,7 +91,7 @@ namespace SColdQcdCorrelatorAnalysis {
     if (m_config.isDebugOn) PrintDebug(9);
 
     m_outFile -> cd();
-    for (size_t iPtBin = 0; iPtBin < m_nBinsJetPt; iPtBin++) {
+    for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
       m_outHistVarDrAxis[iPtBin]   -> Write();
       m_outHistErrDrAxis[iPtBin]   -> Write();
       m_outHistVarLnDrAxis[iPtBin] -> Write();

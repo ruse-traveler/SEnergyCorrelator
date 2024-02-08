@@ -10,8 +10,18 @@
 
 #pragma once
 
+// c++ utilities
+#include <string>
+#include <vector>
+#include <cassert>
+#include <iostream>
+// root libraries
+#include <TH1.h>
+#include <TFile.h>
+#include <TChain.h>
+
+// make common namespaces implicit
 using namespace std;
-using namespace fastjet;
 
 
 
@@ -24,7 +34,6 @@ namespace SColdQcdCorrelatorAnalysis {
     // print debug statement
     if (m_config.isDebugOn) PrintDebug(0);
 
-    m_jetCstVector.clear();
     m_outHistVarDrAxis.clear();
     m_outHistErrDrAxis.clear();
     m_outHistVarLnDrAxis.clear();
@@ -50,17 +59,17 @@ namespace SColdQcdCorrelatorAnalysis {
 
     // set truth vs. reco branch addresses
     if (m_config.isInTreeTruth) {
-      m_inChain -> SetBranchAddress("Parton3_ID",   &m_partonID[0],   &m_brPartonID[0]);
-      m_inChain -> SetBranchAddress("Parton4_ID",   &m_partonID[1],   &m_brPartonID[1]);
-      m_inChain -> SetBranchAddress("Parton3_MomX", &m_partonMomX[0], &m_brPartonMomX[0]);
-      m_inChain -> SetBranchAddress("Parton3_MomY", &m_partonMomY[0], &m_brPartonMomY[0]);
-      m_inChain -> SetBranchAddress("Parton3_MomZ", &m_partonMomZ[0], &m_brPartonMomZ[0]);
-      m_inChain -> SetBranchAddress("Parton4_MomX", &m_partonMomX[1], &m_brPartonMomX[1]);
-      m_inChain -> SetBranchAddress("Parton4_MomY", &m_partonMomY[1], &m_brPartonMomY[1]);
-      m_inChain -> SetBranchAddress("Parton4_MomZ", &m_partonMomZ[1], &m_brPartonMomZ[1]);
-      m_inChain -> SetBranchAddress("EvtSumParEne", &m_evtSumPar,     &m_brEvtSumPar);
-      m_inChain -> SetBranchAddress("CstID",        &m_cstID,         &m_brCstID);
-      m_inChain -> SetBranchAddress("CstEmbedID",   &m_cstEmbedID,    &m_brCstEmbedID);
+      m_inChain -> SetBranchAddress("Parton3_ID",   &m_partonID.first,    &m_brPartonID.first);
+      m_inChain -> SetBranchAddress("Parton4_ID",   &m_partonID.second,   &m_brPartonID.second);
+      m_inChain -> SetBranchAddress("Parton3_MomX", &m_partonMomX.first,  &m_brPartonMomX.first);
+      m_inChain -> SetBranchAddress("Parton3_MomY", &m_partonMomY.first,  &m_brPartonMomY.first);
+      m_inChain -> SetBranchAddress("Parton3_MomZ", &m_partonMomZ.first,  &m_brPartonMomZ.first);
+      m_inChain -> SetBranchAddress("Parton4_MomX", &m_partonMomX.second, &m_brPartonMomX.second);
+      m_inChain -> SetBranchAddress("Parton4_MomY", &m_partonMomY.second, &m_brPartonMomY.second);
+      m_inChain -> SetBranchAddress("Parton4_MomZ", &m_partonMomZ.second, &m_brPartonMomZ.second);
+      m_inChain -> SetBranchAddress("EvtSumParEne", &m_evtSumPar,         &m_brEvtSumPar);
+      m_inChain -> SetBranchAddress("CstID",        &m_cstID,             &m_brCstID);
+      m_inChain -> SetBranchAddress("CstEmbedID",   &m_cstEmbedID,        &m_brCstEmbedID);
     } else {
       m_inChain -> SetBranchAddress("EvtNumTrks",    &m_evtNumTrks, &m_brEvtNumTrks);
       m_inChain -> SetBranchAddress("EvtSumECalEne", &m_evtSumECal, &m_brEvtSumECal);
@@ -100,7 +109,7 @@ namespace SColdQcdCorrelatorAnalysis {
     // print debug statement
     if (m_config.isDebugOn) PrintDebug(5);
 
-    for (size_t iPtBin = 0; iPtBin < m_nBinsJetPt; iPtBin++) {
+    for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
       TH1D* hInitialVarDrAxis   = NULL;
       TH1D* hInitialErrDrAxis   = NULL;
       TH1D* hInitialVarLnDrAxis = NULL;
@@ -109,11 +118,6 @@ namespace SColdQcdCorrelatorAnalysis {
       m_outHistVarLnDrAxis.push_back(hInitialVarLnDrAxis);
       m_outHistErrDrAxis.push_back(hInitialErrDrAxis);
       m_outHistErrLnDrAxis.push_back(hInitialErrLnDrAxis);
-    }
-
-    // for weird cst check
-    //   FIXME remove when ready
-    if (m_doSecondCstLoop) {
     }
 
     // announce histogram initialization
@@ -130,10 +134,10 @@ namespace SColdQcdCorrelatorAnalysis {
     if (m_config.isDebugOn) PrintDebug(6);
 
     // initialize correlator for each jet pt bin
-    for (size_t iPtBin = 0; iPtBin < m_config.nBinsJetPt; iPtBin++) {
+    for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
       m_eecLongSide.push_back(
         new contrib::eec::EECLongestSide<contrib::eec::hist::axis::log>(
-          m_config.nPointCorr.at(0),  // TODO enable multiple n per calculation
+          m_config.nPoints.at(0),  // TODO enable multiple n per calculation
           m_config.nBinsDr,
           {m_config.drBinRange.first, m_config.drBinRange.second}
         )
@@ -141,7 +145,7 @@ namespace SColdQcdCorrelatorAnalysis {
     }
 
     // announce correlator initialization
-    if (m_config.isStandaloneMode) PrintMessage(4);
+    if (m_config.isStandalone) PrintMessage(4);
     return;
 
   }  // end 'InitializeCorrs()'
@@ -169,7 +173,7 @@ namespace SColdQcdCorrelatorAnalysis {
              << "      output = " << m_config.outFileName.data() << "\n"
              << "      inputs = {"
              << endl;
-        for (const string& inFileName : sInFileNames) {
+        for (const string& inFileName : m_config.inFileNames) {
           cout << "        " << inFileName.data() << endl;
         }
         cout << "      }" << endl;
@@ -187,7 +191,7 @@ namespace SColdQcdCorrelatorAnalysis {
         break;
       case 5:
         cout << "    Set correlator parameters:\n"
-             << "      n-point = "       << m_config.nPointCorr.at(0)  << ", number of dR bins = " << m_config.nBinsDr           << "\n"
+             << "      n-point = "       << m_config.nPoints.at(0)     << ", number of dR bins = " << m_config.nBinsDr           << "\n"
              << "      dR bin range = (" << m_config.drBinRange.first  << ", "                     << m_config.drBinRange.second << ")"
              << endl;
         break;
@@ -197,7 +201,7 @@ namespace SColdQcdCorrelatorAnalysis {
              << "      pt range  = (" << m_config.jetAccept.first.pt  << ", " << m_config.jetAccept.second.pt  << ")\n"
              << "    Set pTjet bins:"
              << endl;
-        for (uint32_t iPtBin = 0; iPtBin < m_config.nBinsJetPt; iPtBin++) {
+        for (uint32_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
           cout << "      bin[" << iPtBin << "] = (" << m_config.ptJetBins.at(iPtBin).first << ", " << m_config.ptJetBins.at(iPtBin).second << ")" << endl;
         }
         break;
@@ -483,7 +487,7 @@ namespace SColdQcdCorrelatorAnalysis {
           cerr << "SEnergyCorrelator::ExtraHistsFromCorr() PANIC: number of dR bin edges is no good! Aborting!" << endl;
         } else {
           cerr << "PANIC: number of dR bin edges is no good! Aborting!\n"
-               << "       nDrBinEdges = " << nDrBinEdges << ", nDrBins = " << m_nBinsDr
+               << "       nDrBinEdges = " << nDrBinEdges << ", nDrBins = " << m_config.nBinsDr
                << endl;
         }
         break;

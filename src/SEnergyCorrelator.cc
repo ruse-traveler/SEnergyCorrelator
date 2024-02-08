@@ -10,14 +10,24 @@
 
 #define SENERGYCORRELATOR_CC
 
-// user includes
+// phool utilities
+#include <phool/phool.h>
+#include <phool/getClass.h>
+#include <phool/PHIODataNode.h>
+#include <phool/PHNodeIterator.h>
+#include <phool/PHCompositeNode.h>
+// f4a utilities
+#include <fun4all/Fun4AllReturnCodes.h>
+// analysis headers
 #include "SEnergyCorrelator.h"
 #include "SEnergyCorrelator.io.h"
 #include "SEnergyCorrelator.sys.h"
 #include "SEnergyCorrelator.ana.h"
+#include "SEnergyCorrelatorConfig.h"
 
+// make common namespaces implicit
 using namespace std;
-using namespace fastjet;
+using namespace findNode;
 
 
 
@@ -49,7 +59,7 @@ namespace SColdQcdCorrelatorAnalysis {
     }
 
     // delete pointers to correlators/histograms
-    for (size_t iPtBin = 0; iPtBin < m_config.nBinsJetPt; iPtBin++) {
+    for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
       delete m_eecLongSide.at(iPtBin);
       delete m_outHistVarDrAxis.at(iPtBin);
       delete m_outHistErrDrAxis.at(iPtBin);
