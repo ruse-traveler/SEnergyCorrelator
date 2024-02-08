@@ -14,8 +14,9 @@
 #include <vector>
 #include <utility>
 // analysis utilities
-#include "/sphenix/user/danderson/eec/SCorrelatorUtilities/CstInfo.h"
-#include "/sphenix/user/danderson/eec/SCorrelatorUtilities/JetTools.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/CstTools.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/JetTools.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Constants.h"
 
 // make common namespaces implicit
 using namespace std;
@@ -43,16 +44,14 @@ namespace SColdQcdCorrelatorAnalysis {
     vector<string> inFileNames;
 
     // calculation options
-    //   FIXME remove redundant information
     bool                         applyCstCuts  = false;
     bool                         selectSubEvts = false;
-    uint16_t                     subEvtOpt     = 0;
-    uint64_t                     nBinsDr;
-    vector<int>                  subEvtsToUse;
-    vector<size_t>               nBinsJetPt;
-    vector<uint32_t>             nPoints;
-    vector<pair<double, double>> ptJetBins;
-    pair<double, double>         drBinRange;
+    uint64_t                     nBinsDr       = 75;
+    SubEvtOpt                    subEvtOpt     = SubEvtOpt::Everything;
+    vector<int>                  subEvtsToUse  = {};
+    vector<uint32_t>             nPoints       = {2};
+    vector<pair<double, double>> ptJetBins     = {{0., 100.}};
+    pair<double, double>         drBinRange    = {1e-5, 1.};
 
     // acceptance parameters
     pair<JetInfo, JetInfo> jetAccept;
