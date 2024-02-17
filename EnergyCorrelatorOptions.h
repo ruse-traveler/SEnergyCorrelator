@@ -14,11 +14,9 @@
 #include <utility>
 #include <optional>
 // analysis utilities
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/GenTools.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/JetTools.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Constants.h"
 #include "/sphenix/user/danderson/install/include/senergycorrelator/SEnergyCorrelator.h"
 #include "/sphenix/user/danderson/install/include/senergycorrelator/SEnergyCorrelatorConfig.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/SCorrelatorUtilities.h"
 
 // make common namespacs implicit
 using namespace std;

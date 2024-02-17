@@ -19,11 +19,7 @@
 // fastjet libraries
 #include <fastjet/PseudoJet.hh>
 // anlysis utilities
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/CstTools.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/GenTools.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/JetTools.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Constants.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Interfaces.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/SCorrelatorUtilities.h"
 
 // make common namespaces implicit
 using namespace std;
