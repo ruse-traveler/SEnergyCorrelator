@@ -14,23 +14,41 @@
 // c++ utilities
 #include <string>
 #include <vector>
+#include <cassert>
 #include <utility>
+#include <iostream>
 // root libraries
 #include <TH1.h>
 #include <TFile.h>
 #include <TChain.h>
+#include <TString.h>
+#include <TDirectory.h>
+#include <Math/Vector4D.h>
+// phool utilities
+#include <phool/phool.h>
+#include <phool/getClass.h>
+#include <phool/PHIODataNode.h>
+#include <phool/PHNodeIterator.h>
+#include <phool/PHCompositeNode.h>
 // f4a utilities
 #include <fun4all/SubsysReco.h>
+#include <fun4all/Fun4AllReturnCodes.h>
 // fastjet libraries
 #include <fastjet/PseudoJet.hh>
 // eec library
 #include "/sphenix/user/danderson/eec/EnergyEnergyCorrelators/eec/include/EECLongestSide.hh"
-// analysis libraries
+// analysis utilities
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Tools.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Types.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Constants.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Interfaces.h"
+// analysis definitions
 #include "SEnergyCorrelatorConfig.h"
+#include "SEnergyCorrelatorLegacyInput.h"
+
 
 // make common namespaces implicit
 using namespace std;
-using namespace fastjet;
 
 // forward declarations
 class PHCompositeNode;
@@ -109,44 +127,10 @@ namespace SColdQcdCorrelatorAnalysis {
       vector<TH1D*> m_outHistErrLnDrAxis;
 
       // correlators
-      vector<contrib::eec::EECLongestSide<contrib::eec::hist::axis::log>*> m_eecLongSide;
+      vector<fastjet::contrib::eec::EECLongestSide<fastjet::contrib::eec::hist::axis::log>*> m_eecLongSide;
 
-      // input truth tree addresses
-      //   - FIXME swap out for utlity types when ready
-      int                  m_evtNumChrgPars = -999;
-      double               m_evtSumPar      = -999.;
-      pair<int, int>       m_partonID       = {-999,  -999};
-      pair<double, double> m_partonMomX     = {-999., -999.};
-      pair<double, double> m_partonMomY     = {-999., -999.};
-      pair<double, double> m_partonMomZ     = {-999., -999.};
-      vector<vector<int>>* m_cstID          = NULL;
-      vector<vector<int>>* m_cstEmbedID     = NULL;
-      // input reco. tree addresses
-      int                  m_evtNumTrks = -999;
-      double               m_evtSumECal = -999.;
-      double               m_evtSumHCal = -999.;
-      vector<vector<int>>* m_cstMatchID = NULL;
-
-      // generic input tree address members
-      //   - FIXME swap out for utlity types when ready
-      int                     m_evtNumJets = -999;
-      double                  m_evtVtxX    = -999.;
-      double                  m_evtVtxY    = -999.;
-      double                  m_evtVtxZ    = -999.;
-      vector<unsigned long>*  m_jetNumCst  = NULL;
-      vector<unsigned int>*   m_jetID      = NULL;
-      vector<unsigned int>*   m_jetTruthID = NULL;
-      vector<double>*         m_jetEnergy  = NULL;
-      vector<double>*         m_jetPt      = NULL;
-      vector<double>*         m_jetEta     = NULL;
-      vector<double>*         m_jetPhi     = NULL;
-      vector<double>*         m_jetArea    = NULL;
-      vector<vector<double>>* m_cstZ       = NULL;
-      vector<vector<double>>* m_cstDr      = NULL;
-      vector<vector<double>>* m_cstEnergy  = NULL;
-      vector<vector<double>>* m_cstPt      = NULL;
-      vector<vector<double>>* m_cstEta     = NULL;
-      vector<vector<double>>* m_cstPhi     = NULL;
+      // inputs
+      SEnergyCorrelatorLegacyInput m_legacy;
 
       // input truth tree branch members
       //   - FIXME swap out for utlity types when ready
@@ -183,7 +167,7 @@ namespace SColdQcdCorrelatorAnalysis {
       TBranch* m_brCstEta     = NULL;
       TBranch* m_brCstPhi     = NULL;
 
-  };
+  };  // end SEnergyCorrelator
 
 }  // end SColdQcdCorrelatorAnalysis namespace
 

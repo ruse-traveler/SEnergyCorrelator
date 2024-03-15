@@ -5,7 +5,8 @@ lib_LTLIBRARIES = \
 
 AM_LDFLAGS = \
   -L$(libdir) \
-  -L$(OFFLINE_MAIN)/lib
+  -L$(OFFLINE_MAIN)/lib \
+  $(MYINSTALL)/lib/libscorrelatorutilities.la
 
 AM_CPPFLAGS = \
   -I$(includedir) \
@@ -14,7 +15,8 @@ AM_CPPFLAGS = \
 
 pkginclude_HEADERS = \
   SEnergyCorrelator.h \
-  SEnergyCorrelatorConfig.h
+  SEnergyCorrelatorConfig.h \
+  SEnergyCorrelatorLegacyInput.h
 
 if ! MAKEROOT6
   ROOT5_DICTS = \
