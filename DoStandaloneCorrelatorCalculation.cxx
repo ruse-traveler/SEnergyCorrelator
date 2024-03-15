@@ -6,8 +6,8 @@
 // Use this to run the SEnergyCorrelator class in standalone mode.
 // ----------------------------------------------------------------------------
 
-#ifndef DOSTANDALONECORRELATORCALCULATION_C
-#define DOSTANDALONECORRELATORCALCULATION_C
+#ifndef DOSTANDALONECORRELATORCALCULATION_CXX
+#define DOSTANDALONECORRELATORCALCULATION_CXX
 
 // c++ utilities
 #include <string>
@@ -24,6 +24,7 @@ using namespace SColdQcdCorrelatorAnalysis;
 
 // load libraries
 R__LOAD_LIBRARY(/sphenix/user/danderson/install/lib/libsenergycorrelator.so)
+R__LOAD_LIBRARY(/sphenix/user/danderson/install/lib/libscorrelatorutilities.so)
 
 
 

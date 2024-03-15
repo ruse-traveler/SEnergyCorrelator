@@ -14,14 +14,13 @@
 #include <utility>
 #include <optional>
 // analysis utilities
-#include "/sphenix/user/danderson/install/include/senergycorrelator/SEnergyCorrelator.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Types.h"
+#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Constants.h"
 #include "/sphenix/user/danderson/install/include/senergycorrelator/SEnergyCorrelatorConfig.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/SCorrelatorUtilities.h"
 
 // make common namespacs implicit
 using namespace std;
 using namespace SColdQcdCorrelatorAnalysis;
-using namespace SColdQcdCorrelatorAnalysis::SCorrelatorUtilities;
 
 
 
@@ -34,8 +33,8 @@ namespace EnergyCorrelatorOptions {
     "../SCorrelatorJetTree/output/condor/final_merge/correlatorJetTree.pp200py8jet10run8_trksWithRoughCuts.d26m9y2023.root"
   };
   const pair<string, string> outFiles = {
-    "twoPoint.pp200py8jet10run8.refactor_afterConfigStruct_reco.d18m1y2024.root",
-    "twoPoint.pp200py8jet10run8.refactor_afterConfigStruct_true.d18m1y2024.root"
+    "twoPoint.pp200py8jet10run8.refactor_afterUtilityRearchitect_reco.d15m3y2024.root",
+    "twoPoint.pp200py8jet10run8.refactor_afterUtilityRearchitect_true.d15m3y2024.root"
   };
 
   // correlator parameters
@@ -53,11 +52,11 @@ namespace EnergyCorrelatorOptions {
   };
 
   // misc options
-  const int       verbosity = 0;
-  const bool      isEmbed   = false;
-  const bool      doCstCuts = true;
-  const bool      doDebug   = false;
-  const SubEvtOpt subEvtOpt = SubEvtOpt::Everything;
+  const int  verbosity = 0;
+  const int  subEvtOpt = Const::SubEvtOpt::Everything;
+  const bool isEmbed   = false;
+  const bool doCstCuts = true;
+  const bool doDebug   = false;
 
   // jet acceptance
   const pair<float, float> etaJetRange = {-0.7, 0.7};
@@ -70,24 +69,38 @@ namespace EnergyCorrelatorOptions {
 
   // bundle acceptances into pairs --------------------------------------------
 
-  pair<JetInfo, JetInfo> GetJetAccept() {
+  pair<Types::JetInfo, Types::JetInfo> GetJetAccept() {
 
-    pair<JetInfo, JetInfo> jetAccept;
-    jetAccept.first.eta  = etaJetRange.first;
-    jetAccept.second.eta = etaJetRange.second;
+    // create maximal range
+    pair<Types::JetInfo, Types::JetInfo> jetAccept = {
+      Types::JetInfo(Const::Init::Minimize),
+      Types::JetInfo(Const::Init::Maximize)
+    };
+
+    // set specific bounds
+    jetAccept.first.SetPT( ptJetBins.front().first );
+    jetAccept.first.SetEta( etaJetRange.first );
+    jetAccept.second.SetPT( ptJetBins.back().second );
+    jetAccept.second.SetEta( etaJetRange.second );
     return jetAccept;
 
   }  // end 'GetJetAccept()'
 
 
 
-  pair<CstInfo, CstInfo> GetCstAccept() {
+  pair<Types::CstInfo, Types::CstInfo> GetCstAccept() {
 
-    pair<CstInfo, CstInfo> cstAccept;
-    cstAccept.first.dr   = drCstRange.first;
-    cstAccept.first.ene  = eneCstRange.first;
-    cstAccept.second.dr  = drCstRange.second;
-    cstAccept.second.ene = eneCstRange.second;
+   // create maxmimal range
+    pair<Types::CstInfo, Types::CstInfo> cstAccept = {
+      Types::CstInfo(Const::Init::Minimize),
+      Types::CstInfo(Const::Init::Maximize)
+    };
+
+    // set specific bounds
+    cstAccept.first.SetDR( drCstRange.first );
+    cstAccept.first.SetEne( eneCstRange.first );
+    cstAccept.second.SetDR( drCstRange.second );
+    cstAccept.second.SetEne( eneCstRange.second );
     return cstAccept;
 
   }  // end 'GetCstAccept()'
