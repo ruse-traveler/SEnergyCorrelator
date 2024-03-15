@@ -132,41 +132,6 @@ namespace SColdQcdCorrelatorAnalysis {
       // inputs
       SEnergyCorrelatorLegacyInput m_legacy;
 
-      // input truth tree branch members
-      //   - FIXME swap out for utlity types when ready
-      TBranch*                 m_brEvtSumPar  = NULL;
-      TBranch*                 m_brCstID      = NULL;
-      TBranch*                 m_brCstEmbedID = NULL;
-      pair<TBranch*, TBranch*> m_brPartonID   = {NULL, NULL};
-      pair<TBranch*, TBranch*> m_brPartonMomX = {NULL, NULL};
-      pair<TBranch*, TBranch*> m_brPartonMomY = {NULL, NULL};
-      pair<TBranch*, TBranch*> m_brPartonMomZ = {NULL, NULL};
-      // input reco. tree branch members
-      TBranch* m_brEvtNumTrks = NULL;
-      TBranch* m_brEvtSumECal = NULL;
-      TBranch* m_brEvtSumHCal = NULL;
-      TBranch* m_brCstMatchID = NULL;
-
-      // generic input tree branch members
-      //   - FIXME swap out for utlity types when ready
-      TBranch* m_brEvtNumJets = NULL;
-      TBranch* m_brEvtVtxX    = NULL;
-      TBranch* m_brEvtVtxY    = NULL;
-      TBranch* m_brEvtVtxZ    = NULL;
-      TBranch* m_brJetNumCst  = NULL;
-      TBranch* m_brJetID      = NULL;
-      TBranch* m_brJetEnergy  = NULL;
-      TBranch* m_brJetPt      = NULL;
-      TBranch* m_brJetEta     = NULL;
-      TBranch* m_brJetPhi     = NULL;
-      TBranch* m_brJetArea    = NULL;
-      TBranch* m_brCstZ       = NULL;
-      TBranch* m_brCstDr      = NULL;
-      TBranch* m_brCstPt      = NULL;
-      TBranch* m_brCstEnergy  = NULL;
-      TBranch* m_brCstEta     = NULL;
-      TBranch* m_brCstPhi     = NULL;
-
   };  // end SEnergyCorrelator
 
 }  // end SColdQcdCorrelatorAnalysis namespace

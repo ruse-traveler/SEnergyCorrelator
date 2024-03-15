@@ -50,42 +50,42 @@ namespace SColdQcdCorrelatorAnalysis {
 
     // set truth vs. reco branch addresses
     if (m_config.isInTreeTruth) {
-      m_inChain -> SetBranchAddress("Parton3_ID",   &m_legacy.partonID.first,    &m_brPartonID.first);
-      m_inChain -> SetBranchAddress("Parton4_ID",   &m_legacy.partonID.second,   &m_brPartonID.second);
-      m_inChain -> SetBranchAddress("Parton3_MomX", &m_legacy.partonMomX.first,  &m_brPartonMomX.first);
-      m_inChain -> SetBranchAddress("Parton3_MomY", &m_legacy.partonMomY.first,  &m_brPartonMomY.first);
-      m_inChain -> SetBranchAddress("Parton3_MomZ", &m_legacy.partonMomZ.first,  &m_brPartonMomZ.first);
-      m_inChain -> SetBranchAddress("Parton4_MomX", &m_legacy.partonMomX.second, &m_brPartonMomX.second);
-      m_inChain -> SetBranchAddress("Parton4_MomY", &m_legacy.partonMomY.second, &m_brPartonMomY.second);
-      m_inChain -> SetBranchAddress("Parton4_MomZ", &m_legacy.partonMomZ.second, &m_brPartonMomZ.second);
-      m_inChain -> SetBranchAddress("EvtSumParEne", &m_legacy.evtSumPar,         &m_brEvtSumPar);
-      m_inChain -> SetBranchAddress("CstID",        &m_legacy.cstID,             &m_brCstID);
-      m_inChain -> SetBranchAddress("CstEmbedID",   &m_legacy.cstEmbedID,        &m_brCstEmbedID);
+      m_inChain -> SetBranchAddress("Parton3_ID",   &m_legacy.partonID.first);
+      m_inChain -> SetBranchAddress("Parton4_ID",   &m_legacy.partonID.second);
+      m_inChain -> SetBranchAddress("Parton3_MomX", &m_legacy.partonMomX.first);
+      m_inChain -> SetBranchAddress("Parton3_MomY", &m_legacy.partonMomY.first);
+      m_inChain -> SetBranchAddress("Parton3_MomZ", &m_legacy.partonMomZ.first);
+      m_inChain -> SetBranchAddress("Parton4_MomX", &m_legacy.partonMomX.second);
+      m_inChain -> SetBranchAddress("Parton4_MomY", &m_legacy.partonMomY.second);
+      m_inChain -> SetBranchAddress("Parton4_MomZ", &m_legacy.partonMomZ.second);
+      m_inChain -> SetBranchAddress("EvtSumParEne", &m_legacy.evtSumPar);
+      m_inChain -> SetBranchAddress("CstID",        &m_legacy.cstID);
+      m_inChain -> SetBranchAddress("CstEmbedID",   &m_legacy.cstEmbedID);
     } else {
-      m_inChain -> SetBranchAddress("EvtNumTrks",    &m_legacy.evtNumTrks, &m_brEvtNumTrks);
-      m_inChain -> SetBranchAddress("EvtSumECalEne", &m_legacy.evtSumECal, &m_brEvtSumECal);
-      m_inChain -> SetBranchAddress("EvtSumHCalEne", &m_legacy.evtSumHCal, &m_brEvtSumHCal);
-      m_inChain -> SetBranchAddress("CstMatchID",    &m_legacy.cstMatchID, &m_brCstMatchID);
+      m_inChain -> SetBranchAddress("EvtNumTrks",    &m_legacy.evtNumTrks);
+      m_inChain -> SetBranchAddress("EvtSumECalEne", &m_legacy.evtSumECal);
+      m_inChain -> SetBranchAddress("EvtSumHCalEne", &m_legacy.evtSumHCal);
+      m_inChain -> SetBranchAddress("CstMatchID",    &m_legacy.cstMatchID);
     }
 
     // set generic branch addresses
-    m_inChain -> SetBranchAddress("EvtVtxX",    &m_legacy.evtVtxX,    &m_brEvtVtxX);
-    m_inChain -> SetBranchAddress("EvtVtxY",    &m_legacy.evtVtxY,    &m_brEvtVtxY);
-    m_inChain -> SetBranchAddress("EvtVtxZ",    &m_legacy.evtVtxZ,    &m_brEvtVtxZ);
-    m_inChain -> SetBranchAddress("EvtNumJets", &m_legacy.evtNumJets, &m_brEvtNumJets);
-    m_inChain -> SetBranchAddress("JetNumCst",  &m_legacy.jetNumCst,  &m_brJetNumCst);
-    m_inChain -> SetBranchAddress("JetID",      &m_legacy.jetID,      &m_brJetID);
-    m_inChain -> SetBranchAddress("JetEnergy",  &m_legacy.jetEnergy,  &m_brJetEnergy);
-    m_inChain -> SetBranchAddress("JetPt",      &m_legacy.jetPt,      &m_brJetPt);
-    m_inChain -> SetBranchAddress("JetEta",     &m_legacy.jetEta,     &m_brJetEta);
-    m_inChain -> SetBranchAddress("JetPhi",     &m_legacy.jetPhi,     &m_brJetPhi);
-    m_inChain -> SetBranchAddress("JetArea",    &m_legacy.jetArea,    &m_brJetArea);
-    m_inChain -> SetBranchAddress("CstZ",       &m_legacy.cstZ,       &m_brCstZ);
-    m_inChain -> SetBranchAddress("CstDr",      &m_legacy.cstDr,      &m_brCstDr);
-    m_inChain -> SetBranchAddress("CstEnergy",  &m_legacy.cstEnergy,  &m_brCstEnergy);
-    m_inChain -> SetBranchAddress("CstJt",      &m_legacy.cstPt,      &m_brCstPt);
-    m_inChain -> SetBranchAddress("CstEta",     &m_legacy.cstEta,     &m_brCstEta);
-    m_inChain -> SetBranchAddress("CstPhi",     &m_legacy.cstPhi,     &m_brCstPhi);
+    m_inChain -> SetBranchAddress("EvtVtxX",    &m_legacy.evtVtxX);
+    m_inChain -> SetBranchAddress("EvtVtxY",    &m_legacy.evtVtxY);
+    m_inChain -> SetBranchAddress("EvtVtxZ",    &m_legacy.evtVtxZ);
+    m_inChain -> SetBranchAddress("EvtNumJets", &m_legacy.evtNumJets);
+    m_inChain -> SetBranchAddress("JetNumCst",  &m_legacy.jetNumCst);
+    m_inChain -> SetBranchAddress("JetID",      &m_legacy.jetID);
+    m_inChain -> SetBranchAddress("JetEnergy",  &m_legacy.jetEnergy);
+    m_inChain -> SetBranchAddress("JetPt",      &m_legacy.jetPt);
+    m_inChain -> SetBranchAddress("JetEta",     &m_legacy.jetEta);
+    m_inChain -> SetBranchAddress("JetPhi",     &m_legacy.jetPhi);
+    m_inChain -> SetBranchAddress("JetArea",    &m_legacy.jetArea);
+    m_inChain -> SetBranchAddress("CstZ",       &m_legacy.cstZ);
+    m_inChain -> SetBranchAddress("CstDr",      &m_legacy.cstDr);
+    m_inChain -> SetBranchAddress("CstEnergy",  &m_legacy.cstEnergy);
+    m_inChain -> SetBranchAddress("CstJt",      &m_legacy.cstPt);
+    m_inChain -> SetBranchAddress("CstEta",     &m_legacy.cstEta);
+    m_inChain -> SetBranchAddress("CstPhi",     &m_legacy.cstPhi);
 
     // announce tree setting
     if (m_config.isStandalone) PrintMessage(2);
