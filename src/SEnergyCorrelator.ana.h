@@ -10,21 +10,9 @@
 
 #pragma once
 
-// c++ utilities
-#include <cmath>
-#include <cassert>
-// root libraries
-#include <TString.h>
-#include <Math/Vector4D.h>
-// fastjet libraries
-#include <fastjet/PseudoJet.hh>
-// anlysis utilities
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/SCorrelatorUtilities.h"
-
 // make common namespaces implicit
 using namespace std;
 using namespace fastjet;
-using namespace SColdQcdCorrelatorAnalysis::SCorrelatorUtilities;
 
 
 
@@ -48,10 +36,10 @@ namespace SColdQcdCorrelatorAnalysis {
     uint64_t nBytes = 0;
     for (uint64_t iEvt = 0; iEvt < nEvts; iEvt++) {
 
-      const uint64_t entry = LoadTree(m_inChain, iEvt, m_fCurrent);
+      const uint64_t entry = Interfaces::LoadTree(m_inChain, iEvt, m_fCurrent);
       if (entry < 0) break;
 
-      const uint64_t bytes = GetEntry(m_inChain, iEvt);
+      const uint64_t bytes = Interfaces::GetEntry(m_inChain, iEvt);
       if (bytes < 0) {
         break;
       } else {
@@ -60,16 +48,16 @@ namespace SColdQcdCorrelatorAnalysis {
       }
 
       // jet loop
-      uint64_t nJets = (int) m_evtNumJets;
+      uint64_t nJets = (int) m_legacy.evtNumJets;
       for (uint64_t iJet = 0; iJet < nJets; iJet++) {
 
         // clear vector for correlator
         jetCstVector.clear();
 
         // get jet info
-        const uint64_t nCsts  = m_jetNumCst -> at(iJet);
-        const double   ptJet  = m_jetPt     -> at(iJet);
-        const double   etaJet = m_jetEta    -> at(iJet);
+        const uint64_t nCsts  = m_legacy.jetNumCst -> at(iJet);
+        const double   ptJet  = m_legacy.jetPt     -> at(iJet);
+        const double   etaJet = m_legacy.jetEta    -> at(iJet);
 
         // select jet pt bin & apply jet cuts
         const uint32_t iPtJetBin = GetJetPtBin(ptJet);
@@ -80,18 +68,18 @@ namespace SColdQcdCorrelatorAnalysis {
         for (uint64_t iCst = 0; iCst < nCsts; iCst++) {
 
           // get cst info
-          const double drCst  = (m_cstDr  -> at(iJet)).at(iCst);
-          const double etaCst = (m_cstEta -> at(iJet)).at(iCst);
-          const double phiCst = (m_cstPhi -> at(iJet)).at(iCst);
-          const double ptCst  = (m_cstPt  -> at(iJet)).at(iCst);
+          const double drCst  = (m_legacy.cstDr  -> at(iJet)).at(iCst);
+          const double etaCst = (m_legacy.cstEta -> at(iJet)).at(iCst);
+          const double phiCst = (m_legacy.cstPhi -> at(iJet)).at(iCst);
+          const double ptCst  = (m_legacy.cstPt  -> at(iJet)).at(iCst);
 
           // create cst 4-vector
-          ROOT::Math::PtEtaPhiMVector rVecCst(ptCst, etaCst, phiCst, MassPion);
+          ROOT::Math::PtEtaPhiMVector rVecCst(ptCst, etaCst, phiCst, Const::MassPion());
 
           // if truth tree and needed, check embedding ID
           if (m_config.isInTreeTruth && m_config.selectSubEvts) {
-            const int  embedCst     = (m_cstEmbedID -> at(iJet)).at(iCst);
-            const bool isSubEvtGood = IsSubEvtGood(embedCst, m_config.subEvtOpt, m_config.isEmbed);
+            const int  embedCst     = (m_legacy.cstEmbedID -> at(iJet)).at(iCst);
+            const bool isSubEvtGood = Tools::IsSubEvtGood(embedCst, m_config.subEvtOpt, m_config.isEmbed);
             if (!isSubEvtGood) continue;
           }
 
@@ -240,11 +228,11 @@ namespace SColdQcdCorrelatorAnalysis {
     if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(26);
 
     // grab info
-    JetInfo jet;
-    jet.pt  = ptJet;
-    jet.eta = etaJet;
+    Types::JetInfo jet;
+    jet.SetPT(ptJet);
+    jet.SetEta(etaJet);
 
-    const bool isInJetAccept = IsInAcceptance(jet, m_config.jetAccept.first, m_config.jetAccept.second);
+    const bool isInJetAccept = jet.IsInAcceptance(m_config.jetAccept);
     return isInJetAccept;
 
   }  // end 'ApplyJetCuts(double, double)'
@@ -257,11 +245,11 @@ namespace SColdQcdCorrelatorAnalysis {
     if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(27);
 
     // grab info
-    CstInfo cst;
-    cst.dr  = drCst;
-    cst.ene = hypot(momCst, MassPion);
+    Types::CstInfo cst;
+    cst.SetDR(drCst);
+    cst.SetEne(hypot(momCst, Const::MassPion()));
 
-    const bool isInCstAccept = IsInAcceptance(cst, m_config.cstAccept.first, m_config.cstAccept.second);
+    const bool isInCstAccept = cst.IsInAcceptance(m_config.cstAccept);
     return isInCstAccept;
 
   }  // end 'ApplyCstCuts(double, double)'

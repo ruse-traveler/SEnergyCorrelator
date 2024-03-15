@@ -9,16 +9,8 @@
 #ifndef SENERGYCORRELATORCONFIG_H
 #define SENERGYCORRELATORCONFIG_H
 
-// c++ utilities
-#include <string>
-#include <vector>
-#include <utility>
-// analysis utilities
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/SCorrelatorUtilities.h"
-
 // make common namespaces implicit
 using namespace std;
-using namespace SColdQcdCorrelatorAnalysis::SCorrelatorUtilities;
 
 
 
@@ -42,7 +34,7 @@ namespace SColdQcdCorrelatorAnalysis {
     vector<string> inFileNames;
 
     // calculation options
-    int                          subEvtOpt     = SubEvtOpt::Everything;
+    int                          subEvtOpt     = Const::SubEvtOpt::Everything;
     bool                         applyCstCuts  = false;
     bool                         selectSubEvts = false;
     uint64_t                     nBinsDr       = 75;
@@ -52,8 +44,8 @@ namespace SColdQcdCorrelatorAnalysis {
     pair<double, double>         drBinRange    = {1e-5, 1.};
 
     // acceptance parameters
-    pair<JetInfo, JetInfo> jetAccept;
-    pair<CstInfo, CstInfo> cstAccept;
+    pair<Types::JetInfo, Types::JetInfo> jetAccept;
+    pair<Types::CstInfo, Types::CstInfo> cstAccept;
 
   };
 

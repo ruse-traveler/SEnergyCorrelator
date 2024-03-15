@@ -10,13 +10,6 @@
 
 #pragma once
 
-// c++ utilities
-#include <cassert>
-// root libraries
-#include <TFile.h>
-#include <TChain.h>
-#include <TDirectory.h>
-
 // make common namespaces implicit
 using namespace std;
 using namespace findNode;

@@ -10,15 +10,7 @@
 
 #define SENERGYCORRELATOR_CC
 
-// phool utilities
-#include <phool/phool.h>
-#include <phool/getClass.h>
-#include <phool/PHIODataNode.h>
-#include <phool/PHNodeIterator.h>
-#include <phool/PHCompositeNode.h>
-// f4a utilities
-#include <fun4all/Fun4AllReturnCodes.h>
-// analysis headers
+// analysis definition
 #include "SEnergyCorrelator.h"
 #include "SEnergyCorrelator.io.h"
 #include "SEnergyCorrelator.sys.h"
