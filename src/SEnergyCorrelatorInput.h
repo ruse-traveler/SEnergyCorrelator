@@ -18,31 +18,55 @@ using namespace std;
 
 namespace SColdQcdCorrelatorAnalysis {
 
+  // input definition ---------------------------------------------------------
+
+  struct SEnergyCorrelatorInput {
+
+    // event level info
+    Types::RecoInfo m_reco;
+    Types::GenInfo  m_gen;
+
+    // jet and constituent info
+    vector<Types::JetInfo>         m_jets;
+    vector<vector<Types::CstInfo>> m_csts; 
+
+    void Reset() {
+      m_reco.Reset();
+      m_gen.Reset();
+      m_jets.clear();
+      m_csts.clear();
+      return;
+    }  // end 'Reset()'
+
+  };  // end SEnergyCorrelatorInput 
+
+
+
   // legacy input definition --------------------------------------------------
 
   struct SEnergyCorrelatorLegacyInput {
 
     // input truth tree addresses
-    int                  evtNumChrgPars = -999;
-    double               evtSumPar      = -999.;
-    pair<int, int>       partonID       = {-999,  -999};
-    pair<double, double> partonMomX     = {-999., -999.};
-    pair<double, double> partonMomY     = {-999., -999.};
-    pair<double, double> partonMomZ     = {-999., -999.};
+    int                  evtNumChrgPars = numeric_limits<int>::min();
+    double               evtSumPar      = numeric_limits<double>::min();
+    pair<int, int>       partonID       = {numeric_limits<int>::min(),    numeric_limits<int>::min()};
+    pair<double, double> partonMomX     = {numeric_limits<double>::min(), numeric_limits<double>::min()};
+    pair<double, double> partonMomY     = {numeric_limits<double>::min(), numeric_limits<double>::min()};
+    pair<double, double> partonMomZ     = {numeric_limits<double>::min(), numeric_limits<double>::min()};
     vector<vector<int>>* cstID          = NULL;
     vector<vector<int>>* cstEmbedID     = NULL;
 
     // input reco. tree addresses
-    int                  evtNumTrks = -999;
-    double               evtSumECal = -999.;
-    double               evtSumHCal = -999.;
+    int                  evtNumTrks = numeric_limits<int>::min();
+    double               evtSumECal = numeric_limits<double>::min();
+    double               evtSumHCal = numeric_limits<double>::min();
     vector<vector<int>>* cstMatchID = NULL;
 
     // generic input tree address members
-    int                     evtNumJets = -999;
-    double                  evtVtxX    = -999.;
-    double                  evtVtxY    = -999.;
-    double                  evtVtxZ    = -999.;
+    int                     evtNumJets = numeric_limits<int>::min();
+    double                  evtVtxX    = numeric_limits<double>::min();
+    double                  evtVtxY    = numeric_limits<double>::min();
+    double                  evtVtxZ    = numeric_limits<double>::min();
     vector<unsigned long>*  jetNumCst  = NULL;
     vector<unsigned int>*   jetID      = NULL;
     vector<unsigned int>*   jetTruthID = NULL;
@@ -59,22 +83,22 @@ namespace SColdQcdCorrelatorAnalysis {
     vector<vector<double>>* cstPhi     = NULL;
 
     void Reset() {
-      evtNumChrgPars = -999;
-      evtSumPar      = -999.;
-      partonID       = {-999,  -999};
-      partonMomX     = {-999., -999.};
-      partonMomY     = {-999., -999.};
-      partonMomZ     = {-999., -999.};
+      evtNumChrgPars = numeric_limits<int>::min();
+      evtSumPar      = numeric_limits<double>::min();
+      partonID       = make_pair(numeric_limits<int>::min(),    numeric_limits<int>::min());
+      partonMomX     = make_pair(numeric_limits<double>::min(), numeric_limits<double>::min());
+      partonMomY     = make_pair(numeric_limits<double>::min(), numeric_limits<double>::min());
+      partonMomZ     = make_pair(numeric_limits<double>::min(), numeric_limits<double>::min());
       cstID          = NULL;
       cstEmbedID     = NULL;
-      evtNumTrks     = -999;
-      evtSumECal     = -999.;
-      evtSumHCal     = -999.;
+      evtNumTrks     = numeric_limits<int>::min();
+      evtSumECal     = numeric_limits<double>::min();
+      evtSumHCal     = numeric_limits<double>::min();
       cstMatchID     = NULL;
-      evtNumJets     = -999;
-      evtVtxX        = -999.;
-      evtVtxY        = -999.;
-      evtVtxZ        = -999.;
+      evtNumJets     = numeric_limits<int>::min();
+      evtVtxX        = numeric_limits<double>::min();
+      evtVtxY        = numeric_limits<double>::min();
+      evtVtxZ        = numeric_limits<double>::min();
       jetNumCst      = NULL;
       jetID          = NULL;
       jetTruthID     = NULL;
@@ -91,6 +115,45 @@ namespace SColdQcdCorrelatorAnalysis {
       cstPhi         = NULL;
       return;
     }  // end 'Reset()'
+
+    void SetChainAddresses(TChain* chain, const bool isInTreeTruth = true) {
+      if (isInTreeTruth) {
+        chain -> SetBranchAddress("Parton3_ID",   &partonID.first);
+        chain -> SetBranchAddress("Parton4_ID",   &partonID.second);
+        chain -> SetBranchAddress("Parton3_MomX", &partonMomX.first);
+        chain -> SetBranchAddress("Parton3_MomY", &partonMomY.first);
+        chain -> SetBranchAddress("Parton3_MomZ", &partonMomZ.first);
+        chain -> SetBranchAddress("Parton4_MomX", &partonMomX.second);
+        chain -> SetBranchAddress("Parton4_MomY", &partonMomY.second);
+        chain -> SetBranchAddress("Parton4_MomZ", &partonMomZ.second);
+        chain -> SetBranchAddress("EvtSumParEne", &evtSumPar);
+        chain -> SetBranchAddress("CstID",        &cstID);
+        chain -> SetBranchAddress("CstEmbedID",   &cstEmbedID);
+      } else {
+        chain -> SetBranchAddress("EvtNumTrks",    &evtNumTrks);
+        chain -> SetBranchAddress("EvtSumECalEne", &evtSumECal);
+        chain -> SetBranchAddress("EvtSumHCalEne", &evtSumHCal);
+        chain -> SetBranchAddress("CstMatchID",    &cstMatchID);
+      }
+      chain -> SetBranchAddress("EvtVtxX",    &evtVtxX);
+      chain -> SetBranchAddress("EvtVtxY",    &evtVtxY);
+      chain -> SetBranchAddress("EvtVtxZ",    &evtVtxZ);
+      chain -> SetBranchAddress("EvtNumJets", &evtNumJets);
+      chain -> SetBranchAddress("JetNumCst",  &jetNumCst);
+      chain -> SetBranchAddress("JetID",      &jetID);
+      chain -> SetBranchAddress("JetEnergy",  &jetEnergy);
+      chain -> SetBranchAddress("JetPt",      &jetPt);
+      chain -> SetBranchAddress("JetEta",     &jetEta);
+      chain -> SetBranchAddress("JetPhi",     &jetPhi);
+      chain -> SetBranchAddress("JetArea",    &jetArea);
+      chain -> SetBranchAddress("CstZ",       &cstZ);
+      chain -> SetBranchAddress("CstDr",      &cstDr);
+      chain -> SetBranchAddress("CstEnergy",  &cstEnergy);
+      chain -> SetBranchAddress("CstJt",      &cstPt);
+      chain -> SetBranchAddress("CstEta",     &cstEta);
+      chain -> SetBranchAddress("CstPhi",     &cstPhi);
+      return;
+    }  // end 'SetChainAddresses(TChain*)'
 
   };  // end SEnergyCorrelatorLegacyInput
 
