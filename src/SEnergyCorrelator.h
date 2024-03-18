@@ -12,6 +12,7 @@
 #define SENERGYCORRELATOR_H
 
 // c++ utilities
+#include <limits>
 #include <string>
 #include <vector>
 #include <cassert>
@@ -43,15 +44,11 @@
 #include "/sphenix/user/danderson/install/include/scorrelatorutilities/Constants.h"
 #include "/sphenix/user/danderson/install/include/scorrelatorutilities/Interfaces.h"
 // analysis definitions
+#include "SEnergyCorrelatorInput.h"
 #include "SEnergyCorrelatorConfig.h"
-#include "SEnergyCorrelatorLegacyInput.h"
-
 
 // make common namespaces implicit
 using namespace std;
-
-// forward declarations
-class PHCompositeNode;
 
 
 
@@ -130,6 +127,7 @@ namespace SColdQcdCorrelatorAnalysis {
       vector<fastjet::contrib::eec::EECLongestSide<fastjet::contrib::eec::hist::axis::log>*> m_eecLongSide;
 
       // inputs
+      SEnergyCorrelatorInput       m_input;
       SEnergyCorrelatorLegacyInput m_legacy;
 
   };  // end SEnergyCorrelator

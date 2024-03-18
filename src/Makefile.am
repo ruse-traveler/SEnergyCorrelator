@@ -15,8 +15,8 @@ AM_CPPFLAGS = \
 
 pkginclude_HEADERS = \
   SEnergyCorrelator.h \
-  SEnergyCorrelatorConfig.h \
-  SEnergyCorrelatorLegacyInput.h
+  SEnergyCorrelatorInput.h \
+  SEnergyCorrelatorConfig.h
 
 if ! MAKEROOT6
   ROOT5_DICTS = \
