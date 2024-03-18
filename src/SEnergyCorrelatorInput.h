@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// 'SEnergyCorrelatorLegacyInput.h'
+// 'SEnergyCorrelatorInput.h'
 // Derek Anderson
 // 03.15.2023
 //
@@ -8,13 +8,17 @@
 // to-from the old-to-new input.
 // ----------------------------------------------------------------------------
 
-#ifndef SENERGYCORRELATORLEGACYINPUT_H
-#define SENERGYCORRELATORLEGACYINPUT_H
+#ifndef SENERGYCORRELATORINPUT_H
+#define SENERGYCORRELATORINPUT_H
 
 // make common namespaces implicit
+using namespace std;
+
 
 
 namespace SColdQcdCorrelatorAnalysis {
+
+  // legacy input definition --------------------------------------------------
 
   struct SEnergyCorrelatorLegacyInput {
 
