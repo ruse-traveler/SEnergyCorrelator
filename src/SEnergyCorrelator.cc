@@ -138,8 +138,32 @@ namespace SColdQcdCorrelatorAnalysis {
       assert(m_config.isStandalone);
     }
 
-    // loop over events and calculate correlators
-    DoCorrelatorCalculation();
+    // announce start of event loop
+    const uint64_t nEvts = m_inChain -> GetEntriesFast();
+    PrintMessage(7, nEvts);
+
+    // event loop
+    uint64_t nBytes = 0;
+    for (uint64_t iEvt = 0; iEvt < nEvts; iEvt++) {
+
+      const uint64_t entry = Interfaces::LoadTree(m_inChain, iEvt, m_fCurrent);
+      if (entry < 0) break;
+
+      const uint64_t bytes = Interfaces::GetEntry(m_inChain, iEvt);
+      if (bytes < 0) {
+        break;
+      } else {
+        nBytes += bytes;
+        PrintMessage(8, nEvts, iEvt);
+      }
+ 
+      // run calculations
+      DoCorrelatorCalculation();
+
+    }  // end event loop
+
+    // announce end of event loop
+    PrintMessage(13);
 
     // translate correlators into root hists
     ExtractHistsFromCorr();

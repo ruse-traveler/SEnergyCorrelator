@@ -25,88 +25,65 @@ namespace SColdQcdCorrelatorAnalysis {
     // print debug statement
     if (m_config.isDebugOn) PrintDebug(31);
 
-    // announce start of event loop
-    const uint64_t nEvts = m_inChain -> GetEntriesFast();
-    PrintMessage(7, nEvts);
-
     // for eec calculation
     vector<PseudoJet> jetCstVector;
 
-    // event loop
-    uint64_t nBytes = 0;
-    for (uint64_t iEvt = 0; iEvt < nEvts; iEvt++) {
+    // jet loop
+    uint64_t nJets = (int) m_legacy.evtNumJets;
+    for (uint64_t iJet = 0; iJet < nJets; iJet++) {
 
-      const uint64_t entry = Interfaces::LoadTree(m_inChain, iEvt, m_fCurrent);
-      if (entry < 0) break;
+      // clear vector for correlator
+      jetCstVector.clear();
 
-      const uint64_t bytes = Interfaces::GetEntry(m_inChain, iEvt);
-      if (bytes < 0) {
-        break;
-      } else {
-        nBytes += bytes;
-        PrintMessage(8, nEvts, iEvt);
-      }
+      // get jet info
+      const uint64_t nCsts  = m_legacy.jetNumCst -> at(iJet);
+      const double   ptJet  = m_legacy.jetPt     -> at(iJet);
+      const double   etaJet = m_legacy.jetEta    -> at(iJet);
 
-      // jet loop
-      uint64_t nJets = (int) m_legacy.evtNumJets;
-      for (uint64_t iJet = 0; iJet < nJets; iJet++) {
+      // select jet pt bin & apply jet cuts
+      const uint32_t iPtJetBin = GetJetPtBin(ptJet);
+      const bool     isGoodJet = ApplyJetCuts(ptJet, etaJet);
+      if (!isGoodJet) continue;
 
-        // clear vector for correlator
-        jetCstVector.clear();
+      // constituent loop
+      for (uint64_t iCst = 0; iCst < nCsts; iCst++) {
 
-        // get jet info
-        const uint64_t nCsts  = m_legacy.jetNumCst -> at(iJet);
-        const double   ptJet  = m_legacy.jetPt     -> at(iJet);
-        const double   etaJet = m_legacy.jetEta    -> at(iJet);
+        // get cst info
+        const double drCst  = (m_legacy.cstDr  -> at(iJet)).at(iCst);
+        const double etaCst = (m_legacy.cstEta -> at(iJet)).at(iCst);
+        const double phiCst = (m_legacy.cstPhi -> at(iJet)).at(iCst);
+        const double ptCst  = (m_legacy.cstPt  -> at(iJet)).at(iCst);
 
-        // select jet pt bin & apply jet cuts
-        const uint32_t iPtJetBin = GetJetPtBin(ptJet);
-        const bool     isGoodJet = ApplyJetCuts(ptJet, etaJet);
-        if (!isGoodJet) continue;
+        // create cst 4-vector
+        ROOT::Math::PtEtaPhiMVector rVecCst(ptCst, etaCst, phiCst, Const::MassPion());
 
-        // constituent loop
-        for (uint64_t iCst = 0; iCst < nCsts; iCst++) {
+        // if truth tree and needed, check embedding ID
+        if (m_config.isInTreeTruth && m_config.selectSubEvts) {
+          const int  embedCst     = (m_legacy.cstEmbedID -> at(iJet)).at(iCst);
+          const bool isSubEvtGood = Tools::IsSubEvtGood(embedCst, m_config.subEvtOpt, m_config.isEmbed);
+          if (!isSubEvtGood) continue;
+        }
 
-          // get cst info
-          const double drCst  = (m_legacy.cstDr  -> at(iJet)).at(iCst);
-          const double etaCst = (m_legacy.cstEta -> at(iJet)).at(iCst);
-          const double phiCst = (m_legacy.cstPhi -> at(iJet)).at(iCst);
-          const double ptCst  = (m_legacy.cstPt  -> at(iJet)).at(iCst);
+        // if needed, apply constituent cuts
+        const bool isGoodCst = ApplyCstCuts(ptCst, drCst);
+        if (m_config.applyCstCuts && !isGoodCst) continue;
 
-          // create cst 4-vector
-          ROOT::Math::PtEtaPhiMVector rVecCst(ptCst, etaCst, phiCst, Const::MassPion());
+        // create pseudojet & add to list
+        PseudoJet constituent(rVecCst.Px(), rVecCst.Py(), rVecCst.Pz(), rVecCst.E());
+        constituent.set_user_index(iCst);
+        jetCstVector.push_back(constituent);
+      }  // end cst loop
 
-          // if truth tree and needed, check embedding ID
-          if (m_config.isInTreeTruth && m_config.selectSubEvts) {
-            const int  embedCst     = (m_legacy.cstEmbedID -> at(iJet)).at(iCst);
-            const bool isSubEvtGood = Tools::IsSubEvtGood(embedCst, m_config.subEvtOpt, m_config.isEmbed);
-            if (!isSubEvtGood) continue;
+      // run eec computation
+      for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
+        const bool isInPtBin = ((ptJet >= m_config.ptJetBins[iPtBin].first) && (ptJet < m_config.ptJetBins[iPtBin].second));
+        if (isInPtBin) {
+          if (jetCstVector.size() > 0) {
+            m_eecLongSide[iPtJetBin] -> compute(jetCstVector);
           }
-
-          // if needed, apply constituent cuts
-          const bool isGoodCst = ApplyCstCuts(ptCst, drCst);
-          if (m_config.applyCstCuts && !isGoodCst) continue;
-
-          // create pseudojet & add to list
-          PseudoJet constituent(rVecCst.Px(), rVecCst.Py(), rVecCst.Pz(), rVecCst.E());
-          constituent.set_user_index(iCst);
-          jetCstVector.push_back(constituent);
-        }  // end cst loop
-
-        // run eec computation
-        for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
-          const bool isInPtBin = ((ptJet >= m_config.ptJetBins[iPtBin].first) && (ptJet < m_config.ptJetBins[iPtBin].second));
-          if (isInPtBin) {
-            if (jetCstVector.size() > 0) {
-              m_eecLongSide[iPtJetBin] -> compute(jetCstVector);
-            }
-          }
-        }  // end pTjet bin loop
-      }  // end jet loop
-    }  // end event loop
-
-    // announce end of event loop
-    PrintMessage(13);
+        }
+      }  // end pTjet bin loop
+    }  // end jet loop
     return;
 
   }  // end 'DoCorrelatorCalculation()'
