@@ -156,6 +156,11 @@ namespace SColdQcdCorrelatorAnalysis {
         nBytes += bytes;
         PrintMessage(8, nEvts, iEvt);
       }
+
+      // if using legacy input, fill container
+      if (m_config.isLegacyInput) {
+        m_legacy.SetCorrelatorInput(m_input, m_config.isInTreeTruth, m_config.isEmbed);
+      }
  
       // run calculations
       DoCorrelatorCalculation();

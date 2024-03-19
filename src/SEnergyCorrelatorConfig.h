@@ -27,6 +27,7 @@ namespace SColdQcdCorrelatorAnalysis {
     bool           isEmbed       = false;
     bool           isStandalone  = true;
     bool           isInTreeTruth = false;
+    bool           isLegacyInput = true;
     string         moduleName    = "SEnergyCorrelator";
     string         inNodeName    = "";
     string         inTreeName    = "";

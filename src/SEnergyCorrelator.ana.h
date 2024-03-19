@@ -29,54 +29,54 @@ namespace SColdQcdCorrelatorAnalysis {
     vector<PseudoJet> jetCstVector;
 
     // jet loop
-    uint64_t nJets = (int) m_legacy.evtNumJets;
-    for (uint64_t iJet = 0; iJet < nJets; iJet++) {
+    for (uint64_t iJet = 0; iJet < m_input.jets.size(); iJet++) {
 
       // clear vector for correlator
       jetCstVector.clear();
 
-      // get jet info
-      const uint64_t nCsts  = m_legacy.jetNumCst -> at(iJet);
-      const double   ptJet  = m_legacy.jetPt     -> at(iJet);
-      const double   etaJet = m_legacy.jetEta    -> at(iJet);
-
       // select jet pt bin & apply jet cuts
-      const uint32_t iPtJetBin = GetJetPtBin(ptJet);
-      const bool     isGoodJet = ApplyJetCuts(ptJet, etaJet);
+      const uint32_t iPtJetBin = GetJetPtBin( m_input.jets[iJet].GetPT() );
+      const bool     isGoodJet = ApplyJetCuts( m_input.jets[iJet].GetPT(), m_input.jets[iJet].GetEta() );
       if (!isGoodJet) continue;
 
       // constituent loop
-      for (uint64_t iCst = 0; iCst < nCsts; iCst++) {
-
-        // get cst info
-        const double drCst  = (m_legacy.cstDr  -> at(iJet)).at(iCst);
-        const double etaCst = (m_legacy.cstEta -> at(iJet)).at(iCst);
-        const double phiCst = (m_legacy.cstPhi -> at(iJet)).at(iCst);
-        const double ptCst  = (m_legacy.cstPt  -> at(iJet)).at(iCst);
+      for (uint64_t iCst = 0; iCst < m_input.csts[iJet].size(); iCst++) {
 
         // create cst 4-vector
-        ROOT::Math::PtEtaPhiMVector rVecCst(ptCst, etaCst, phiCst, Const::MassPion());
+        ROOT::Math::PtEtaPhiMVector rVecCst(
+          m_input.csts[iJet][iCst].GetPT(),
+          m_input.csts[iJet][iCst].GetEta(),
+          m_input.csts[iJet][iCst].GetPhi(),
+          Const::MassPion()
+        );
 
         // if truth tree and needed, check embedding ID
         if (m_config.isInTreeTruth && m_config.selectSubEvts) {
-          const int  embedCst     = (m_legacy.cstEmbedID -> at(iJet)).at(iCst);
-          const bool isSubEvtGood = Tools::IsSubEvtGood(embedCst, m_config.subEvtOpt, m_config.isEmbed);
+          const bool isSubEvtGood = Tools::IsSubEvtGood( m_input.csts[iJet][iCst].GetEmbedID(), m_config.subEvtOpt, m_config.isEmbed );
           if (!isSubEvtGood) continue;
         }
 
         // if needed, apply constituent cuts
-        const bool isGoodCst = ApplyCstCuts(ptCst, drCst);
+        const bool isGoodCst = ApplyCstCuts( m_input.csts[iJet][iCst].GetPT(), m_input.csts[iJet][iCst].GetEta() );
         if (m_config.applyCstCuts && !isGoodCst) continue;
 
-        // create pseudojet & add to list
-        PseudoJet constituent(rVecCst.Px(), rVecCst.Py(), rVecCst.Pz(), rVecCst.E());
+        // create pseudojet
+        PseudoJet constituent(
+          rVecCst.Px(),
+          rVecCst.Py(),
+          rVecCst.Pz(),
+          rVecCst.E()
+        );
         constituent.set_user_index(iCst);
+
+        // add to list
         jetCstVector.push_back(constituent);
+
       }  // end cst loop
 
       // run eec computation
       for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
-        const bool isInPtBin = ((ptJet >= m_config.ptJetBins[iPtBin].first) && (ptJet < m_config.ptJetBins[iPtBin].second));
+        const bool isInPtBin = ((m_input.jets[iJet].GetPT() >= m_config.ptJetBins[iPtBin].first) && (m_input.jets[iJet].GetPT() < m_config.ptJetBins[iPtBin].second));
         if (isInPtBin) {
           if (jetCstVector.size() > 0) {
             m_eecLongSide[iPtJetBin] -> compute(jetCstVector);
