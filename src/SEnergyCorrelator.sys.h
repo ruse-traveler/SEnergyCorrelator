@@ -468,18 +468,6 @@ namespace SColdQcdCorrelatorAnalysis {
 
   }  // end 'PrintError(unint32_t)'
 
-
-
-  bool SEnergyCorrelator::CheckCriticalParameters() {
-
-    // print debugging statement
-    if (m_config.isDebugOn) PrintDebug(21); 
-
-    /* TODO checking goes here */
-    return true;
-
-  }  // end 'CheckCriticalParameters()'
-
 }  // end SColdQcdCorrelatorAnalysis namespace
 
 // end ------------------------------------------------------------------------

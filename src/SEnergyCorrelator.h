@@ -90,14 +90,13 @@ namespace SColdQcdCorrelatorAnalysis {
       void CloseOutputFile();
 
       // system methods (*.sys.h)
-      void    InitializeMembers();
-      void    InitializeHists();
-      void    InitializeCorrs();
-      void    InitializeTree();
-      void    PrintMessage(const uint32_t code, const uint64_t nEvts = 0, const uint64_t event = 0);
-      void    PrintDebug(const uint32_t code);
-      void    PrintError(const uint32_t code, const size_t nDrBinEdges = 0, const size_t iDrBin = 0, const string sInFileName = "");
-      bool    CheckCriticalParameters();
+      void InitializeMembers();
+      void InitializeHists();
+      void InitializeCorrs();
+      void InitializeTree();
+      void PrintMessage(const uint32_t code, const uint64_t nEvts = 0, const uint64_t event = 0);
+      void PrintDebug(const uint32_t code);
+      void PrintError(const uint32_t code, const size_t nDrBinEdges = 0, const size_t iDrBin = 0, const string sInFileName = "");
 
       // analysis methods (*.ana.h)
       void     DoCorrelatorCalculation();
