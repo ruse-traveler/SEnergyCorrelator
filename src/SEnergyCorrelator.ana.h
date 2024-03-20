@@ -20,73 +20,75 @@ namespace SColdQcdCorrelatorAnalysis {
 
   // analysis methods ---------------------------------------------------------
 
-  void SEnergyCorrelator::DoCorrelatorCalculation() {
+  void SEnergyCorrelator::DoLocalCalculation() {
 
     // print debug statement
     if (m_config.isDebugOn) PrintDebug(31);
-
-    // for eec calculation
-    vector<PseudoJet> jetCstVector;
 
     // jet loop
     for (uint64_t iJet = 0; iJet < m_input.jets.size(); iJet++) {
 
       // clear vector for correlator
-      jetCstVector.clear();
+      m_jetCstVector.clear();
 
       // select jet pt bin & apply jet cuts
-      const uint32_t iPtJetBin = GetJetPtBin( m_input.jets[iJet].GetPT() );
-      const bool     isGoodJet = ApplyJetCuts( m_input.jets[iJet].GetPT(), m_input.jets[iJet].GetEta() );
+      const bool isGoodJet = IsGoodJet( m_input.jets[iJet] );
       if (!isGoodJet) continue;
 
       // constituent loop
       for (uint64_t iCst = 0; iCst < m_input.csts[iJet].size(); iCst++) {
 
         // create cst 4-vector
-        ROOT::Math::PtEtaPhiMVector rVecCst(
+        ROOT::Math::PtEtaPhiMVector pVecCst(
           m_input.csts[iJet][iCst].GetPT(),
           m_input.csts[iJet][iCst].GetEta(),
           m_input.csts[iJet][iCst].GetPhi(),
           Const::MassPion()
         );
 
-        // if truth tree and needed, check embedding ID
-        if (m_config.isInTreeTruth && m_config.selectSubEvts) {
-          const bool isSubEvtGood = Tools::IsSubEvtGood( m_input.csts[iJet][iCst].GetEmbedID(), m_config.subEvtOpt, m_config.isEmbed );
-          if (!isSubEvtGood) continue;
-        }
-
         // if needed, apply constituent cuts
-        const bool isGoodCst = ApplyCstCuts( m_input.csts[iJet][iCst].GetPT(), m_input.csts[iJet][iCst].GetEta() );
-        if (m_config.applyCstCuts && !isGoodCst) continue;
+        const bool isGoodCst = IsGoodCst( m_input.csts[iJet][iCst] );
+        if (!isGoodCst) continue;
 
         // create pseudojet
         PseudoJet constituent(
-          rVecCst.Px(),
-          rVecCst.Py(),
-          rVecCst.Pz(),
-          rVecCst.E()
+          pVecCst.Px(),
+          pVecCst.Py(),
+          pVecCst.Pz(),
+          pVecCst.E()
         );
         constituent.set_user_index(iCst);
 
         // add to list
-        jetCstVector.push_back(constituent);
+        m_jetCstVector.push_back(constituent);
 
       }  // end cst loop
 
-      // run eec computation
-      for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
-        const bool isInPtBin = ((m_input.jets[iJet].GetPT() >= m_config.ptJetBins[iPtBin].first) && (m_input.jets[iJet].GetPT() < m_config.ptJetBins[iPtBin].second));
-        if (isInPtBin) {
-          if (jetCstVector.size() > 0) {
-            m_eecLongSide[iPtJetBin] -> compute(jetCstVector);
-          }
-        }
-      }  // end pTjet bin loop
+      // run eec computation(s)
+      if (m_config.doPackageCalc) {
+        DoLocalCalcWithPackage( m_input.jets[iJet].GetPT()  );
+      }
     }  // end jet loop
     return;
 
-  }  // end 'DoCorrelatorCalculation()'
+  }  // end 'DoLocalCalculation()'
+
+
+
+  void SEnergyCorrelator::DoLocalCalcWithPackage(const double ptJet) {
+
+    // print debug statement
+    if (m_config.isDebugOn) PrintDebug(31);
+
+    const uint32_t iPtJetBin = GetJetPtBin( ptJet );
+    const bool     foundBin  = (iPtJetBin >= 0);
+    const bool     hasCsts   = (m_jetCstVector.size() > 0); 
+    if (foundBin && hasCsts) {
+      m_eecLongSide[iPtJetBin] -> compute(m_jetCstVector);
+    }
+    return;
+
+  }  // end 'DoLocalCalcWithPackage(double)'
 
 
 
@@ -199,47 +201,49 @@ namespace SColdQcdCorrelatorAnalysis {
 
 
 
-  bool SEnergyCorrelator::ApplyJetCuts(const double ptJet, const double etaJet) {
+  bool SEnergyCorrelator::IsGoodJet(const Types::JetInfo& jet) {
 
     // print debug statement
     if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(26);
 
-    // grab info
-    Types::JetInfo jet;
-    jet.SetPT(ptJet);
-    jet.SetEta(etaJet);
+    const bool isGoodJet = jet.IsInAcceptance(m_config.jetAccept);
+    return isGoodJet;
 
-    const bool isInJetAccept = jet.IsInAcceptance(m_config.jetAccept);
-    return isInJetAccept;
-
-  }  // end 'ApplyJetCuts(double, double)'
+  }  // end 'IsGoodJet(double, double)'
 
 
 
-  bool SEnergyCorrelator::ApplyCstCuts(const double momCst, const double drCst) {
+  bool SEnergyCorrelator::IsGoodCst(const Types::CstInfo& cst) {
 
     // print debug statement
     if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(27);
 
-    // grab info
-    Types::CstInfo cst;
-    cst.SetDR(drCst);
-    cst.SetEne(hypot(momCst, Const::MassPion()));
+    // if analyzing truth tree and needed, check embedding ID
+    bool isSubEvtGood = true;
+    if (m_config.isInTreeTruth && m_config.selectSubEvts) {
+      isSubEvtGood = Tools::IsSubEvtGood( cst.GetEmbedID(), m_config.subEvtOpt, m_config.isEmbed );
+    }
 
-    const bool isInCstAccept = cst.IsInAcceptance(m_config.cstAccept);
-    return isInCstAccept;
+    // if needed, apply cst. cuts
+    bool isInCstAccept = true;
+    if (m_config.applyCstCuts) {
+      isInCstAccept = cst.IsInAcceptance(m_config.cstAccept);
+    }
 
-  }  // end 'ApplyCstCuts(double, double)'
+    const bool isGoodCst = (isSubEvtGood && isInCstAccept);
+    return isGoodCst;
+
+  }  // end 'IsGoodCst(double, double)'
 
 
 
-  uint32_t SEnergyCorrelator::GetJetPtBin(const double ptJet) {
+  int32_t SEnergyCorrelator::GetJetPtBin(const double ptJet) {
 
     // print debug statement
     if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(28);
  
-    bool     isInPtBin(false);
-    uint32_t iJetPtBin(0);
+    bool    isInPtBin(false);
+    int32_t iJetPtBin(-1);
     for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
       isInPtBin = ((ptJet >= m_config.ptJetBins[iPtBin].first) && (ptJet < m_config.ptJetBins[iPtBin].second));
       if (isInPtBin) {

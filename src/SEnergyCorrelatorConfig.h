@@ -36,6 +36,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
     // calculation options
     int                          subEvtOpt     = Const::SubEvtOpt::Everything;
+    bool                         doPackageCalc = true;
     bool                         applyCstCuts  = false;
     bool                         selectSubEvts = false;
     uint64_t                     nBinsDr       = 75;

@@ -99,11 +99,12 @@ namespace SColdQcdCorrelatorAnalysis {
       void PrintError(const uint32_t code, const size_t nDrBinEdges = 0, const size_t iDrBin = 0, const string sInFileName = "");
 
       // analysis methods (*.ana.h)
-      void     DoCorrelatorCalculation();
-      void     ExtractHistsFromCorr();
-      bool     ApplyJetCuts(const double ptJet, const double etaJet);
-      bool     ApplyCstCuts(const double momCst, const double drCst);
-      uint32_t GetJetPtBin(const double ptJet);
+      void    DoLocalCalculation();
+      void    DoLocalCalcWithPackage(const double ptJet);
+      void    ExtractHistsFromCorr();
+      bool    IsGoodJet(const Types::JetInfo& jet);
+      bool    IsGoodCst(const Types::CstInfo& cst);
+      int32_t GetJetPtBin(const double ptJet);
 
       // configuration
       SEnergyCorrelatorConfig m_config;
@@ -115,6 +116,9 @@ namespace SColdQcdCorrelatorAnalysis {
 
       // system members
       int m_fCurrent = 0;
+
+      // for correlator calculations
+      vector<fastjet::PseudoJet> m_jetCstVector;
 
       // output histograms
       vector<TH1D*> m_outHistVarDrAxis;

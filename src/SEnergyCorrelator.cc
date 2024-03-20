@@ -163,7 +163,7 @@ namespace SColdQcdCorrelatorAnalysis {
       }
  
       // run calculations
-      DoCorrelatorCalculation();
+      DoLocalCalculation();
 
     }  // end event loop
 
