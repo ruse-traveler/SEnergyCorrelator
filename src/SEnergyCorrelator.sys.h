@@ -25,6 +25,11 @@ namespace SColdQcdCorrelatorAnalysis {
     // print debug statement
     if (m_config.isDebugOn) PrintDebug(0);
 
+    // clear calculation vectors
+    m_jetCstVector.clear();
+    m_eecLongSide.clear();    
+
+    // clear output histograms
     m_outHistVarDrAxis.clear();
     m_outHistErrDrAxis.clear();
     m_outHistVarLnDrAxis.clear();
@@ -49,7 +54,9 @@ namespace SColdQcdCorrelatorAnalysis {
     m_inChain -> SetMakeClass(1);
 
     // set truth vs. reco branch addresses
-    m_legacy.SetChainAddresses(m_inChain, m_config.isInTreeTruth);
+    if (m_config.isLegacyInput) {
+      m_legacy.SetChainAddresses(m_inChain, m_config.isInTreeTruth);
+    }
 
     // announce tree setting
     if (m_config.isStandalone) PrintMessage(2);
@@ -332,13 +339,16 @@ namespace SColdQcdCorrelatorAnalysis {
         cout << "SEnergyCorrelator::CloseOutputFile() closing output file..." << endl;
         break;
       case 31:
-        cout << "SEnergyCorrelator::DoCorrelatorCalculation() looping over events and calculating correlators..." << endl;
+        cout << "SEnergyCorrelator::DoLocalCalculation() looping over jets and calculating correlators..." << endl;
         break;
       case 32:
         cout << "SEnergyCorrelator::SetSubEventsToUse(uint16_t, vector<int>) setting sub-events to use..." << endl;
         break;
       case 33:
         cout << "SEnergyCorrelator::CheckIfSubEvtGood(int) checking if sub-event is good..." << endl;
+        break;
+      case 34:
+        cout << "SEnergyCorrelator::DoLocalCalcWitPackagen() running calculation with EEC package..." << endl;
         break;
     }
     return;
