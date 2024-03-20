@@ -1,6 +1,6 @@
 #!/bin/bash
 # -----------------------------------------------------------------------------
-# 'DoStandaloneCalculationOnCondor.sh'
+# 'DoStandaloneCorrelatorCalculationOnCondor.sh'
 # Derek Anderson
 # 03.20.2024
 #
@@ -15,6 +15,6 @@ source /opt/sphenix/core/bin/sphenix_setup.sh
 printenv
 
 # run macro
-root -b -q "DoStandaloneCorrelatorCalculation.cxx\(true\)"
+root -b -q "DoStandaloneCorrelatorCalculation.cxx(true)"
 
 # end -------------------------------------------------------------------------

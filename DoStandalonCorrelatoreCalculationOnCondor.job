@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# 'RunStandaloneCalculationOnCondor.job'
+# 'RunStandaloneCorrelatorCalculationOnCondor.job'
 # Derek Anderson
 # 03.20.2024
 #
@@ -11,7 +11,7 @@ Universe     = vanilla
 notification = Never
 
 # executable parameters
-Executable           = DoStandaloneCalculationOnCondor.sh
+Executable           = DoStandaloneCorrelatorCalculationOnCondor.sh
 Initialdir           = ./
 request_memory       = 8GB
 transfer_input_files = DoStandaloneCorrelatorCalculation.cxx,EnergyCorrelatorOptions.h
