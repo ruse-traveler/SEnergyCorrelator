@@ -18,8 +18,10 @@ copy_to   = "/sphenix/user/danderson/test"
 # what files to copy
 to_copy = [
   "README.md",
-  "DoStandaloneCorrelatorCalculation.C",
+  "DoStandaloneCorrelatorCalculation.cxx",
   "DoStandaloneCorrelatorCalculation.rb",
+  "DoStandaloneCorrelatorCalculationOnCondor.sh",
+  "DoStandaloneCorrelatorCalculationOnCondor.job",
   "scripts/copy-to-analysis.sh",
   "scripts/wipe-source.sh",
   "src/SEnergyCorrelator.cc",
