@@ -3,6 +3,7 @@ output/
 backup/
 input/
 test/
+log/
 src/*
 !src/SEnergyCorrelator.h
 !src/SEnergyCorrelator.cc
