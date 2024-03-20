@@ -30,11 +30,20 @@ R__LOAD_LIBRARY(/sphenix/user/danderson/install/lib/libscorrelatorutilities.so)
 
 // macro body -----------------------------------------------------------------
 
-void DoStandaloneCorrelatorCalculation() {
+void DoStandaloneCorrelatorCalculation(const bool doBatch = false, const int verbosity = 0) {
+
+  // input/output files
+  const vector<string> inFiles = {
+    "../SCorrelatorJetTree/output/condor/final_merge/correlatorJetTree.pp200py8jet10run8_trksWithRoughCuts.d26m9y2023.root"
+  };
+  const pair<string, string> outFiles = {
+    "twoPoint.pp200py8jet10run8.refactor_cleanUpCutFunctions_reco.d19m3y2024.root",
+    "twoPoint.pp200py8jet10run8.refactor_cleanUpCutFunctions_true.d19m3y2024.root"
+  };
 
   // get module configurations
-  SEnergyCorrelatorConfig cfg_reco = EnergyCorrelatorOptions::GetRecoConfig();
-  SEnergyCorrelatorConfig cfg_true = EnergyCorrelatorOptions::GetTruthConfig();
+  SEnergyCorrelatorConfig cfg_reco = EnergyCorrelatorOptions::GetRecoConfig(inFiles, outFiles.first, doBatch, verbosity);
+  SEnergyCorrelatorConfig cfg_true = EnergyCorrelatorOptions::GetTruthConfig(inFiles, outFiles.second, doBatch, verbosity);
 
   // do correlator calculation on reco jets
   SEnergyCorrelator* recoCorrelator = new SEnergyCorrelator(cfg_reco);

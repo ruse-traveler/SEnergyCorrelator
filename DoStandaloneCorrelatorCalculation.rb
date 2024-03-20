@@ -7,6 +7,10 @@
 # Short script to run the 'DoStandaloneCorrelatorCalculation.C' macro.
 # -----------------------------------------------------------------------------
 
-exec("root -b -q DoStandaloneCorrelatorCalculation.cxx")
+if ARGV[0] == "condor"
+  exec("condor_submit DoStandaloneCalculationOnCondor.job")
+else
+  exec("root -b -q DoStandaloneCorrelatorCalculation.cxx")
+end
 
 # end -------------------------------------------------------------------------

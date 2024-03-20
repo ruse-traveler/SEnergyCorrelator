@@ -28,15 +28,6 @@ namespace EnergyCorrelatorOptions {
 
   // options ------------------------------------------------------------------
 
-  // input/output files
-  const vector<string> inFiles = {
-    "../SCorrelatorJetTree/output/condor/final_merge/correlatorJetTree.pp200py8jet10run8_trksWithRoughCuts.d26m9y2023.root"
-  };
-  const pair<string, string> outFiles = {
-    "twoPoint.pp200py8jet10run8.refactor_afterUtilityRearchitect_reco.d15m3y2024.root",
-    "twoPoint.pp200py8jet10run8.refactor_afterUtilityRearchitect_true.d15m3y2024.root"
-  };
-
   // correlator parameters
   const vector<uint32_t>     nPoints    = {2};
   const pair<double, double> binRangeDr = {1e-5, 1.};
@@ -57,6 +48,8 @@ namespace EnergyCorrelatorOptions {
   const bool isEmbed   = false;
   const bool doCstCuts = true;
   const bool doDebug   = false;
+  const bool doBatch   = false;
+  const bool isLegacy  = true;
 
   // jet acceptance
   const pair<float, float> etaJetRange = {-0.7, 0.7};
@@ -110,15 +103,18 @@ namespace EnergyCorrelatorOptions {
   // set up configurations ----------------------------------------------------
 
   SEnergyCorrelatorConfig GetRecoConfig(
-    const vector<string> cfg_inFiles = inFiles,
-    const string cfg_outFile = outFiles.first,
+    const vector<string> cfg_inFiles,
+    const string cfg_outFile,
+    const bool cfg_doBatch = doBatch,
     const int cfg_verbosity = verbosity
   ) {
 
     SEnergyCorrelatorConfig cfg_reco {
       .verbosity     = cfg_verbosity,
       .isDebugOn     = doDebug,
+      .isBatchOn     = cfg_doBatch,
       .isEmbed       = isEmbed,
+      .isLegacyInput = isLegacy,
       .isInTreeTruth = false,
       .moduleName    = "SRecoEnergyCorrelator",
       .inTreeName    = "RecoJetTree",
@@ -140,15 +136,18 @@ namespace EnergyCorrelatorOptions {
 
 
   SEnergyCorrelatorConfig GetTruthConfig(
-    const vector<string> cfg_inFiles = inFiles,
-    const string cfg_outFile = outFiles.second,
+    const vector<string> cfg_inFiles,
+    const string cfg_outFile,
+    const bool cfg_doBatch = doBatch,
     const int cfg_verbosity = verbosity
   ) {
 
     SEnergyCorrelatorConfig cfg_true {
       .verbosity     = cfg_verbosity,
       .isDebugOn     = doDebug,
+      .isBatchOn     = cfg_doBatch,
       .isEmbed       = isEmbed,
+      .isLegacyInput = isLegacy,
       .isInTreeTruth = true,
       .moduleName    = "TrueEnergyCorrelator",
       .inTreeName    = "TruthJetTree",
