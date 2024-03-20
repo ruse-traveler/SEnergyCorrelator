@@ -224,6 +224,8 @@ namespace SColdQcdCorrelatorAnalysis {
       // set cst variables
       input.csts.resize( jetNumCst -> size() );
       for (size_t iJet = 0; iJet < jetNumCst -> size(); iJet++) {
+
+        // loop over constituents
         input.csts.at(iJet).resize( (cstZ -> at(iJet)).size() );
         for (size_t iCst = 0; iCst < (cstZ -> at(iJet)).size(); iCst++) {
           input.csts.at(iJet).at(iCst).SetJetID( jetID -> at(iJet) );
@@ -238,7 +240,16 @@ namespace SColdQcdCorrelatorAnalysis {
           } else {
             input.csts.at(iJet).at(iCst).SetCstID( (cstMatchID -> at(iJet)).at(iCst) );
           }
-        }  // end c st loop
+
+          // set cst. energy
+          ROOT::Math::PtEtaPhiMVector pCst(
+            input.csts.at(iJet).at(iCst).GetPT(),
+            input.csts.at(iJet).at(iCst).GetEta(),
+            input.csts.at(iJet).at(iCst).GetPhi(),
+            Const::MassPion()
+          );
+          input.csts.at(iJet).at(iCst).SetEne( pCst.E() );
+        }  // end cst loop
       }  // end jet loop
       return;
 
