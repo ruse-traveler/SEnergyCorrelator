@@ -58,6 +58,11 @@ namespace EnergyCorrelatorOptions {
   const pair<float, float> drCstRange  = {0.,  100.};
   const pair<float, float> eneCstRange = {0.1, 100.};
 
+  // Smearing options
+  const bool modCsts = true;
+  const float theta = 1;
+  const float pTSmear = 0;
+  const float effVal = 1;
 
 
   // bundle acceptances into pairs --------------------------------------------
@@ -160,7 +165,11 @@ namespace EnergyCorrelatorOptions {
       .drBinRange    = binRangeDr,
       .ptJetBins     = ptJetBins,
       .jetAccept     = GetJetAccept(),
-      .cstAccept     = GetCstAccept()
+      .cstAccept     = GetCstAccept(),
+      .modCsts = modCsts,
+      .theta = theta,
+      .effVal = effVal,
+      .pTSmear = pTSmear
     };
     return cfg_true;
 

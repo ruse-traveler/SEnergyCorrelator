@@ -25,6 +25,8 @@
 #include <TString.h>
 #include <TDirectory.h>
 #include <Math/Vector4D.h>
+#include "TVector3.h"
+#include "TRandom2.h"
 // phool utilities
 #include <phool/phool.h>
 #include <phool/getClass.h>
@@ -39,10 +41,10 @@
 // eec library
 #include "/sphenix/user/danderson/eec/EnergyEnergyCorrelators/eec/include/EECLongestSide.hh"
 // analysis utilities
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Tools.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Types.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Constants.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Interfaces.h"
+#include "/sphenix/user/atclarke/install/include/scorrelatorutilities/Tools.h"
+#include "/sphenix/user/atclarke/install/include/scorrelatorutilities/Types.h"
+#include "/sphenix/user/atclarke/install/include/scorrelatorutilities/Constants.h"
+#include "/sphenix/user/atclarke/install/include/scorrelatorutilities/Interfaces.h"
 // analysis definitions
 #include "SEnergyCorrelatorInput.h"
 #include "SEnergyCorrelatorConfig.h"

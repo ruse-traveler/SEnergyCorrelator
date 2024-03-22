@@ -34,6 +34,8 @@ namespace SColdQcdCorrelatorAnalysis {
     m_outHistErrDrAxis.clear();
     m_outHistVarLnDrAxis.clear();
     m_outHistErrLnDrAxis.clear();
+    
+
     return;
 
   }  // end 'InitializeMembers()'

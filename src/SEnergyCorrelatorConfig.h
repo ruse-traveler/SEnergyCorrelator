@@ -44,6 +44,10 @@ namespace SColdQcdCorrelatorAnalysis {
     vector<uint32_t>             nPoints       = {2};
     vector<pair<double, double>> ptJetBins     = {{0., 100.}};
     pair<double, double>         drBinRange    = {1e-5, 1.};
+    bool modCsts = false;
+    float effVal = 1;
+    float pTSmear = 0;
+    float theta = 0;
 
     // acceptance parameters
     pair<Types::JetInfo, Types::JetInfo> jetAccept;
