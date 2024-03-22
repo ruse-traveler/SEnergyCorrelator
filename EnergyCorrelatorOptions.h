@@ -60,8 +60,8 @@ namespace EnergyCorrelatorOptions {
 
   // Smearing options
   const bool modCsts = true;
-  const float theta = 1;
-  const float pTSmear = 0;
+  const float theta = 0;
+  const float pTSmear = 0.02;
   const float effVal = 1;
 
 
