@@ -22,6 +22,10 @@ namespace SColdQcdCorrelatorAnalysis {
 
   void SEnergyCorrelator::DoLocalCalculation() {
 
+    TF1* fEff = new TF1("fEff", "[0]*(1.0-TMath::Exp(-1.0*[1]*x))", 0, 100.0);
+    fEff->SetParameter(0, m_config.effVal);
+    fEff->SetParameter(1, 0.9);
+    
     // print debug statement
     if (m_config.isDebugOn) PrintDebug(31);
 
@@ -45,18 +49,49 @@ namespace SColdQcdCorrelatorAnalysis {
           m_input.csts[iJet][iCst].GetPhi(),
           Const::MassPion()
         );
+	//Components to use for pseudoJet
+	float Px = pVecCst.Px();
+	float Py = pVecCst.Py();
+	float Pz = pVecCst.Pz();
+	float cstE = pVecCst.E();
+	float skipCst = false;
+
+	//Apply smearing is necessary
+	if(m_config.modCsts){
+	  TDatime *date = new TDatime();
+	  TRandom2 *shift = new TRandom2(date->GetDate()*date->GetTime());
+	  //Apply efficiency if needed
+	  float rando = shift->Uniform(0,1.);
+	  float eff = fEff->Eval(m_input.csts[iJet][iCst].GetPT());
+	  if(rando>eff && m_config.effVal!=1) skipCst = true;
+	  //Apply pT smearing if needed
+	  float newpT = m_input.csts[iJet][iCst].GetPT();
+	  if(m_config.pTSmear != 0) newpT+=shift->Gaus(0, m_config.pTSmear*m_input.csts[iJet][iCst].GetPT());
+	  ROOT::Math::PtEtaPhiMVector rVecCstCopy(newpT, m_input.csts[iJet][iCst].GetEta(), m_input.csts[iJet][iCst].GetPhi(), Const::MassPion());
+	  TVector3 p(rVecCstCopy.X(), rVecCstCopy.Y(), rVecCstCopy.Z());
+	  TVector3 rotation_axis(rVecCstCopy.X(), rVecCstCopy.Y(), rVecCstCopy.Z());
+	  //Apply angular smearing if needed
+	  if(m_config.theta != 0){
+	    float Theta0 = p.Theta();
+	    float deltaTheta = shift->Gaus(0, m_config.theta);
+	    float deltaPhi = shift->Uniform(-TMath::Pi(), TMath::Pi());
+	    p.SetTheta(Theta0+deltaTheta);
+	    p.Rotate(deltaPhi, rotation_axis);
+	  }
+	  //Change values to use in pseudoJet
+	  Px = p.X();
+	  Py = p.Y();
+	  Pz = p.Z();
+	  cstE = rVecCstCopy.E(); 
+	}
+	if(skipCst) continue;
 
         // if needed, apply constituent cuts
         const bool isGoodCst = IsGoodCst( m_input.csts[iJet][iCst] );
         if (!isGoodCst) continue;
 
         // create pseudojet
-        PseudoJet constituent(
-          pVecCst.Px(),
-          pVecCst.Py(),
-          pVecCst.Pz(),
-          pVecCst.E()
-        );
+        PseudoJet constituent(Px, Py, Pz, cstE);
         constituent.set_user_index(iCst);
 
         // add to list
@@ -101,6 +136,7 @@ namespace SColdQcdCorrelatorAnalysis {
     vector<double>                       lnDrBinEdges;
     pair<vector<double>, vector<double>> histContentAndVariance;
     pair<vector<double>, vector<double>> histContentAndError;
+
     for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
 
       // create names
@@ -111,6 +147,7 @@ namespace SColdQcdCorrelatorAnalysis {
       TString sErrDrAxisName("hCorrelatorErrorDrAxis");
       TString sVarLnDrAxisName("hCorrelatorVarianceLnDrAxis");
       TString sErrLnDrAxisName("hCorrelatorErrorLnDrAxis");
+
       sVarDrAxisName.Append(sPtJetBin.Data());
       sErrDrAxisName.Append(sPtJetBin.Data());
       sVarLnDrAxisName.Append(sPtJetBin.Data());
@@ -164,7 +201,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
       // set bin content
       for (size_t iDrEdge = 0; iDrEdge < m_config.nBinsDr; iDrEdge++) {
-        const size_t iDrBin        = iDrEdge + 1;
+        const size_t iDrBin        = iDrEdge;
         const double binVarContent = histContentAndVariance.first.at(iDrEdge);
         const double binVarError   = histContentAndVariance.second.at(iDrEdge);
         const double binErrContent = histContentAndError.first.at(iDrEdge);
