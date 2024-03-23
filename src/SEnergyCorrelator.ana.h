@@ -57,14 +57,50 @@ namespace SColdQcdCorrelatorAnalysis {
           m_input.csts[iJet][iCst].GetPhi(),
           Const::MassPion()
         );
+	//Get transverse energy of Cst
+	TVector3 pCst(pVecCst.X(), pVecCst.Y(), pVecCst.Z());
+	TVector3 pCstT = pCst - (pCst*pJet/(pJet*pJet))*pJet;
+	const double eTCst = pow(pCstT.Mag2()+pow(Const::MassPion(),2),0.5);
+
 	//Components to use for pseudoJet
 	float Px = pVecCst.Px();
 	float Py = pVecCst.Py();
 	float Pz = pVecCst.Pz();
 	float cstE = pVecCst.E();
 	float skipCst = false;
+	
+	//Create pseudoJet for original cst info
+	PseudoJet CstPseudo(Px, Py, Pz, cstE);
+	//Second Cst loop
+	for(uint64_t jCst = 0; jCst < m_input.csts[iJet].size() && (m_config.manualTwoPoint || m_config.manualThreePoint); jCst++){
+	  ROOT::Math::PtEtaPhiMVector pVecCstB(
+            m_input.csts[iJet][jCst].GetPT(),
+            m_input.csts[iJet][jCst].GetEta(),
+            m_input.csts[iJet][jCst].GetPhi(),
+            Const::MassPion()
+          );
+	  TVector3 pCstB(pVecCstB.X(), pVecCstB.Y(), pVecCstB.Z());
+	  TVector3 pCstBT = pCstB - (pCstB*pJet/(pJet*pJet))*pJet;
+	  const double eTCstB = pow(pCstBT.Mag2()+pow(Const::MassPion(),2),0.5);
+	  PseudoJet CstPseudoB(pVecCstB.X(), pVecCstB.Y(), pVecCstB.Z(), pVecCstB.E());
+	  const double dhCstAB = (CstPseudoB.rap()-CstPseudo.rap());
+	  double dfCstAB = std::fabs(CstPseudo.phi()-CstPseudoB.phi());
+	  if(dfCstAB > TMath::Pi()) dfCstAB = 2*TMath::Pi() - dfCstAB;
+          const double drCstAB  = sqrt((dhCstAB * dhCstAB) + (dfCstAB * dfCstAB));
+	  const double ptWeight = (CstPseudo.pt()*CstPseudoB.pt())/(jet_pT*jet_pT);
+	  const double ptWeightT = (eTCst*eTCstB)/(jet_pT*jet_pT);
 
-	//Apply smearing is necessary
+	  //Fill manual eecs
+	  for(size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++){
+	    bool isInPtBin = ((jet_pT >= m_config.ptJetBins[iPtBin].first) && (jet_pT < m_config.ptJetBins[iPtBin].second));
+	    if(isInPtBin){
+	      weight_outHistErrDrAxis[iPtBin]->Fill(drCstAB, ptWeight);
+	      Tweight_outHistErrDrAxis[iPtBin]->Fill(drCstAB, ptWeightT);
+	    }
+	  }//end of pT bin loop
+	}//end of 2nd cst loop
+
+	//Apply smearing if necessary
 	if(m_config.modCsts){
 	  TDatime *date = new TDatime();
 	  TRandom2 *shift = new TRandom2(date->GetDate()*date->GetTime());

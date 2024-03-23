@@ -14,9 +14,9 @@
 #include <utility>
 #include <optional>
 // analysis utilities
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Types.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Constants.h"
-#include "/sphenix/user/danderson/install/include/senergycorrelator/SEnergyCorrelatorConfig.h"
+#include "/sphenix/user/atclarke/install/include/scorrelatorutilities/Types.h"
+#include "/sphenix/user/atclarke/install/include/scorrelatorutilities/Constants.h"
+#include "/sphenix/user/atclarke/install/include/senergycorrelator/SEnergyCorrelatorConfig.h"
 
 // make common namespacs implicit
 using namespace std;
@@ -63,6 +63,10 @@ namespace EnergyCorrelatorOptions {
   const float theta = 0;
   const float pTSmear = 0.02;
   const float effVal = 1;
+
+  //Manual calculation options
+  const bool manualTwoPoint = true;
+  const bool manualThreePoint = false;
 
 
   // bundle acceptances into pairs --------------------------------------------
@@ -131,6 +135,8 @@ namespace EnergyCorrelatorOptions {
       .nBinsDr       = nBinsDr,
       .drBinRange    = binRangeDr,
       .ptJetBins     = ptJetBins,
+      .manualTwoPoint = manualTwoPoint,
+      .manualThreePoint = manualThreePoint,
       .jetAccept     = GetJetAccept(),
       .cstAccept     = GetCstAccept()
     };
@@ -166,6 +172,8 @@ namespace EnergyCorrelatorOptions {
       .ptJetBins     = ptJetBins,
       .jetAccept     = GetJetAccept(),
       .cstAccept     = GetCstAccept(),
+      .manualTwoPoint = manualTwoPoint,
+      .manualThreePoint = manualThreePoint,
       .modCsts = modCsts,
       .theta = theta,
       .effVal = effVal,
