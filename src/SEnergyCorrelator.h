@@ -128,6 +128,9 @@ namespace SColdQcdCorrelatorAnalysis {
       vector<TH1D*> m_outHistVarLnDrAxis;
       vector<TH1D*> m_outHistErrLnDrAxis;
 
+      vector<TH1D*> weight_outHistErrDrAxis;
+      vector<TH1D*> Tweight_outHistErrDrAxis;
+
       // correlators
       vector<fastjet::contrib::eec::EECLongestSide<fastjet::contrib::eec::hist::axis::log>*> m_eecLongSide;
 
