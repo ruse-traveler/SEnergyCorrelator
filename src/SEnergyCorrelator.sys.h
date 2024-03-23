@@ -34,6 +34,8 @@ namespace SColdQcdCorrelatorAnalysis {
     m_outHistErrDrAxis.clear();
     m_outHistVarLnDrAxis.clear();
     m_outHistErrLnDrAxis.clear();
+    Tweight_outHistErrDrAxis.clear();
+    weight_outHistErrDrAxis.clear();
     
 
     return;
@@ -73,6 +75,14 @@ namespace SColdQcdCorrelatorAnalysis {
     // print debug statement
     if (m_config.isDebugOn) PrintDebug(5);
 
+    vector<double> drBinEdges  = m_eecLongSide[0] -> bin_edges();
+    size_t         nDrBinEdges = drBinEdges.size();
+ 
+    double drBinEdgeArray[nDrBinEdges];
+    for (size_t iDrEdge = 0; iDrEdge < nDrBinEdges; iDrEdge++) {
+      drBinEdgeArray[iDrEdge] = drBinEdges.at(iDrEdge);
+    }
+
     for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
       TH1D* hInitialVarDrAxis   = NULL;
       TH1D* hInitialErrDrAxis   = NULL;
@@ -82,6 +92,17 @@ namespace SColdQcdCorrelatorAnalysis {
       m_outHistVarLnDrAxis.push_back(hInitialVarLnDrAxis);
       m_outHistErrDrAxis.push_back(hInitialErrDrAxis);
       m_outHistErrLnDrAxis.push_back(hInitialErrLnDrAxis);
+      if(m_config.manualTwoPoint){
+	TString weightTNameTH1("hCstPairWeightTVsDrTH1_jetpT");
+	weightTNameTH1+=floor(m_config.ptJetBins[iPtBin].first);
+	Tweight_outHistErrDrAxis.push_back(new TH1D(weightTNameTH1, "", m_config.nBinsDr, drBinEdgeArray));
+	Tweight_outHistErrDrAxis[iPtBin]->Sumw2();
+      
+	TString weightNameTH1("hCstPairWeightVsDrTH1_jetpT");
+	weightNameTH1+=floor(m_config.ptJetBins[iPtBin].first);
+	weight_outHistErrDrAxis.push_back(new TH1D(weightNameTH1, "", m_config.nBinsDr, drBinEdgeArray));
+	weight_outHistErrDrAxis[iPtBin]->Sumw2();
+      }
     }
 
     // announce histogram initialization
