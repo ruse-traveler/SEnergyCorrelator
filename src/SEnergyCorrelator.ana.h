@@ -39,6 +39,14 @@ namespace SColdQcdCorrelatorAnalysis {
       const bool isGoodJet = IsGoodJet( m_input.jets[iJet] );
       if (!isGoodJet) continue;
 
+      //get Jet info for manual calculations
+      const double jet_pT = m_input.jets[iJet].GetPT();
+      const double jet_Eta = m_input.jets[iJet].GetEta();
+      const double jet_Phi = m_input.jets[iJet].GetPhi();
+      const double jet_Ene = m_input.jets[iJet].GetEne();
+      ROOT::Math::PtEtaPhiEVector VecJet(jet_pT, jet_Eta, jet_Phi, jet_Ene);
+      TVector3 pJet(VecJet.X(), VecJet.Y(), VecJet.Z());
+
       // constituent loop
       for (uint64_t iCst = 0; iCst < m_input.csts[iJet].size(); iCst++) {
 
