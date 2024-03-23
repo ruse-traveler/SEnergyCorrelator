@@ -34,7 +34,7 @@ void DoStandaloneCorrelatorCalculation(const bool doBatch = false, const int ver
 
   // input/output files
   const vector<string> inFiles = {
-    "../SCorrelatorJetTree/output/condor/final_merge/correlatorJetTree.pp200py8jet10run8_trksWithRoughCuts.d26m9y2023.root"
+    "../SCorrelatorJetTreeMaker/output/condor/final_merge/correlatorJetTree.pp200py8jet10run8_trksWithRoughCuts.d26m9y2023.root"
   };
   const pair<string, string> outFiles = {
     "twoPoint.pp200py8jet10run8.refactor_cleanUpCutFunctions_reco.d19m3y2024.root",

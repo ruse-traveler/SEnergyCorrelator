@@ -8,7 +8,7 @@
 # -----------------------------------------------------------------------------
 
 if ARGV[0] == "condor"
-  exec("condor_submit DoStandaloneCalculationOnCondor.job")
+  exec("condor_submit DoStandaloneCorrelatorCalculationOnCondor.job")
 else
   exec("root -b -q DoStandaloneCorrelatorCalculation.cxx")
 end
