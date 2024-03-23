@@ -57,12 +57,16 @@ namespace SColdQcdCorrelatorAnalysis {
       delete m_outHistErrDrAxis.at(iPtBin);
       delete m_outHistVarLnDrAxis.at(iPtBin);
       delete m_outHistErrLnDrAxis.at(iPtBin);
+      delete weight_outHistErrDrAxis.at(iPtBin);
+      delete Tweight_outHistErrDrAxis.at(iPtBin);
     }
     m_eecLongSide.clear();
     m_outHistVarDrAxis.clear();
     m_outHistErrDrAxis.clear();
     m_outHistVarLnDrAxis.clear();
     m_outHistErrLnDrAxis.clear();
+    weight_outHistErrDrAxis.clear();
+    Tweight_outHistErrDrAxis.clear();
 
   }  // end dtor
 
