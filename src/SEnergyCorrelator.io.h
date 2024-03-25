@@ -89,6 +89,10 @@ namespace SColdQcdCorrelatorAnalysis {
       m_outHistErrDrAxis[iPtBin]   -> Write();
       m_outHistVarLnDrAxis[iPtBin] -> Write();
       m_outHistErrLnDrAxis[iPtBin] -> Write();
+      if(m_config.manualTwoPoint){
+	Tweight_outHistErrDrAxis[iPtBin]->Write();
+	weight_outHistErrDrAxis[iPtBin]->Write();
+      }
     }
 
     // announce saving

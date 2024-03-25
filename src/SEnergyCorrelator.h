@@ -103,6 +103,7 @@ namespace SColdQcdCorrelatorAnalysis {
       // analysis methods (*.ana.h)
       void    DoLocalCalculation();
       void    DoLocalCalcWithPackage(const double ptJet);
+      void    DoLocalCalcManual(uint64_t jetIdx, vector<fastjet::PseudoJet> cstPseudoJet);
       void    ExtractHistsFromCorr();
       bool    IsGoodJet(const Types::JetInfo& jet);
       bool    IsGoodCst(const Types::CstInfo& cst);
@@ -127,6 +128,9 @@ namespace SColdQcdCorrelatorAnalysis {
       vector<TH1D*> m_outHistErrDrAxis;
       vector<TH1D*> m_outHistVarLnDrAxis;
       vector<TH1D*> m_outHistErrLnDrAxis;
+
+      vector<TH1D*> weight_outHistErrDrAxis;
+      vector<TH1D*> Tweight_outHistErrDrAxis;
 
       // correlators
       vector<fastjet::contrib::eec::EECLongestSide<fastjet::contrib::eec::hist::axis::log>*> m_eecLongSide;
