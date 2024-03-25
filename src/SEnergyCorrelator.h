@@ -103,6 +103,7 @@ namespace SColdQcdCorrelatorAnalysis {
       // analysis methods (*.ana.h)
       void    DoLocalCalculation();
       void    DoLocalCalcWithPackage(const double ptJet);
+      void    DoLocalCalcManual(uint64_t jetIdx);
       void    ExtractHistsFromCorr();
       bool    IsGoodJet(const Types::JetInfo& jet);
       bool    IsGoodCst(const Types::CstInfo& cst);

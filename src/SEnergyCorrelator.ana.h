@@ -58,9 +58,9 @@ namespace SColdQcdCorrelatorAnalysis {
           Const::MassPion()
         );
 	//Get transverse energy of Cst
-	TVector3 pCst(pVecCst.X(), pVecCst.Y(), pVecCst.Z());
+	/*TVector3 pCst(pVecCst.X(), pVecCst.Y(), pVecCst.Z());
 	TVector3 pCstT = pCst - (pCst*pJet/(pJet*pJet))*pJet;
-	const double eTCst = pow(pCstT.Mag2()+pow(Const::MassPion(),2),0.5);
+	const double eTCst = pow(pCstT.Mag2()+pow(Const::MassPion(),2),0.5);*/
 
 	//Components to use for pseudoJet
 	float Px = pVecCst.Px();
@@ -71,7 +71,7 @@ namespace SColdQcdCorrelatorAnalysis {
 	
 	//Create pseudoJet for original cst info
 	PseudoJet CstPseudo(Px, Py, Pz, cstE);
-	//Second Cst loop
+	/*//Second Cst loop
 	for(uint64_t jCst = 0; jCst < m_input.csts[iJet].size() && (m_config.manualTwoPoint || m_config.manualThreePoint); jCst++){
 	  ROOT::Math::PtEtaPhiMVector pVecCstB(
             m_input.csts[iJet][jCst].GetPT(),
@@ -98,7 +98,7 @@ namespace SColdQcdCorrelatorAnalysis {
 	      Tweight_outHistErrDrAxis[iPtBin]->Fill(drCstAB, ptWeightT);
 	    }
 	  }//end of pT bin loop
-	}//end of 2nd cst loop
+	}//end of 2nd cst loop*/
 
 	//Apply smearing if necessary
 	if(m_config.modCsts){
@@ -147,6 +147,7 @@ namespace SColdQcdCorrelatorAnalysis {
       if (m_config.doPackageCalc) {
         DoLocalCalcWithPackage( m_input.jets[iJet].GetPT()  );
       }
+      if(m_config.manualTwoPoint || m_config.manualThreePoint) DoLocalCalcManual(iJet);
     }  // end jet loop
     return;
 
@@ -169,7 +170,45 @@ namespace SColdQcdCorrelatorAnalysis {
 
   }  // end 'DoLocalCalcWithPackage(double)'
 
+  void SEnergyCorrelator::DoLocalCalcManual(uint64_t jetIdx){
+    //get Jet info for manual calculations
+    const double jet_pT = m_input.jets[jetIdx].GetPT();
+    const double jet_Eta = m_input.jets[jetIdx].GetEta();
+    const double jet_Phi = m_input.jets[jetIdx].GetPhi();
+    const double jet_Ene = m_input.jets[jetIdx].GetEne();
+    ROOT::Math::PtEtaPhiEVector VecJet(jet_pT, jet_Eta, jet_Phi, jet_Ene);
+    TVector3 pJet(VecJet.X(), VecJet.Y(), VecJet.Z());
 
+    //Loop over csts
+    for(uint64_t iCst = 0; iCst < m_jetCstVector.size(); iCst++){
+      //Determine transverse energy
+      TVector3 pCst(m_jetCstVector[iCst].px(), m_jetCstVector[iCst].py(), m_jetCstVector[iCst].pz());
+      TVector3 pCstT = pCst - (pCst*pJet/(pJet*pJet))*pJet;
+      const double eTCst = pow(pCstT.Mag2()+pow(Const::MassPion(),2),0.5);
+      //Start second cst loop
+      for(uint64_t jCst = 0; jCst < m_jetCstVector.size(); jCst++){
+	TVector3 pCstB(m_jetCstVector[jCst].px(), m_jetCstVector[jCst].py(), m_jetCstVector[jCst].pz());
+	TVector3 pCstTB = pCstB - (pCstB*pJet/(pJet*pJet))*pJet;
+	const double eTCstB = pow(pCstTB.Mag2()+pow(Const::MassPion(),2),0.5);
+
+	const double dhCstAB = (m_jetCstVector[iCst].rap()-m_jetCstVector[jCst].rap());
+	double dfCstAB = std::fabs(m_jetCstVector[iCst].phi()-m_jetCstVector[jCst].phi());
+	if(dfCstAB > TMath::Pi()) dfCstAB = 2*TMath::Pi() - dfCstAB;
+	const double drCstAB  = sqrt((dhCstAB * dhCstAB) + (dfCstAB * dfCstAB));
+	const double ptWeight = (m_jetCstVector[iCst].pt()*m_jetCstVector[jCst].pt())/(jet_pT*jet_pT);
+	const double ptWeightT = (eTCst*eTCstB)/(jet_pT*jet_pT);
+
+	//Fill manual eecs
+	for(size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++){
+	  bool isInPtBin = ((jet_pT >= m_config.ptJetBins[iPtBin].first) && (jet_pT < m_config.ptJetBins[iPtBin].second));
+	  if(isInPtBin){
+	    weight_outHistErrDrAxis[iPtBin]->Fill(drCstAB, ptWeight);
+	    Tweight_outHistErrDrAxis[iPtBin]->Fill(drCstAB, ptWeightT);
+	  }
+	}//end of pT bin loop
+      }//end of second cst loop
+    }//end of first cst loop
+  }
 
   void SEnergyCorrelator::ExtractHistsFromCorr() {
 
