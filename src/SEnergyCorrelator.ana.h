@@ -125,16 +125,16 @@ namespace SColdQcdCorrelatorAnalysis {
   double SEnergyCorrelator::GetWeight(ROOT::Math::PtEtaPhiEVector momentum, int option, optional<ROOT::Math::PtEtaPhiEVector> reference){
     double weight = 1;
     switch(option){
-      case norm_enum::Pt:{
+      case Norm::Pt:{
 	weight = momentum.Pt();
       }break;
-      case norm_enum::Et:{
+      case Norm::Et:{
 	TVector3 pRef(reference.value().X(), reference.value().Y(), reference.value().Z());
 	TVector3 pMom(momentum.X(), momentum.Y(), momentum.Z());
 	TVector3 pEt = pMom - (pMom*pRef/(pRef*pRef))*pRef;
 	weight = pow(pEt.Mag2()+pow(Const::MassPion(),2),0.5);
       }break;
-      case norm_enum::E:{
+      case Norm::E:{
 	weight = momentum.E();
       }break;
       default:{

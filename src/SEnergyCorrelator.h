@@ -137,7 +137,7 @@ namespace SColdQcdCorrelatorAnalysis {
       vector<fastjet::contrib::eec::EECLongestSide<fastjet::contrib::eec::hist::axis::log>*> m_eecLongSide;
 
       //Enum for EEC norm
-      enum norm_enum{
+      enum Norm{
 	Pt,
 	Et,
 	E
