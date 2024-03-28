@@ -49,9 +49,10 @@ namespace SColdQcdCorrelatorAnalysis {
     float pTSmear = 0;
     float theta = 0;
 
-    //Manual Calculation options
-    bool manualTwoPoint = false;
-    bool manualThreePoint = false;
+    //Manual Calculation option
+    bool doManualCalc = false;
+    int mom_option = 0;
+    int norm_option = 0;
 
     // acceptance parameters
     pair<Types::JetInfo, Types::JetInfo> jetAccept;

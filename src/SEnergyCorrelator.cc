@@ -53,20 +53,18 @@ namespace SColdQcdCorrelatorAnalysis {
     // delete pointers to correlators/histograms
     for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
       delete m_eecLongSide.at(iPtBin);
-      delete m_outHistVarDrAxis.at(iPtBin);
-      delete m_outHistErrDrAxis.at(iPtBin);
-      delete m_outHistVarLnDrAxis.at(iPtBin);
-      delete m_outHistErrLnDrAxis.at(iPtBin);
-      delete weight_outHistErrDrAxis.at(iPtBin);
-      delete Tweight_outHistErrDrAxis.at(iPtBin);
+      delete m_outPackageHistVarDrAxis.at(iPtBin);
+      delete m_outPackageHistErrDrAxis.at(iPtBin);
+      delete m_outPackageHistVarLnDrAxis.at(iPtBin);
+      delete m_outPackageHistErrLnDrAxis.at(iPtBin);
+      delete m_outManualHistErrDrAxis.at(iPtBin);
     }
     m_eecLongSide.clear();
-    m_outHistVarDrAxis.clear();
-    m_outHistErrDrAxis.clear();
-    m_outHistVarLnDrAxis.clear();
-    m_outHistErrLnDrAxis.clear();
-    weight_outHistErrDrAxis.clear();
-    Tweight_outHistErrDrAxis.clear();
+    m_outPackageHistVarDrAxis.clear();
+    m_outPackageHistErrDrAxis.clear();
+    m_outPackageHistVarLnDrAxis.clear();
+    m_outPackageHistErrLnDrAxis.clear();
+    m_outManualHistErrDrAxis.clear();
 
   }  // end dtor
 

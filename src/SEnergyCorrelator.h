@@ -18,6 +18,7 @@
 #include <cassert>
 #include <utility>
 #include <iostream>
+#include <optional>
 // root libraries
 #include <TH1.h>
 #include <TFile.h>
@@ -102,8 +103,9 @@ namespace SColdQcdCorrelatorAnalysis {
 
       // analysis methods (*.ana.h)
       void    DoLocalCalculation();
+      double  GetWeight(ROOT::Math::PtEtaPhiEVector momentum, int option, optional<ROOT::Math::PtEtaPhiEVector> reference = nullopt);
       void    DoLocalCalcWithPackage(const double ptJet);
-      void    DoLocalCalcManual(uint64_t jetIdx, vector<fastjet::PseudoJet> cstPseudoJet);
+      void    DoLocalCalcManual(const vector<fastjet::PseudoJet> momentum, ROOT::Math::PtEtaPhiEVector normalization);
       void    ExtractHistsFromCorr();
       bool    IsGoodJet(const Types::JetInfo& jet);
       bool    IsGoodCst(const Types::CstInfo& cst);
@@ -124,16 +126,22 @@ namespace SColdQcdCorrelatorAnalysis {
       vector<fastjet::PseudoJet> m_jetCstVector;
 
       // output histograms
-      vector<TH1D*> m_outHistVarDrAxis;
-      vector<TH1D*> m_outHistErrDrAxis;
-      vector<TH1D*> m_outHistVarLnDrAxis;
-      vector<TH1D*> m_outHistErrLnDrAxis;
+      vector<TH1D*> m_outPackageHistVarDrAxis;
+      vector<TH1D*> m_outPackageHistErrDrAxis;
+      vector<TH1D*> m_outPackageHistVarLnDrAxis;
+      vector<TH1D*> m_outPackageHistErrLnDrAxis;
 
-      vector<TH1D*> weight_outHistErrDrAxis;
-      vector<TH1D*> Tweight_outHistErrDrAxis;
+      vector<TH1D*> m_outManualHistErrDrAxis;
 
       // correlators
       vector<fastjet::contrib::eec::EECLongestSide<fastjet::contrib::eec::hist::axis::log>*> m_eecLongSide;
+
+      //Enum for EEC norm
+      enum norm_enum{
+	Pt,
+	Et,
+	E
+      };
 
       // inputs
       SEnergyCorrelatorInput       m_input;

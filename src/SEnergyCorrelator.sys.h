@@ -30,12 +30,11 @@ namespace SColdQcdCorrelatorAnalysis {
     m_eecLongSide.clear();    
 
     // clear output histograms
-    m_outHistVarDrAxis.clear();
-    m_outHistErrDrAxis.clear();
-    m_outHistVarLnDrAxis.clear();
-    m_outHistErrLnDrAxis.clear();
-    Tweight_outHistErrDrAxis.clear();
-    weight_outHistErrDrAxis.clear();
+    m_outPackageHistVarDrAxis.clear();
+    m_outPackageHistErrDrAxis.clear();
+    m_outPackageHistVarLnDrAxis.clear();
+    m_outPackageHistErrLnDrAxis.clear();
+    m_outManualHistErrDrAxis.clear();
     
 
     return;
@@ -88,20 +87,15 @@ namespace SColdQcdCorrelatorAnalysis {
       TH1D* hInitialErrDrAxis   = NULL;
       TH1D* hInitialVarLnDrAxis = NULL;
       TH1D* hInitialErrLnDrAxis = NULL;
-      m_outHistVarDrAxis.push_back(hInitialVarDrAxis);
-      m_outHistVarLnDrAxis.push_back(hInitialVarLnDrAxis);
-      m_outHistErrDrAxis.push_back(hInitialErrDrAxis);
-      m_outHistErrLnDrAxis.push_back(hInitialErrLnDrAxis);
-      if(m_config.manualTwoPoint){
-	TString weightTNameTH1("hCstPairWeightTVsDrTH1_jetpT");
-	weightTNameTH1+=floor(m_config.ptJetBins[iPtBin].first);
-	Tweight_outHistErrDrAxis.push_back(new TH1D(weightTNameTH1, "", m_config.nBinsDr, drBinEdgeArray));
-	Tweight_outHistErrDrAxis[iPtBin]->Sumw2();
-      
-	TString weightNameTH1("hCstPairWeightVsDrTH1_jetpT");
+      m_outPackageHistVarDrAxis.push_back(hInitialVarDrAxis);
+      m_outPackageHistVarLnDrAxis.push_back(hInitialVarLnDrAxis);
+      m_outPackageHistErrDrAxis.push_back(hInitialErrDrAxis);
+      m_outPackageHistErrLnDrAxis.push_back(hInitialErrLnDrAxis);
+      if(m_config.doManualCalc){      
+	TString weightNameTH1("hManualCorrelatorErrorDrAxis_ptJet");
 	weightNameTH1+=floor(m_config.ptJetBins[iPtBin].first);
-	weight_outHistErrDrAxis.push_back(new TH1D(weightNameTH1, "", m_config.nBinsDr, drBinEdgeArray));
-	weight_outHistErrDrAxis[iPtBin]->Sumw2();
+	m_outManualHistErrDrAxis.push_back(new TH1D(weightNameTH1, "", m_config.nBinsDr, drBinEdgeArray));
+	m_outManualHistErrDrAxis[iPtBin]->Sumw2();
       }
     }
 

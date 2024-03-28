@@ -45,7 +45,6 @@ namespace SColdQcdCorrelatorAnalysis {
       const double jet_Phi = m_input.jets[iJet].GetPhi();
       const double jet_Ene = m_input.jets[iJet].GetEne();
       ROOT::Math::PtEtaPhiEVector VecJet(jet_pT, jet_Eta, jet_Phi, jet_Ene);
-      TVector3 pJet(VecJet.X(), VecJet.Y(), VecJet.Z());
 
       // constituent loop
       for (uint64_t iCst = 0; iCst < m_input.csts[iJet].size(); iCst++) {
@@ -115,13 +114,35 @@ namespace SColdQcdCorrelatorAnalysis {
       if (m_config.doPackageCalc) {
         DoLocalCalcWithPackage( m_input.jets[iJet].GetPT()  );
       }
-      if(m_config.manualTwoPoint || m_config.manualThreePoint) DoLocalCalcManual(iJet, m_jetCstVector);
+      if(m_config.doManualCalc) {
+	DoLocalCalcManual(m_jetCstVector, VecJet);
+      }
     }  // end jet loop
     return;
 
   }  // end 'DoLocalCalculation()'
 
-
+  double SEnergyCorrelator::GetWeight(ROOT::Math::PtEtaPhiEVector momentum, int option, optional<ROOT::Math::PtEtaPhiEVector> reference){
+    double weight = 1;
+    switch(option){
+      case norm_enum::Pt:{
+	weight = momentum.Pt();
+      }break;
+      case norm_enum::Et:{
+	TVector3 pRef(reference.value().X(), reference.value().Y(), reference.value().Z());
+	TVector3 pMom(momentum.X(), momentum.Y(), momentum.Z());
+	TVector3 pEt = pMom - (pMom*pRef/(pRef*pRef))*pRef;
+	weight = pow(pEt.Mag2()+pow(Const::MassPion(),2),0.5);
+      }break;
+      case norm_enum::E:{
+	weight = momentum.E();
+      }break;
+      default:{
+	weight = momentum.Pt();
+      }break;
+    }
+    return weight;
+  }
 
   void SEnergyCorrelator::DoLocalCalcWithPackage(const double ptJet) {
 
@@ -138,40 +159,40 @@ namespace SColdQcdCorrelatorAnalysis {
 
   }  // end 'DoLocalCalcWithPackage(double)'
 
-  void SEnergyCorrelator::DoLocalCalcManual(uint64_t jetIdx, vector<fastjet::PseudoJet> cstPseudoJet){
-    //get Jet info for manual calculations
-    const double jet_pT = m_input.jets[jetIdx].GetPT();
-    const double jet_Eta = m_input.jets[jetIdx].GetEta();
-    const double jet_Phi = m_input.jets[jetIdx].GetPhi();
-    const double jet_Ene = m_input.jets[jetIdx].GetEne();
-    ROOT::Math::PtEtaPhiEVector VecJet(jet_pT, jet_Eta, jet_Phi, jet_Ene);
-    TVector3 pJet(VecJet.X(), VecJet.Y(), VecJet.Z());
-
+  void SEnergyCorrelator::DoLocalCalcManual(const vector<fastjet::PseudoJet> momentum, ROOT::Math::PtEtaPhiEVector normalization){
+    //Get norm
+    double norm = GetWeight(normalization, m_config.norm_option);
     //Loop over csts
-    for(uint64_t iCst = 0; iCst < cstPseudoJet.size(); iCst++){
-      //Determine transverse energy
-      TVector3 pCst(cstPseudoJet[iCst].px(), cstPseudoJet[iCst].py(), cstPseudoJet[iCst].pz());
-      TVector3 pCstT = pCst - (pCst*pJet/(pJet*pJet))*pJet;
-      const double eTCst = pow(pCstT.Mag2()+pow(Const::MassPion(),2),0.5);
+    for(uint64_t iCst = 0; iCst < momentum.size(); iCst++){
+      //Get weightA
+      ROOT::Math::PtEtaPhiEVector cstVec(
+	  momentum[iCst].pt(),
+          momentum[iCst].eta(),
+	  momentum[iCst].phi(),
+          pow(pow(momentum[iCst].pt(), 2) + pow(Const::MassPion(), 2), 0.5)
+        );
+      double weightA = GetWeight(cstVec, m_config.mom_option, normalization);
       //Start second cst loop
-      for(uint64_t jCst = 0; jCst < cstPseudoJet.size(); jCst++){
-	TVector3 pCstB(cstPseudoJet[jCst].px(), cstPseudoJet[jCst].py(), cstPseudoJet[jCst].pz());
-	TVector3 pCstTB = pCstB - (pCstB*pJet/(pJet*pJet))*pJet;
-	const double eTCstB = pow(pCstTB.Mag2()+pow(Const::MassPion(),2),0.5);
-
-	const double dhCstAB = (cstPseudoJet[iCst].rap()-cstPseudoJet[jCst].rap());
-	double dfCstAB = std::fabs(cstPseudoJet[iCst].phi()-cstPseudoJet[jCst].phi());
+      for(uint64_t jCst = 0; jCst < momentum.size(); jCst++){
+        //Get weightB
+	ROOT::Math::PtEtaPhiEVector cstVecB(
+	  momentum[jCst].pt(),
+          momentum[jCst].eta(),
+	  momentum[jCst].phi(),
+          pow(pow(momentum[jCst].pt(), 2) + pow(Const::MassPion(), 2), 0.5)
+        );
+	double weightB = GetWeight(cstVecB, m_config.mom_option, normalization);
+	const double dhCstAB = (momentum[iCst].rap()-momentum[jCst].rap());
+	double dfCstAB = std::fabs(momentum[iCst].phi()-momentum[jCst].phi());
 	if(dfCstAB > TMath::Pi()) dfCstAB = 2*TMath::Pi() - dfCstAB;
 	const double drCstAB  = sqrt((dhCstAB * dhCstAB) + (dfCstAB * dfCstAB));
-	const double ptWeight = (cstPseudoJet[iCst].pt()*cstPseudoJet[jCst].pt())/(jet_pT*jet_pT);
-	const double ptWeightT = (eTCst*eTCstB)/(jet_pT*jet_pT);
+	const double eecWeight = (weightA*weightB)/(norm*norm);
 
 	//Fill manual eecs
 	for(size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++){
-	  bool isInPtBin = ((jet_pT >= m_config.ptJetBins[iPtBin].first) && (jet_pT < m_config.ptJetBins[iPtBin].second));
+	  bool isInPtBin = ((normalization.Pt() >= m_config.ptJetBins[iPtBin].first) && (normalization.Pt() < m_config.ptJetBins[iPtBin].second));
 	  if(isInPtBin){
-	    weight_outHistErrDrAxis[iPtBin]->Fill(drCstAB, ptWeight);
-	    Tweight_outHistErrDrAxis[iPtBin]->Fill(drCstAB, ptWeightT);
+	    m_outManualHistErrDrAxis[iPtBin]->Fill(drCstAB, eecWeight);
 	  }
 	}//end of pT bin loop
       }//end of second cst loop
@@ -194,10 +215,10 @@ namespace SColdQcdCorrelatorAnalysis {
       TString sPtJetBin("_ptJet");
       sPtJetBin += floor(m_config.ptJetBins[iPtBin].first);
 
-      TString sVarDrAxisName("hCorrelatorVarianceDrAxis");
-      TString sErrDrAxisName("hCorrelatorErrorDrAxis");
-      TString sVarLnDrAxisName("hCorrelatorVarianceLnDrAxis");
-      TString sErrLnDrAxisName("hCorrelatorErrorLnDrAxis");
+      TString sVarDrAxisName("hPackageCorrelatorVarianceDrAxis");
+      TString sErrDrAxisName("hPackageCorrelatorErrorDrAxis");
+      TString sVarLnDrAxisName("hPackageCorrelatorVarianceLnDrAxis");
+      TString sErrLnDrAxisName("hPackageCorrelatorErrorLnDrAxis");
 
       sVarDrAxisName.Append(sPtJetBin.Data());
       sErrDrAxisName.Append(sPtJetBin.Data());
@@ -241,14 +262,14 @@ namespace SColdQcdCorrelatorAnalysis {
       }
 
       // create output histograms
-      m_outHistVarDrAxis[iPtBin]   = new TH1D(sVarDrAxisName.Data(),   "", m_config.nBinsDr, drBinEdgeArray);
-      m_outHistErrDrAxis[iPtBin]   = new TH1D(sErrDrAxisName.Data(),   "", m_config.nBinsDr, drBinEdgeArray);
-      m_outHistVarLnDrAxis[iPtBin] = new TH1D(sVarLnDrAxisName.Data(), "", m_config.nBinsDr, lnDrBinEdgeArray);
-      m_outHistErrLnDrAxis[iPtBin] = new TH1D(sErrLnDrAxisName.Data(), "", m_config.nBinsDr, lnDrBinEdgeArray);
-      m_outHistVarDrAxis[iPtBin]   -> Sumw2();
-      m_outHistErrDrAxis[iPtBin]   -> Sumw2();
-      m_outHistVarLnDrAxis[iPtBin] -> Sumw2();
-      m_outHistErrLnDrAxis[iPtBin] -> Sumw2();
+      m_outPackageHistVarDrAxis[iPtBin]   = new TH1D(sVarDrAxisName.Data(),   "", m_config.nBinsDr, drBinEdgeArray);
+      m_outPackageHistErrDrAxis[iPtBin]   = new TH1D(sErrDrAxisName.Data(),   "", m_config.nBinsDr, drBinEdgeArray);
+      m_outPackageHistVarLnDrAxis[iPtBin] = new TH1D(sVarLnDrAxisName.Data(), "", m_config.nBinsDr, lnDrBinEdgeArray);
+      m_outPackageHistErrLnDrAxis[iPtBin] = new TH1D(sErrLnDrAxisName.Data(), "", m_config.nBinsDr, lnDrBinEdgeArray);
+      m_outPackageHistVarDrAxis[iPtBin]   -> Sumw2();
+      m_outPackageHistErrDrAxis[iPtBin]   -> Sumw2();
+      m_outPackageHistVarLnDrAxis[iPtBin] -> Sumw2();
+      m_outPackageHistErrLnDrAxis[iPtBin] -> Sumw2();
 
       // set bin content
       for (size_t iDrEdge = 0; iDrEdge < m_config.nBinsDr; iDrEdge++) {
@@ -263,10 +284,10 @@ namespace SColdQcdCorrelatorAnalysis {
         if (areVarBinValuesNans) {
           PrintError(13, 0, iDrBin);
         } else {
-          m_outHistVarDrAxis[iPtBin]   -> SetBinContent(iDrBin, binVarContent);
-          m_outHistVarLnDrAxis[iPtBin] -> SetBinContent(iDrBin, binVarContent);
-          m_outHistVarDrAxis[iPtBin]   -> SetBinError(iDrBin, binVarError);
-          m_outHistVarLnDrAxis[iPtBin] -> SetBinError(iDrBin, binVarError);
+          m_outPackageHistVarDrAxis[iPtBin]   -> SetBinContent(iDrBin, binVarContent);
+          m_outPackageHistVarLnDrAxis[iPtBin] -> SetBinContent(iDrBin, binVarContent);
+          m_outPackageHistVarDrAxis[iPtBin]   -> SetBinError(iDrBin, binVarError);
+          m_outPackageHistVarLnDrAxis[iPtBin] -> SetBinError(iDrBin, binVarError);
         }
 
         // check if bin with errors is good & set content/error
@@ -274,10 +295,10 @@ namespace SColdQcdCorrelatorAnalysis {
         if (areErrBinValuesNans) {
           PrintError(14, 0, iDrBin);
         } else {
-          m_outHistErrDrAxis[iPtBin]   -> SetBinContent(iDrBin, binErrContent);
-          m_outHistErrLnDrAxis[iPtBin] -> SetBinContent(iDrBin, binErrContent);
-          m_outHistErrDrAxis[iPtBin]   -> SetBinError(iDrBin, binErrError);
-          m_outHistErrLnDrAxis[iPtBin] -> SetBinError(iDrBin, binErrError);
+          m_outPackageHistErrDrAxis[iPtBin]   -> SetBinContent(iDrBin, binErrContent);
+          m_outPackageHistErrLnDrAxis[iPtBin] -> SetBinContent(iDrBin, binErrContent);
+          m_outPackageHistErrDrAxis[iPtBin]   -> SetBinError(iDrBin, binErrError);
+          m_outPackageHistErrLnDrAxis[iPtBin] -> SetBinError(iDrBin, binErrError);
         }
       }  // end dr bin edge loop
     }  // end jet pt bin loop
