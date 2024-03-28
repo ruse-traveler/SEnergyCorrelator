@@ -64,11 +64,11 @@ namespace EnergyCorrelatorOptions {
   const float pTSmear = 0.02;
   const float effVal = 1;
 
-  //Manual calculation options
-  const bool manualTwoPoint = true;
-  const bool manualThreePoint = false;
-
-
+  //Manual calculation option
+  const bool doManualCalc = true;
+  const int mom_option = 0;
+  const int norm_option = 0;
+  
   // bundle acceptances into pairs --------------------------------------------
 
   pair<Types::JetInfo, Types::JetInfo> GetJetAccept() {
@@ -135,8 +135,9 @@ namespace EnergyCorrelatorOptions {
       .nBinsDr       = nBinsDr,
       .drBinRange    = binRangeDr,
       .ptJetBins     = ptJetBins,
-      .manualTwoPoint = manualTwoPoint,
-      .manualThreePoint = manualThreePoint,
+      .doManualCalc = doManualCalc,
+      .mom_option = mom_option,
+      .norm_option = norm_option,
       .jetAccept     = GetJetAccept(),
       .cstAccept     = GetCstAccept()
     };
@@ -170,10 +171,11 @@ namespace EnergyCorrelatorOptions {
       .nBinsDr       = nBinsDr,
       .drBinRange    = binRangeDr,
       .ptJetBins     = ptJetBins,
+      .doManualCalc = doManualCalc,
+      .mom_option = mom_option,
+      .norm_option = norm_option,
       .jetAccept     = GetJetAccept(),
       .cstAccept     = GetCstAccept(),
-      .manualTwoPoint = manualTwoPoint,
-      .manualThreePoint = manualThreePoint,
       .modCsts = modCsts,
       .theta = theta,
       .effVal = effVal,
