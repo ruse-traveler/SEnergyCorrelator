@@ -85,10 +85,13 @@ namespace SColdQcdCorrelatorAnalysis {
 
     m_outFile -> cd();
     for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
-      m_outHistVarDrAxis[iPtBin]   -> Write();
-      m_outHistErrDrAxis[iPtBin]   -> Write();
-      m_outHistVarLnDrAxis[iPtBin] -> Write();
-      m_outHistErrLnDrAxis[iPtBin] -> Write();
+      m_outPackageHistVarDrAxis[iPtBin]   -> Write();
+      m_outPackageHistErrDrAxis[iPtBin]   -> Write();
+      m_outPackageHistVarLnDrAxis[iPtBin] -> Write();
+      m_outPackageHistErrLnDrAxis[iPtBin] -> Write();
+      if(m_config.doManualCalc){
+	m_outManualHistErrDrAxis[iPtBin]->Write();
+      }
     }
 
     // announce saving

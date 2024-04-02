@@ -30,10 +30,11 @@ namespace SColdQcdCorrelatorAnalysis {
     m_eecLongSide.clear();    
 
     // clear output histograms
-    m_outHistVarDrAxis.clear();
-    m_outHistErrDrAxis.clear();
-    m_outHistVarLnDrAxis.clear();
-    m_outHistErrLnDrAxis.clear();
+    m_outPackageHistVarDrAxis.clear();
+    m_outPackageHistErrDrAxis.clear();
+    m_outPackageHistVarLnDrAxis.clear();
+    m_outPackageHistErrLnDrAxis.clear();
+    m_outManualHistErrDrAxis.clear();
     
 
     return;
@@ -73,15 +74,29 @@ namespace SColdQcdCorrelatorAnalysis {
     // print debug statement
     if (m_config.isDebugOn) PrintDebug(5);
 
+    vector<double> drBinEdges  = m_eecLongSide[0] -> bin_edges();
+    size_t         nDrBinEdges = drBinEdges.size();
+ 
+    double drBinEdgeArray[nDrBinEdges];
+    for (size_t iDrEdge = 0; iDrEdge < nDrBinEdges; iDrEdge++) {
+      drBinEdgeArray[iDrEdge] = drBinEdges.at(iDrEdge);
+    }
+
     for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
       TH1D* hInitialVarDrAxis   = NULL;
       TH1D* hInitialErrDrAxis   = NULL;
       TH1D* hInitialVarLnDrAxis = NULL;
       TH1D* hInitialErrLnDrAxis = NULL;
-      m_outHistVarDrAxis.push_back(hInitialVarDrAxis);
-      m_outHistVarLnDrAxis.push_back(hInitialVarLnDrAxis);
-      m_outHistErrDrAxis.push_back(hInitialErrDrAxis);
-      m_outHistErrLnDrAxis.push_back(hInitialErrLnDrAxis);
+      m_outPackageHistVarDrAxis.push_back(hInitialVarDrAxis);
+      m_outPackageHistVarLnDrAxis.push_back(hInitialVarLnDrAxis);
+      m_outPackageHistErrDrAxis.push_back(hInitialErrDrAxis);
+      m_outPackageHistErrLnDrAxis.push_back(hInitialErrLnDrAxis);
+      if(m_config.doManualCalc){      
+	TString weightNameTH1("hManualCorrelatorErrorDrAxis_ptJet");
+	weightNameTH1+=floor(m_config.ptJetBins[iPtBin].first);
+	m_outManualHistErrDrAxis.push_back(new TH1D(weightNameTH1, "", m_config.nBinsDr, drBinEdgeArray));
+	m_outManualHistErrDrAxis[iPtBin]->Sumw2();
+      }
     }
 
     // announce histogram initialization

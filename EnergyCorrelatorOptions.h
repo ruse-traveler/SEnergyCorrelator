@@ -14,9 +14,9 @@
 #include <utility>
 #include <optional>
 // analysis utilities
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Types.h"
-#include "/sphenix/user/danderson/install/include/scorrelatorutilities/Constants.h"
-#include "/sphenix/user/danderson/install/include/senergycorrelator/SEnergyCorrelatorConfig.h"
+#include "/sphenix/user/atclarke/install/include/scorrelatorutilities/Types.h"
+#include "/sphenix/user/atclarke/install/include/scorrelatorutilities/Constants.h"
+#include "/sphenix/user/atclarke/install/include/senergycorrelator/SEnergyCorrelatorConfig.h"
 
 // make common namespacs implicit
 using namespace std;
@@ -60,11 +60,15 @@ namespace EnergyCorrelatorOptions {
 
   // Smearing options
   const bool modCsts = true;
-  const float theta = 1;
-  const float pTSmear = 0;
+  const float theta = 0;
+  const float pTSmear = 0.02;
   const float effVal = 1;
 
-
+  //Manual calculation option
+  const bool doManualCalc = true;
+  const int mom_option = 0;
+  const int norm_option = 0;
+  
   // bundle acceptances into pairs --------------------------------------------
 
   pair<Types::JetInfo, Types::JetInfo> GetJetAccept() {
@@ -131,6 +135,9 @@ namespace EnergyCorrelatorOptions {
       .nBinsDr       = nBinsDr,
       .drBinRange    = binRangeDr,
       .ptJetBins     = ptJetBins,
+      .doManualCalc = doManualCalc,
+      .mom_option = mom_option,
+      .norm_option = norm_option,
       .jetAccept     = GetJetAccept(),
       .cstAccept     = GetCstAccept()
     };
@@ -164,6 +171,9 @@ namespace EnergyCorrelatorOptions {
       .nBinsDr       = nBinsDr,
       .drBinRange    = binRangeDr,
       .ptJetBins     = ptJetBins,
+      .doManualCalc = doManualCalc,
+      .mom_option = mom_option,
+      .norm_option = norm_option,
       .jetAccept     = GetJetAccept(),
       .cstAccept     = GetCstAccept(),
       .modCsts = modCsts,
