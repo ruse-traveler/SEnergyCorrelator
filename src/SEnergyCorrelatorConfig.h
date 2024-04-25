@@ -48,6 +48,7 @@ namespace SColdQcdCorrelatorAnalysis {
     float effVal = 1;
     float pTSmear = 0;
     float theta = 0;
+    float jetPtSmear = 0;
 
     //Manual Calculation option
     bool doManualCalc = false;

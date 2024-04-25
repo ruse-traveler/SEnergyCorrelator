@@ -35,11 +35,13 @@ namespace EnergyCorrelatorOptions {
 
   // jet pT bins
   const vector<pair<double, double>> ptJetBins = {
+    {0., 5.},
     {5., 10.},
     {10., 15.},
     {15., 20.},
     {20., 30.},
-    {30., 50.}
+    {30., 50.},
+    {50., 100.}
   };
 
   // misc options
@@ -63,6 +65,7 @@ namespace EnergyCorrelatorOptions {
   const float theta = 0;
   const float pTSmear = 0.02;
   const float effVal = 1;
+  const float jetPtSmear = 0.02;
 
   //Manual calculation option
   const bool doManualCalc = true;
@@ -179,7 +182,8 @@ namespace EnergyCorrelatorOptions {
       .modCsts = modCsts,
       .theta = theta,
       .effVal = effVal,
-      .pTSmear = pTSmear
+      .pTSmear = pTSmear,
+      .jetPtSmear = jetPtSmear
     };
     return cfg_true;
 
