@@ -46,7 +46,7 @@ namespace SColdQcdCorrelatorAnalysis {
       const double jet_Eta = m_input.jets[iJet].GetEta();
       const double jet_Phi = m_input.jets[iJet].GetPhi();
       double jet_Ene = m_input.jets[iJet].GetEne();
-      if(m_config.jetPtSmear != 0){
+      if(m_config.jetPtSmear != 0 && m_config.modJets){
 	double mass = sqrt((jet_Ene*jet_Ene) - (jet_pT*jet_pT));
 	jet_pT += shift->Gaus(0, m_config.jetPtSmear*jet_pT);
 	jet_Ene = sqrt((jet_pT*jet_pT) + (mass*mass));
@@ -156,7 +156,6 @@ namespace SColdQcdCorrelatorAnalysis {
 
     // print debug statement
     if (m_config.isDebugOn) PrintDebug(31);
-    std::cout<<ptJet<<std::endl;
     const uint32_t iPtJetBin = GetJetPtBin( ptJet );
     const bool     foundBin  = (iPtJetBin >= 0);
     const bool     hasCsts   = (m_jetCstVector.size() > 0); 

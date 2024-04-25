@@ -65,6 +65,7 @@ namespace EnergyCorrelatorOptions {
   const float theta = 0;
   const float pTSmear = 0.02;
   const float effVal = 1;
+  const bool modJets = true;
   const float jetPtSmear = 0.02;
 
   //Manual calculation option
@@ -183,6 +184,7 @@ namespace EnergyCorrelatorOptions {
       .theta = theta,
       .effVal = effVal,
       .pTSmear = pTSmear,
+      .modJets = modJets,
       .jetPtSmear = jetPtSmear
     };
     return cfg_true;
