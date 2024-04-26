@@ -25,6 +25,8 @@ namespace SColdQcdCorrelatorAnalysis {
     TF1* fEff = new TF1("fEff", "[0]*(1.0-TMath::Exp(-1.0*[1]*x))", 0, 100.0);
     fEff->SetParameter(0, m_config.effVal);
     fEff->SetParameter(1, 0.9);
+    TDatime *date = new TDatime();
+    TRandom2 *shift = new TRandom2(date->GetDate()*date->GetTime());
     
     // print debug statement
     if (m_config.isDebugOn) PrintDebug(31);
@@ -40,10 +42,15 @@ namespace SColdQcdCorrelatorAnalysis {
       if (!isGoodJet) continue;
 
       //get Jet info for manual calculations
-      const double jet_pT = m_input.jets[iJet].GetPT();
+      double jet_pT = m_input.jets[iJet].GetPT();
       const double jet_Eta = m_input.jets[iJet].GetEta();
       const double jet_Phi = m_input.jets[iJet].GetPhi();
-      const double jet_Ene = m_input.jets[iJet].GetEne();
+      double jet_Ene = m_input.jets[iJet].GetEne();
+      if(m_config.jetPtSmear != 0 && m_config.modJets){
+	double mass = sqrt((jet_Ene*jet_Ene) - (jet_pT*jet_pT));
+	jet_pT += shift->Gaus(0, m_config.jetPtSmear*jet_pT);
+	jet_Ene = sqrt((jet_pT*jet_pT) + (mass*mass));
+      }
       ROOT::Math::PtEtaPhiEVector VecJet(jet_pT, jet_Eta, jet_Phi, jet_Ene);
 
       // constituent loop
@@ -69,8 +76,6 @@ namespace SColdQcdCorrelatorAnalysis {
 
 	//Apply smearing if necessary
 	if(m_config.modCsts){
-	  TDatime *date = new TDatime();
-	  TRandom2 *shift = new TRandom2(date->GetDate()*date->GetTime());
 	  //Apply efficiency if needed
 	  float rando = shift->Uniform(0,1.);
 	  float eff = fEff->Eval(m_input.csts[iJet][iCst].GetPT());
@@ -112,7 +117,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
       // run eec computation(s)
       if (m_config.doPackageCalc) {
-        DoLocalCalcWithPackage( m_input.jets[iJet].GetPT()  );
+        DoLocalCalcWithPackage( jet_pT  );
       }
       if(m_config.doManualCalc) {
 	DoLocalCalcManual(m_jetCstVector, VecJet);
@@ -151,7 +156,6 @@ namespace SColdQcdCorrelatorAnalysis {
 
     // print debug statement
     if (m_config.isDebugOn) PrintDebug(31);
-
     const uint32_t iPtJetBin = GetJetPtBin( ptJet );
     const bool     foundBin  = (iPtJetBin >= 0);
     const bool     hasCsts   = (m_jetCstVector.size() > 0); 
