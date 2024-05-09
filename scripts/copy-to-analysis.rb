@@ -13,7 +13,7 @@ require 'fileutils'
 
 # top directory to copy from/to
 copy_from = "/sphenix/user/danderson/eec/SEnergyCorrelator"
-copy_to   = "/sphenix/user/danderson/test"
+copy_to   = "/sphenix/user/danderson/sphenix/analysis/AndersonAnalysisModules/ColdQcdCorrelatorAnalysis/SEnergyCorrelator"
 
 # what files to copy
 to_copy = [
@@ -22,7 +22,7 @@ to_copy = [
   "DoStandaloneCorrelatorCalculation.rb",
   "DoStandaloneCorrelatorCalculationOnCondor.sh",
   "DoStandaloneCorrelatorCalculationOnCondor.job",
-  "scripts/copy-to-analysis.sh",
+  "scripts/copy-to-analysis.rb",
   "scripts/wipe-source.sh",
   "src/SEnergyCorrelator.cc",
   "src/SEnergyCorrelator.h",
