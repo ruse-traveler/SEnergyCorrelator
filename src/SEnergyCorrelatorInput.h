@@ -38,6 +38,11 @@ namespace SColdQcdCorrelatorAnalysis {
       return;
     }  // end 'Reset()'
 
+    void SetChainAddresses(TChain* chain, const bool isInTreeTruth = true) {
+      /* TODO fill in */
+      return;
+    }  // end 'SetChainAddresses(TChain*, bool)'
+
   };  // end SEnergyCorrelatorInput 
 
 

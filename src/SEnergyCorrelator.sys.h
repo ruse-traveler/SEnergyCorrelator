@@ -56,9 +56,11 @@ namespace SColdQcdCorrelatorAnalysis {
     m_fCurrent = -1;
     m_inChain -> SetMakeClass(1);
 
-    // set truth vs. reco branch addresses
+    // set input tree
     if (m_config.isLegacyInput) {
       m_legacy.SetChainAddresses(m_inChain, m_config.isInTreeTruth);
+    } else {
+      m_input.SetChainAddresses(m_inChain, m_config.isInTreeTruth);
     }
 
     // announce tree setting
