@@ -91,6 +91,10 @@ namespace SColdQcdCorrelatorAnalysis {
       m_outPackageHistErrLnDrAxis[iPtBin] -> Write();
       if(m_config.doManualCalc){
 	m_outManualHistErrDrAxis[iPtBin]->Write();
+	if(m_config.doThreePoint){
+	  m_outE3C[iPtBin]->Write();
+	  m_outProjE3C[iPtBin]->Write();
+	}
       }
     }
 

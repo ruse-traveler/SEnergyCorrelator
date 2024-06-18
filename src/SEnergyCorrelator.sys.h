@@ -35,6 +35,8 @@ namespace SColdQcdCorrelatorAnalysis {
     m_outPackageHistVarLnDrAxis.clear();
     m_outPackageHistErrLnDrAxis.clear();
     m_outManualHistErrDrAxis.clear();
+    m_outE3C.clear();
+    m_outProjE3C.clear();
     
 
     return;
@@ -98,6 +100,14 @@ namespace SColdQcdCorrelatorAnalysis {
 	weightNameTH1+=floor(m_config.ptJetBins[iPtBin].first);
 	m_outManualHistErrDrAxis.push_back(new TH1D(weightNameTH1, "", m_config.nBinsDr, drBinEdgeArray));
 	m_outManualHistErrDrAxis[iPtBin]->Sumw2();
+	if(m_config.doThreePoint){
+	  TString E3CName("hManualE3C_ptJet");
+	  TString projE3CName("hManualProjE3C_ptJet");
+	  E3CName+=floor(m_config.ptJetBins[iPtBin].first);
+	  projE3CName+=floor(m_config.ptJetBins[iPtBin].first);
+	  m_outE3C.push_back(new TH2D(E3CName, "", 100, 0.0, 1.0, 100, 0.0, TMath::Pi()/2));
+	  m_outProjE3C.push_back(new TH1D(projE3CName, "", m_config.nBinsDr, drBinEdgeArray));
+	}
       }
     }
 

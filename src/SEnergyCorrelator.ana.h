@@ -169,6 +169,20 @@ namespace SColdQcdCorrelatorAnalysis {
   void SEnergyCorrelator::DoLocalCalcManual(const vector<fastjet::PseudoJet> momentum, ROOT::Math::PtEtaPhiEVector normalization){
     //Get norm
     double norm = GetWeight(normalization, m_config.norm_option);
+    //If necessary get required RL range for E3C
+    double dRLow = 0.0;
+    double dRHigh = m_config.targetRL + 0.25;
+    if(m_config.doThreePoint){
+      for(size_t iDr = 0; iDr < m_config.nBinsDr-1; iDr++){
+	if(m_outManualHistErrDrAxis[0]->GetBinLowEdge(iDr) <= m_config.targetRL && iDr+1 < m_config.nBinsDr && m_outManualHistErrDrAxis[0]->GetBinLowEdge(iDr+1) >= m_config.targetRL){
+	  dRLow = m_outManualHistErrDrAxis[0]->GetBinLowEdge(iDr);
+	  dRHigh = m_outManualHistErrDrAxis[0]->GetBinLowEdge(iDr+1);
+	  if(iDr>0) dRLow = m_outManualHistErrDrAxis[0]->GetBinLowEdge(iDr-1);
+	  if(iDr+2<m_config.nBinsDr) dRHigh = m_outManualHistErrDrAxis[0]->GetBinLowEdge(iDr+2);
+	}
+      }
+    }
+    
     //Loop over csts
     for(uint64_t iCst = 0; iCst < momentum.size(); iCst++){
       //Get weightA
@@ -202,6 +216,61 @@ namespace SColdQcdCorrelatorAnalysis {
 	    m_outManualHistErrDrAxis[iPtBin]->Fill(drCstAB, eecWeight);
 	  }
 	}//end of pT bin loop
+	//Start of third cst Loop
+	for(uint64_t kCst = 0; kCst < momentum.size() && m_config.doThreePoint; kCst++){
+	  ROOT::Math::PtEtaPhiEVector cstVecC(
+	    momentum[kCst].pt(),
+            momentum[kCst].eta(),
+	    momentum[kCst].phi(),
+            pow(pow(momentum[kCst].pt(), 2) + pow(Const::MassPion(), 2), 0.5)
+          );
+	  double weightC = GetWeight(cstVecC, m_config.mom_option, normalization);
+	  const double dhCstAC = (momentum[iCst].rap()-momentum[kCst].rap());
+	  double dfCstAC = std::fabs(momentum[iCst].phi()-momentum[kCst].phi());
+	  if(dfCstAC > TMath::Pi()) dfCstAC = 2*TMath::Pi() - dfCstAC;
+	  const double drCstAC  = sqrt((dhCstAC * dhCstAC) + (dfCstAC * dfCstAC));
+	  const double dhCstBC = (momentum[jCst].rap()-momentum[kCst].rap());
+	  double dfCstBC = std::fabs(momentum[jCst].phi()-momentum[kCst].phi());
+	  if(dfCstBC > TMath::Pi()) dfCstBC = 2*TMath::Pi() - dfCstBC;
+	  const double drCstBC  = sqrt((dhCstBC * dhCstBC) + (dfCstBC * dfCstBC));
+	  const double e3cWeight = (weightA*weightB*weightC)/(norm*norm*norm);
+
+	  //Determine RL and RS
+	  double RL = std::max(std::max(drCstAB, drCstAC), drCstBC);
+	  double RS = std::min(std::min(drCstAB, drCstAC), drCstBC);
+	  
+	  //Fill Projected E3C
+	  for(size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++){
+	    bool isInPtBin = ((normalization.Pt() >= m_config.ptJetBins[iPtBin].first) && (normalization.Pt() < m_config.ptJetBins[iPtBin].second));
+	    if(isInPtBin){
+	      m_outProjE3C[iPtBin]->Fill(RL, e3cWeight);
+	    }
+	  }//end of ptBin loop
+
+	  //Get RM
+	  double RM = drCstAB; //set RM default value
+	  if((drCstAB >= drCstAC && drCstAB <= drCstBC) || (drCstAB <= drCstAC && drCstAB >= drCstBC)) RM = drCstAB;
+	  if((drCstAC >= drCstAB && drCstAC <= drCstBC) || (drCstAC <= drCstAB && drCstAC >= drCstBC)) RM = drCstAC;
+	  if((drCstBC >= drCstAB && drCstBC <= drCstAC) || (drCstBC <= drCstAB && drCstBC >= drCstAC)) RM = drCstBC;
+
+	  //skip in case RS or RM are 0
+	  if(RS == 0 || RM == 0) continue;
+
+	  //Enforce RL conditon
+	  if(RL<dRLow || RL > dRHigh) continue;
+
+	  //Get Parameterization
+	  const double xi = RS/RM;
+	  const double phi = std::asin(sqrt(1 - pow(RL-RM, 2)/(RS*RS)));
+
+	  //Fill E3Cs
+	  for(size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++){
+	    bool isInPtBin = ((normalization.Pt() >= m_config.ptJetBins[iPtBin].first) && (normalization.Pt() < m_config.ptJetBins[iPtBin].second));
+	    if(isInPtBin){
+	      m_outE3C[iPtBin]->Fill(xi, phi, e3cWeight);
+	    }
+	  }//end of ptBin loop
+	}//end of third cst loop
       }//end of second cst loop
     }//end of first cst loop
   }

@@ -53,6 +53,8 @@ namespace SColdQcdCorrelatorAnalysis {
 
     //Manual Calculation option
     bool doManualCalc = false;
+    bool doThreePoint = false;
+    double targetRL = 0.25; 
     int mom_option = 0;
     int norm_option = 0;
 
