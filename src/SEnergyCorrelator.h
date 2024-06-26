@@ -41,7 +41,7 @@
 // fastjet libraries
 #include <fastjet/PseudoJet.hh>
 // eec library
-#include "/sphenix/user/danderson/eec/EnergyEnergyCorrelators/eec/include/EECLongestSide.hh"
+#include "/eec/include/EECLongestSide.hh"
 // analysis utilities
 #include <scorrelatorutilities/Tools.h>
 #include <scorrelatorutilities/Types.h>
@@ -133,7 +133,7 @@ namespace SColdQcdCorrelatorAnalysis {
       vector<TH1D*> m_outPackageHistErrLnDrAxis;
 
       vector<TH1D*> m_outManualHistErrDrAxis;
-      vector<TH2D*> m_outE3C;
+      vector<vector<TH2D*>> m_outE3C;
       vector<TH1D*> m_outProjE3C;
 
       // correlators

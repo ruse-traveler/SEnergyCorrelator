@@ -72,7 +72,7 @@ namespace EnergyCorrelatorOptions {
   //Manual calculation option
   const bool doManualCalc = true;
   const bool doThreePoint = true;
-  const double targetRL = 0.25;
+  const vector <pair<double, double>> RL_Bins = {{0.0, 0.22664}, {0.22664, 0.26666}, {0.26666, 1.0}};
   const int mom_option = 0;
   const int norm_option = 0;
   
@@ -144,7 +144,7 @@ namespace EnergyCorrelatorOptions {
       .ptJetBins     = ptJetBins,
       .doManualCalc = doManualCalc,
       .doThreePoint = doThreePoint,
-      .targetRL = targetRL,
+      .RL_Bins = RL_Bins,
       .mom_option = mom_option,
       .norm_option = norm_option,
       .jetAccept     = GetJetAccept(),
@@ -182,7 +182,7 @@ namespace EnergyCorrelatorOptions {
       .ptJetBins     = ptJetBins,
       .doManualCalc = doManualCalc,
       .doThreePoint = doThreePoint,
-      .targetRL = targetRL,
+      .RL_Bins = RL_Bins,
       .mom_option = mom_option,
       .norm_option = norm_option,
       .jetAccept     = GetJetAccept(),

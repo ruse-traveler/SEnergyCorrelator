@@ -169,20 +169,6 @@ namespace SColdQcdCorrelatorAnalysis {
   void SEnergyCorrelator::DoLocalCalcManual(const vector<fastjet::PseudoJet> momentum, ROOT::Math::PtEtaPhiEVector normalization){
     //Get norm
     double norm = GetWeight(normalization, m_config.norm_option);
-    //If necessary get required RL range for E3C
-    double dRLow = 0.0;
-    double dRHigh = m_config.targetRL + 0.25;
-    if(m_config.doThreePoint){
-      for(size_t iDr = 0; iDr < m_config.nBinsDr-1; iDr++){
-	if(m_outManualHistErrDrAxis[0]->GetBinLowEdge(iDr) <= m_config.targetRL && iDr+1 < m_config.nBinsDr && m_outManualHistErrDrAxis[0]->GetBinLowEdge(iDr+1) >= m_config.targetRL){
-	  dRLow = m_outManualHistErrDrAxis[0]->GetBinLowEdge(iDr);
-	  dRHigh = m_outManualHistErrDrAxis[0]->GetBinLowEdge(iDr+1);
-	  if(iDr>0) dRLow = m_outManualHistErrDrAxis[0]->GetBinLowEdge(iDr-1);
-	  if(iDr+2<m_config.nBinsDr) dRHigh = m_outManualHistErrDrAxis[0]->GetBinLowEdge(iDr+2);
-	}
-      }
-    }
-    
     //Loop over csts
     for(uint64_t iCst = 0; iCst < momentum.size(); iCst++){
       //Get weightA
@@ -256,9 +242,6 @@ namespace SColdQcdCorrelatorAnalysis {
 	  //skip in case RS or RM are 0
 	  if(RS == 0 || RM == 0) continue;
 
-	  //Enforce RL conditon
-	  if(RL<dRLow || RL > dRHigh) continue;
-
 	  //Get Parameterization
 	  const double xi = RS/RM;
 	  const double phi = std::asin(sqrt(1 - pow(RL-RM, 2)/(RS*RS)));
@@ -267,7 +250,11 @@ namespace SColdQcdCorrelatorAnalysis {
 	  for(size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++){
 	    bool isInPtBin = ((normalization.Pt() >= m_config.ptJetBins[iPtBin].first) && (normalization.Pt() < m_config.ptJetBins[iPtBin].second));
 	    if(isInPtBin){
-	      m_outE3C[iPtBin]->Fill(xi, phi, e3cWeight);
+	      for(size_t jRLBin = 0; jRLBin < m_config.RL_Bins.size(); jRLBin++){
+		if(RL >= m_config.RL_Bins[jRLBin].first && RL < m_config.RL_Bins[jRLBin].second){
+		  m_outE3C[iPtBin][jRLBin]->Fill(xi, phi, e3cWeight);
+		}
+	      }
 	    }
 	  }//end of ptBin loop
 	}//end of third cst loop
