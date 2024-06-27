@@ -21,6 +21,7 @@
 #include <optional>
 // root libraries
 #include <TH1.h>
+#include <TH2.h>
 #include <TFile.h>
 #include <TChain.h>
 #include <TString.h>
@@ -40,7 +41,7 @@
 // fastjet libraries
 #include <fastjet/PseudoJet.hh>
 // eec library
-#include "eec/EECLongestSide.hh"
+#include "/eec/include/EECLongestSide.hh"
 // analysis utilities
 #include <scorrelatorutilities/Tools.h>
 #include <scorrelatorutilities/Types.h>
@@ -132,6 +133,8 @@ namespace SColdQcdCorrelatorAnalysis {
       vector<TH1D*> m_outPackageHistErrLnDrAxis;
 
       vector<TH1D*> m_outManualHistErrDrAxis;
+      vector<vector<TH2D*>> m_outE3C;
+      vector<TH1D*> m_outProjE3C;
 
       // correlators
       vector<fastjet::contrib::eec::EECLongestSide<fastjet::contrib::eec::hist::axis::log>*> m_eecLongSide;
