@@ -70,37 +70,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
 
 
-  // F4A methods --------------------------------------------------------------
-
-  int SEnergyCorrelator::Init(PHCompositeNode*) {
-
-    /* TODO init will go here */
-    return Fun4AllReturnCodes::EVENT_OK;
-
-  }  // end 'Init(PHCompositeNode*)'
-
-
-
-
-  int SEnergyCorrelator::process_event(PHCompositeNode*) {
-
-    /* TODO event processing will go here */
-    return Fun4AllReturnCodes::EVENT_OK;
-
-  }  // end 'process_event(PHCompositeNode*)'
-
-
-
-  int SEnergyCorrelator::End(PHCompositeNode*) {
-
-    /* TODO end will go here */
-    return Fun4AllReturnCodes::EVENT_OK;
-
-  }  // end 'End(PHCompositeNode*)'
-
-
-
-  // standalone-only methods --------------------------------------------------
+  // public methods -----------------------------------------------------------
 
   void SEnergyCorrelator::Init() {
 

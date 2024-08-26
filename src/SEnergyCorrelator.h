@@ -67,12 +67,7 @@ namespace SColdQcdCorrelatorAnalysis {
       SEnergyCorrelator(SEnergyCorrelatorConfig& config);
       ~SEnergyCorrelator() override;
 
-      // F4A methods
-      int Init(PHCompositeNode*)          override;
-      int process_event(PHCompositeNode*) override;
-      int End(PHCompositeNode*)           override;
-
-      // standalone-only methods
+      // public methods
       void Init();
       void Analyze();
       void End();
@@ -86,7 +81,6 @@ namespace SColdQcdCorrelatorAnalysis {
     private:
 
       // io methods (*.io.h)
-      void GrabInputNode();
       void OpenInputFiles();
       void OpenOutputFile();
       void SaveOutput();

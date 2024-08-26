@@ -20,18 +20,6 @@ namespace SColdQcdCorrelatorAnalysis {
 
   // i/o methods --------------------------------------------------------------
 
-  void SEnergyCorrelator::GrabInputNode() {
-
-    // print debug statement
-    if (m_config.isDebugOn) PrintDebug(3);
-
-    /* TODO method goes here */
-    return;
-
-  }  // end 'GrabInputNode()'
-
-
-
   void SEnergyCorrelator::OpenInputFiles() {
 
     // print debug statement
