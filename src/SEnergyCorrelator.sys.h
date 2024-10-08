@@ -1,12 +1,12 @@
-// ----------------------------------------------------------------------------
-// 'SEnergyCorrelator.sys.h'
-// Derek Anderson
-// 01.27.2023
-//
-// A module to implement Peter Komiske's EEC library
-// in the sPHENIX software stack for the Cold QCD
-// Energy-Energy Correlator analysis.
-// ----------------------------------------------------------------------------
+/// ---------------------------------------------------------------------------
+/*! \file    SEnergyCorrelator.sys.h
+ *  \authors Derek Anderson, Alex Clarke
+ *  \date    01.20.2023
+ *
+ *  A module to run ENC calculations in the sPHENIX
+ *  software stack for the Cold QCD EEC analysis.
+ */
+/// ---------------------------------------------------------------------------
 
 #pragma once
 
@@ -18,8 +18,11 @@ using namespace fastjet;
 
 namespace SColdQcdCorrelatorAnalysis {
 
-  // system methods -----------------------------------------------------------
+  // system methods ===========================================================
 
+  // --------------------------------------------------------------------------
+  //! Initialize class members
+  // --------------------------------------------------------------------------
   void SEnergyCorrelator::InitializeMembers() {
 
     // print debug statement
@@ -45,6 +48,9 @@ namespace SColdQcdCorrelatorAnalysis {
 
 
 
+  // --------------------------------------------------------------------------
+  //! Initialize input tree
+  // --------------------------------------------------------------------------
   void SEnergyCorrelator::InitializeTree() {
 
     // print debug statement
@@ -59,20 +65,19 @@ namespace SColdQcdCorrelatorAnalysis {
     m_inChain -> SetMakeClass(1);
 
     // set input tree
-    if (m_config.isLegacyInput) {
-      m_legacy.SetChainAddresses(m_inChain, m_config.isInTreeTruth);
-    } else {
-      m_input.SetChainAddresses(m_inChain, m_config.isInTreeTruth);
-    }
+    m_interface.SetChainAddresses(m_inChain, m_config.isInTreeTruth);
 
     // announce tree setting
-    if (m_config.isStandalone) PrintMessage(2);
+    PrintMessage(2);
     return;
 
   }  // end 'InitializeTree()'
 
 
 
+  // --------------------------------------------------------------------------
+  //! Initialize output histograms
+  // --------------------------------------------------------------------------
   void SEnergyCorrelator::InitializeHists() {
 
     // print debug statement
@@ -105,7 +110,7 @@ namespace SColdQcdCorrelatorAnalysis {
 	  projE3CName+=floor(m_config.ptJetBins[iPtBin].first);
 	  m_outProjE3C.push_back(new TH1D(projE3CName, "", m_config.nBinsDr, drBinEdgeArray));
 	  vector<TH2D*> E3C_tmp;
-	  for(size_t jRLBin = 0; jRLBin<m_config.RL_Bins.size(); jRLBin++){
+	  for(size_t jRLBin = 0; jRLBin<m_config.rlBins.size(); jRLBin++){
 	    TString E3CName("hManualE3C_ptJet");
 	    E3CName+=floor(m_config.ptJetBins[iPtBin].first);
 	    E3CName+="_RLBin";
@@ -118,13 +123,16 @@ namespace SColdQcdCorrelatorAnalysis {
     }
 
     // announce histogram initialization
-    if (m_config.isStandalone) PrintMessage(3);
+    PrintMessage(3);
     return;
 
   }  // end 'InitializeHists()'
 
 
 
+  // --------------------------------------------------------------------------
+  //! Initialize ENC package
+  // --------------------------------------------------------------------------
   void SEnergyCorrelator::InitializeCorrs() {
 
     // print debug statement
@@ -142,29 +150,37 @@ namespace SColdQcdCorrelatorAnalysis {
     }
 
     // announce correlator initialization
-    if (m_config.isStandalone) PrintMessage(4);
+    PrintMessage(4);
     return;
 
   }  // end 'InitializeCorrs()'
 
 
 
-  void SEnergyCorrelator::PrintMessage(const uint32_t code, const uint64_t nEvts, const uint64_t event) {
+  // --------------------------------------------------------------------------
+  //! Print messages
+  // --------------------------------------------------------------------------
+  void SEnergyCorrelator::PrintMessage(
+    const uint32_t code,
+    const uint64_t nEvts,
+    const uint64_t event
+  ) {
 
     // print debug statement
     if (m_config.isDebugOn && (m_config.verbosity > 5)) PrintDebug(22);
 
+    // select relevant message
     switch (code) {
+
       case 0:
         cout << "\n  Running standalone correlator calculation...\n"
              << "    Set name & modes:\n"
-             << "      module name      = " << m_config.moduleName.data() << "\n"
-             << "      complex mode?    = " << !m_config.isStandalone     << "\n"
-             << "      standalone mode? = " << m_config.isStandalone      << "\n"
-             << "      debug mode?      = " << m_config.isDebugOn         << "\n"
-             << "      batch mode?      = " << m_config.isBatchOn
+             << "      module name = " << m_config.moduleName.data() << "\n"
+             << "      debug mode? = " << m_config.isDebugOn         << "\n"
+             << "      batch mode? = " << m_config.isBatchOn
              << endl;
         break;
+
       case 1:
         cout << "    Opened files:\n"
              << "      output = " << m_config.outFileName.data() << "\n"
@@ -175,23 +191,28 @@ namespace SColdQcdCorrelatorAnalysis {
         }
         cout << "      }" << endl;
         break;
+
       case 2:
         cout << "    Initialized input chain:\n"
              << "      tree name = " << m_config.inTreeName.data()
              << endl;
         break;
+
       case 3:
         cout << "    Initialized output histograms." << endl;
         break;
+
       case 4:
         cout << "    Initialized correlators." << endl;
         break;
+
       case 5:
         cout << "    Set correlator parameters:\n"
              << "      n-point = "       << m_config.nPoints.at(0)     << ", number of dR bins = " << m_config.nBinsDr           << "\n"
              << "      dR bin range = (" << m_config.drBinRange.first  << ", "                     << m_config.drBinRange.second << ")"
              << endl;
         break;
+
       case 6:
         cout << "    Set jet parameters:\n"
              << "      eta range = (" << m_config.jetAccept.first.GetEta() << ", " << m_config.jetAccept.second.GetEta() << ")\n"
@@ -202,9 +223,11 @@ namespace SColdQcdCorrelatorAnalysis {
           cout << "      bin[" << iPtBin << "] = (" << m_config.ptJetBins.at(iPtBin).first << ", " << m_config.ptJetBins.at(iPtBin).second << ")" << endl;
         }
         break;
+
       case 7:
         cout << "    Beginning event loop: " << nEvts << " events to process..." << endl;
         break;
+
       case 8:
         if (m_config.isBatchOn) {
           cout << "      processing event " << (event + 1) << "/" << nEvts << "..." << endl;
@@ -213,15 +236,19 @@ namespace SColdQcdCorrelatorAnalysis {
           if ((event + 1) == nEvts) cout << endl;
         }
         break; 
+
       case 9:
         cout << "    Analysis finished!" << endl;
         break;
+
       case 10:
         cout << "    Saved output histograms." << endl;
         break;
+
       case 11:
         cout << "  Finished correlator calculation!\n" << endl;
         break;
+
       case 12:
         cout << "    Set constituent parameters:\n"
              << "      apply constituent cuts? = " << m_config.applyCstCuts   << "\n"
@@ -229,12 +256,15 @@ namespace SColdQcdCorrelatorAnalysis {
              << "      dr range       = ("         << m_config.cstAccept.first.GetDR() << ", " << m_config.cstAccept.second.GetDR() << ")"
              << endl;
         break;
+
       case 13:
         cout << "    Finished event loop!" << endl;
         break;
+
       case 14:
         cout << "    Extracted output histograms from correlators." << endl;
         break;
+
       case 15:
         cout << "    Set which sub-events to use:" << endl;
         switch (m_config.subEvtOpt) {
@@ -266,12 +296,17 @@ namespace SColdQcdCorrelatorAnalysis {
             break;
         }
         break;
-    }
+
+    }  // end switch (code)
     return;
 
   }  // end 'PrintMessage(uint32_t)'
 
 
+
+  // --------------------------------------------------------------------------
+  //! Print debugging statement
+  // --------------------------------------------------------------------------
   void SEnergyCorrelator::PrintDebug(const uint32_t code) {
 
     // print debug statement
@@ -279,236 +314,206 @@ namespace SColdQcdCorrelatorAnalysis {
       cout << "SEnergyCorrelator::PrintDebug(uint32_t) printing a debugging statement..." << endl;
     }
 
+    // select relevant message
     switch (code) {
+
       case 0:
         cout << "SEnergyCorrelator::InitializeMembers() initializing internal variables..." << endl;
         break;
+
       case 1:
         cout << "SEnergyCorrelator::SEnergyCorrelator(string, bool, bool) calling ctor..." << endl;
         break;
+
       case 2:
         cout << "SEnergyCorrelator::Init(PHCompositeNode*) initializing..." << endl;
         break;
+
       case 3:
         cout << "SEnergyCorrelator::GrabInputNode() grabbing input node..." << endl;
         break;
+
       case 4:
         cout << "SEnergyCorrelator::InitializeTree() initializing input tree..." << endl;
         break;
+
       case 5:
         cout << "SEnergyCorrelator::InitializeHists() initializing histograms..." << endl;
         break;
+
       case 6:
         cout << "SEnergyCorrelator::InitializeCorrs() initializing correlators" << endl;
         break;
+
       case 7:
         cout << "SEnergyCorrelator::process_event(PHCompositeNode*) processing event..." << endl;
         break;
+
       case 8:
         cout << "SEnergyCorrelator::End(PHCompositeNode*) this is the end..." << endl;
         break;
+
       case 9:
         cout << "SEnergyCorrelator::SaveOutput() saving output..." << endl;
         break;
+
       case 10:
         cout << "SEnergyCorrelator::Init() initializing..." << endl;
         break;
+
       case 11:
         cout << "SenergyCorrelator::OpenInputFile() opening input file..." << endl;
         break;
+
       case 12:
         cout << "SEnergyCorrelator::Analyze() analyzing input..." << endl;
         break;
+
       case 13:
         cout << "SEnergyCorrelator::End() this is the end..." << endl;
         break;
+
       case 14:
         cout << "SEnergyCorrelator::~SEnergyCorrelator() calling dtor..." << endl;
         break;
+
       case 15:
         cout << "SEnergyCorrelator::OpenOutputFile() opening output file..." << endl;
         break;
+
       case 16:
         cout << "SEnergyCorrelator::GetEntry(uint64_t) getting tree entry..." << endl;
         break;
+
       case 17:
         cout << "SEnergyCorrelator::LoadTree(uint64_t) loading tree..." << endl;
         break;
+
       case 18:
         cout << "SEnergyCorrelator::SetInputTree(string, bool) setting input tree name..." << endl;
         break;
+
       case 19:
         cout << "SEnergyCorrelator::SetCorrelatorParameters(uint32_t, uint64_t, pair<double, double>) setting correlator parameters..." << endl;
         break;
+
       case 20:
         cout << "SEnergyCorrelator::SetJetParameters(vector<pair<double, double>>, pair<double, double>) setting jet parameters..." << endl;
         break;
+
       case 21:
         cout << "SEnergyCorrelators:CheckCriticalParameters() checking critical parameters..." << endl;
         break;
+
       case 22:
         cout << "SEnergyCorrelator::PrintMessage(uint32_t, uint64_t, uint64_t) printing a message..." << endl;
         break;
+
       case 23:
         cout << "SEnergyCorrelator::PrintError(uint32_t) printing an error..." << endl;
         break;
+
       case 24:
         cout << "SEnergyCorrelator::SetConstituentParameters(pair<double, double>, pair<double, double>) setting constituent parameters..." << endl;
         break;
+
       case 25:
         cout << "SEnergyCorrelator::ExtractHistsFromCorr() extracting output histograms..." << endl;
         break;
+
       case 26:
         cout << "SEnergyCorrelator::ApplyJetCuts(double, double) applying jet cuts..." << endl;
         break;
+
       case 27:
         cout << "SEnergyCorrelator::ApplyCstCuts(double, double) applying constituent cuts..." << endl;
         break;
+
       case 28:
         cout << "SEnergyCorrelator::GetJetPtBin(double) getting jet pT bin..." << endl;
         break;
+
       case 29:
         cout << "SEnergyCorrelator::CloseInputFile() closing input file..." << endl;
         break;
+
       case 30:
         cout << "SEnergyCorrelator::CloseOutputFile() closing output file..." << endl;
         break;
+
       case 31:
         cout << "SEnergyCorrelator::DoLocalCalculation() looping over jets and calculating correlators..." << endl;
         break;
+
       case 32:
         cout << "SEnergyCorrelator::SetSubEventsToUse(uint16_t, vector<int>) setting sub-events to use..." << endl;
         break;
+
       case 33:
         cout << "SEnergyCorrelator::CheckIfSubEvtGood(int) checking if sub-event is good..." << endl;
         break;
+
       case 34:
         cout << "SEnergyCorrelator::DoLocalCalcWitPackagen() running calculation with EEC package..." << endl;
         break;
-    }
+    }  // end switch (code)
     return;
 
   }  // end 'PrintDebug(uint32_t)'
 
 
 
-  void SEnergyCorrelator::PrintError(const uint32_t code, const size_t nDrBinEdges, const size_t iDrBin, const string sInFileName) {
+  // --------------------------------------------------------------------------
+  //!  Print error message
+  // --------------------------------------------------------------------------
+  void SEnergyCorrelator::PrintError(
+    const uint32_t code,
+    const size_t nDrBinEdges,
+    const size_t iDrBin,
+    const string sInFileName
+  ) {
 
     // print debug statement
     if (m_config.isDebugOn && (m_config.verbosity > 5)) PrintDebug(23);
 
+    // select relevant message
     switch (code) {
-      case 0:
-        if (!m_config.isStandalone) {
-          cerr << "SEnergyCorrelator::Init(PHCompositeNode*) PANIC: calling complex method in standalone mode! Aborting!" << endl;
-        } else {
-          cerr << "PANIC: calling complex method in standalone mode! Aborting!" << endl;
-        }
-        break;
-      case 1:
-        if (!m_config.isStandalone) {
-          cerr << "SEnergyCorrelator::GrabInputNode() PANIC: couldn't grab node \"" << m_config.inNodeName << "\"! Aborting!" << endl;
-        } else {
-          cerr << "PANIC: couldn't grab node \"" << m_config.inNodeName << "\"! Aborting!" << endl;
-        }
-        break;
-      case 2:
-        if (!m_config.isStandalone) {
-          cerr << "SEnergyCorrelator::GrabInputNode() PANIC: couldn't grab tree \"" << m_config.inTreeName << "\" from node \"" << m_config.inNodeName << "\"! Aborting!" << endl;
-        } else {
-          cerr << "PANIC: couldn't grab tree \"" << m_config.inTreeName << "\" from node \"" << m_config.inNodeName << "\"! Aborting!" << endl;
-        }
-        break;
-      case 3:
-        if (!m_config.isStandalone) {
-          cerr << "SEnergyCorrelator::process_event(PHCompositeNode*) PANIC: calling complex method in standalone mode! Aborting!" << endl;
-        } else {
-          cerr << "PANIC: calling complex method in standalone mode! Aborting!" << endl;
-        }
-        break;
-      case 4:
-        if (!m_config.isStandalone) {
-          cerr << "SEnergyCorrelator::End(PHCompositeNode*) PANIC: calling complex method in standalone mode! Aborting!" << endl;
-        } else {
-          cerr << "PANIC: calling complex method in standalone mode! Aborting!" << endl;
-        }
-        break;
-      case 5:
-        if (!m_config.isStandalone) {
-          cerr << "SEnergyCorrelator::Init() PANIC: calling standalone method in complex mode! Aborting!" << endl;
-        } else {
-          cerr << "PANIC: calling standalone method in complex mode! Aborting!" << endl;
-        }
-        break;
+
       case 6:
-        if (!m_config.isStandalone) {
-          cerr << "SEnergyCorrelator::OpenInputFiles() PANIC: couldn't create input TChain! Aborting" << endl;
-        } else {
-          cerr << "PANIC: couldn't create input TChain! Aborting!" << endl;
-        }
+        cerr << "PANIC: couldn't create input TChain! Aborting!" << endl;
         break;
+
       case 7:
-        if (!m_config.isStandalone) {
-          cerr << "SEnergyCorrelator::OpenInputFiles() PANIC: couldn't grab tree \"" << m_config.inTreeName << "\" from file \"" << sInFileName << "\"! Aborting!" << endl;
-        } else {
-          cerr << "PANIC: couldn't grab tree \"" << m_config.inTreeName << "\" from file \"" << sInFileName << "\"! Aborting!" << endl;
-        }
+        cerr << "PANIC: couldn't grab tree \"" << m_config.inTreeName << "\" from file \"" << sInFileName << "\"! Aborting!" << endl;
         break;
-      case 8:
-        if (!m_config.isStandalone) {
-          cerr << "SEnergyCorrelator::Analyze() PANIC: calling standalone method in complex mode! Aborting!" << endl;
-        } else {
-          cerr << "PANIC: calling standalone method in complex mode! Aborting!" << endl;
-        }
-        break;
-      case 9:
-        if (!m_config.isStandalone) {
-          cerr << "SEnergyCorrelator::End() PANIC: calling standalone method in complex mode! Aborting!" << endl;
-        } else {
-          cerr << "PANIC: calling standalone method in complex mode! Aborting!" << endl;
-        }
-        break;
+
       case 10:
-        if (!m_config.isStandalone) {
-          cerr << "SEnergyCorrelator::InitializeTree() PANIC: no TTree! Aborting!" << endl;
-        } else {
-          cerr << "PANIC: no TTree! Aborting!" << endl;
-        }
+        cerr << "PANIC: no TTree! Aborting!" << endl;
         break;
+
       case 11:
-        if (!m_config.isStandalone) {
-          cerr << "SEnergyCorrelator::OpenOutputFile() PANIC: couldn't open output file! Aborting!" << endl;
-        } else {
-          cerr << "PANIC: couldn't open output file! Aborting!" << endl;
-        }
+        cerr << "PANIC: couldn't open output file! Aborting!" << endl;
         break;
+
       case 12:
-        if (!m_config.isStandalone) {
-          cerr << "SEnergyCorrelator::ExtraHistsFromCorr() PANIC: number of dR bin edges is no good! Aborting!" << endl;
-        } else {
-          cerr << "PANIC: number of dR bin edges is no good! Aborting!\n"
-               << "       nDrBinEdges = " << nDrBinEdges << ", nDrBins = " << m_config.nBinsDr
-               << endl;
-        }
+        cerr << "PANIC: number of dR bin edges is no good! Aborting!\n"
+             << "       nDrBinEdges = " << nDrBinEdges << ", nDrBins = " << m_config.nBinsDr
+             << endl;
         break;
+
       case 13:
-        if (m_config.isStandalone) {
-          cerr << "WARNING: dR bin #" << iDrBin << " with variance has a NAN as content or error..." << endl;
-        }
+        cerr << "WARNING: dR bin #" << iDrBin << " with variance has a NAN as content or error..." << endl;
         break;
+
       case 14:
-        if (m_config.isStandalone) {
-          cerr << "WARNING: dR bin #" << iDrBin << " with statistical error has a NAN as content or error..." << endl;
-        }
+        cerr << "WARNING: dR bin #" << iDrBin << " with statistical error has a NAN as content or error..." << endl;
         break;
-      case 15:
-        if (!m_config.isStandalone) {
-          cerr << "SEnergyCorrelatorFile::End() PANIC: calling standalone method in complex mode! Aborting!" << endl;
-        } else {
-          cerr << "PANIC: calling standalone method in complex mode! Aborting!" << endl;
-        }
+
+      default:
+        cerr << "WARNING: unknown error! code = " << code << endl;
         break;
-    }
+
+    }  // end switch (code)
     return;
 
   }  // end 'PrintError(unint32_t)'

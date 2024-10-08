@@ -44,10 +44,19 @@ namespace EnergyCorrelatorOptions {
   const bool doBatch   = false;
 
   // manual calculation option
+  const int  momOption    = 0;
+  const int  normOption   = 0;
   const bool doManualCalc = false;
   const bool doThreePoint = false;
-  const int  momOption   = 0;
-  const int  normOption  = 0;
+
+  // smearing options
+  //   - FIXME theta should be thetaSmear
+  const bool  modCsts    = true;
+  const bool  modJets    = true;
+  const float effVal     = 1;
+  const float theta      = 0;
+  const float ptCstSmear = 0.02;
+  const float ptJetSmear = 0.02;
 
   // jet pT bins
   const vector<pair<double, double>> ptJetBins = {
@@ -66,14 +75,6 @@ namespace EnergyCorrelatorOptions {
     {0.22664, 0.26666},
     {0.26666, 1.0}
   };
-
-  // smearing options
-  const bool  modCsts    = true;
-  const bool  modJets    = true;
-  const float theta      = 0;
-  const float ptCstSmear    = 0.02;
-  const float effVal     = 1;
-  const float ptJetSmear = 0.02;
 
   // acceptance cuts ==========================================================
 
@@ -163,9 +164,9 @@ namespace EnergyCorrelatorOptions {
       .ptJetBins     = ptJetBins,
       .doManualCalc  = doManualCalc,
       .doThreePoint  = doThreePoint,
-      .rlBins       = rlBins,
-      .momOption    = momOption,
-      .normOption   = normOption,
+      .rlBins        = rlBins,
+      .momOption     = momOption,
+      .normOption    = normOption,
       .jetAccept     = GetJetAccept(),
       .cstAccept     = GetCstAccept()
     };

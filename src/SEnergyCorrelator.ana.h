@@ -1,12 +1,12 @@
-// ----------------------------------------------------------------------------
-// 'SEnergyCorrelator.ana.h'
-// Derek Anderson
-// 02.14.2023
-//
-// A module to implement Peter Komiske's EEC library
-// in the sPHENIX software stack for the Cold QCD
-// Energy-Energy Correlator analysis.
-// ----------------------------------------------------------------------------
+/// ---------------------------------------------------------------------------
+/*! \file    SEnergyCorrelator.ana.h
+ *  \authors Derek Anderson, Alex Clarke
+ *  \date    01.20.2023
+ *
+ *  A module to run ENC calculations in the sPHENIX
+ *  software stack for the Cold QCD EEC analysis.
+ */
+/// ---------------------------------------------------------------------------
 
 #pragma once
 
@@ -18,8 +18,12 @@ using namespace fastjet;
 
 namespace SColdQcdCorrelatorAnalysis {
 
-  // analysis methods ---------------------------------------------------------
+  // analysis methods =========================================================
 
+  // --------------------------------------------------------------------------
+  //! Run local (in-jet) ENC calculations
+  // --------------------------------------------------------------------------
+  /*! FIXME move smearing to a seperate function */
   void SEnergyCorrelator::DoLocalCalculation() {
 
     TF1* fEff = new TF1("fEff", "[0]*(1.0-TMath::Exp(-1.0*[1]*x))", 0, 100.0);
@@ -46,9 +50,9 @@ namespace SColdQcdCorrelatorAnalysis {
       const double jet_Eta = m_input.jets[iJet].GetEta();
       const double jet_Phi = m_input.jets[iJet].GetPhi();
       double jet_Ene = m_input.jets[iJet].GetEne();
-      if(m_config.jetPtSmear != 0 && m_config.modJets){
+      if(m_config.ptJetSmear != 0 && m_config.modJets){
 	double mass = sqrt((jet_Ene*jet_Ene) - (jet_pT*jet_pT));
-	jet_pT += shift->Gaus(0, m_config.jetPtSmear*jet_pT);
+	jet_pT += shift->Gaus(0, m_config.ptJetSmear*jet_pT);
 	jet_Ene = sqrt((jet_pT*jet_pT) + (mass*mass));
       }
       ROOT::Math::PtEtaPhiEVector VecJet(jet_pT, jet_Eta, jet_Phi, jet_Ene);
@@ -82,7 +86,7 @@ namespace SColdQcdCorrelatorAnalysis {
 	  if(rando>eff && m_config.effVal!=1) skipCst = true;
 	  //Apply pT smearing if needed
 	  float newpT = m_input.csts[iJet][iCst].GetPT();
-	  if(m_config.pTSmear != 0) newpT+=shift->Gaus(0, m_config.pTSmear*m_input.csts[iJet][iCst].GetPT());
+	  if(m_config.ptCstSmear != 0) newpT+=shift->Gaus(0, m_config.ptCstSmear*m_input.csts[iJet][iCst].GetPT());
 	  ROOT::Math::PtEtaPhiMVector rVecCstCopy(newpT, m_input.csts[iJet][iCst].GetEta(), m_input.csts[iJet][iCst].GetPhi(), Const::MassPion());
 	  TVector3 p(rVecCstCopy.X(), rVecCstCopy.Y(), rVecCstCopy.Z());
 	  TVector3 rotation_axis(rVecCstCopy.X(), rVecCstCopy.Y(), rVecCstCopy.Z());
@@ -127,31 +131,11 @@ namespace SColdQcdCorrelatorAnalysis {
 
   }  // end 'DoLocalCalculation()'
 
-  double SEnergyCorrelator::GetWeight(ROOT::Math::PtEtaPhiEVector momentum, int option, optional<ROOT::Math::PtEtaPhiEVector> reference){
-    double weight = 1;
-    double Et = 1;
-    if(reference.has_value()){
-      TVector3 pRef(reference.value().X(), reference.value().Y(), reference.value().Z());
-      TVector3 pMom(momentum.X(), momentum.Y(), momentum.Z());
-      TVector3 pEt = pMom - (pMom*pRef/(pRef*pRef))*pRef;
-      Et = pow(pEt.Mag2()+pow(Const::MassPion(),2),0.5);
-    }
-    switch(option){
-      case Norm::Et:
-	weight = Et;
-	break;
-      case Norm::E:
-	weight = momentum.E();
-	break;
-      case Norm::Pt:
-	[[fallthrough]];
-      default:
-	weight = momentum.Pt();
-	break;
-    }
-    return weight;
-  }
 
+
+  // --------------------------------------------------------------------------
+  //! Run local (in-jet) calculations using P. T. Komiske's EEC package
+  // --------------------------------------------------------------------------
   void SEnergyCorrelator::DoLocalCalcWithPackage(const double ptJet) {
 
     // print debug statement
@@ -166,9 +150,18 @@ namespace SColdQcdCorrelatorAnalysis {
 
   }  // end 'DoLocalCalcWithPackage(double)'
 
-  void SEnergyCorrelator::DoLocalCalcManual(const vector<fastjet::PseudoJet> momentum, ROOT::Math::PtEtaPhiEVector normalization){
+
+
+  // --------------------------------------------------------------------------
+  //! Run local (in-jet) calculations manually
+  // --------------------------------------------------------------------------
+  void SEnergyCorrelator::DoLocalCalcManual(
+    const vector<fastjet::PseudoJet> momentum,
+    ROOT::Math::PtEtaPhiEVector normalization
+  ){
+
     //Get norm
-    double norm = GetWeight(normalization, m_config.norm_option);
+    double norm = GetWeight(normalization, m_config.normOption);
     //Loop over csts
     for(uint64_t iCst = 0; iCst < momentum.size(); iCst++){
       //Get weightA
@@ -178,7 +171,7 @@ namespace SColdQcdCorrelatorAnalysis {
 	  momentum[iCst].phi(),
           pow(pow(momentum[iCst].pt(), 2) + pow(Const::MassPion(), 2), 0.5)
         );
-      double weightA = GetWeight(cstVec, m_config.mom_option, normalization);
+      double weightA = GetWeight(cstVec, m_config.momOption, normalization);
       //Start second cst loop
       for(uint64_t jCst = 0; jCst < momentum.size(); jCst++){
         //Get weightB
@@ -188,7 +181,7 @@ namespace SColdQcdCorrelatorAnalysis {
 	  momentum[jCst].phi(),
           pow(pow(momentum[jCst].pt(), 2) + pow(Const::MassPion(), 2), 0.5)
         );
-	double weightB = GetWeight(cstVecB, m_config.mom_option, normalization);
+	double weightB = GetWeight(cstVecB, m_config.momOption, normalization);
 	const double dhCstAB = (momentum[iCst].rap()-momentum[jCst].rap());
 	double dfCstAB = std::fabs(momentum[iCst].phi()-momentum[jCst].phi());
 	if(dfCstAB > TMath::Pi()) dfCstAB = 2*TMath::Pi() - dfCstAB;
@@ -210,7 +203,7 @@ namespace SColdQcdCorrelatorAnalysis {
 	    momentum[kCst].phi(),
             pow(pow(momentum[kCst].pt(), 2) + pow(Const::MassPion(), 2), 0.5)
           );
-	  double weightC = GetWeight(cstVecC, m_config.mom_option, normalization);
+	  double weightC = GetWeight(cstVecC, m_config.momOption, normalization);
 	  const double dhCstAC = (momentum[iCst].rap()-momentum[kCst].rap());
 	  double dfCstAC = std::fabs(momentum[iCst].phi()-momentum[kCst].phi());
 	  if(dfCstAC > TMath::Pi()) dfCstAC = 2*TMath::Pi() - dfCstAC;
@@ -250,8 +243,8 @@ namespace SColdQcdCorrelatorAnalysis {
 	  for(size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++){
 	    bool isInPtBin = ((normalization.Pt() >= m_config.ptJetBins[iPtBin].first) && (normalization.Pt() < m_config.ptJetBins[iPtBin].second));
 	    if(isInPtBin){
-	      for(size_t jRLBin = 0; jRLBin < m_config.RL_Bins.size(); jRLBin++){
-		if(RL >= m_config.RL_Bins[jRLBin].first && RL < m_config.RL_Bins[jRLBin].second){
+	      for(size_t jRLBin = 0; jRLBin < m_config.rlBins.size(); jRLBin++){
+		if(RL >= m_config.rlBins[jRLBin].first && RL < m_config.rlBins[jRLBin].second){
 		  m_outE3C[iPtBin][jRLBin]->Fill(xi, phi, e3cWeight);
 		}
 	      }
@@ -260,8 +253,14 @@ namespace SColdQcdCorrelatorAnalysis {
 	}//end of third cst loop
       }//end of second cst loop
     }//end of first cst loop
-  }
 
+  }  // end 'DoLocalCalcManual(vector<fastjet::PseudoJet>, ROOT::Math::PtEtaPhiEVector)'
+
+
+
+  // --------------------------------------------------------------------------
+  //! Extract histograms from ENC package
+  // --------------------------------------------------------------------------
   void SEnergyCorrelator::ExtractHistsFromCorr() {
 
     // print debug statement
@@ -366,13 +365,16 @@ namespace SColdQcdCorrelatorAnalysis {
       }  // end dr bin edge loop
     }  // end jet pt bin loop
 
-    if (m_config.isStandalone) PrintMessage(14);
+    PrintMessage(14);
     return;
 
   }  // end 'ExtractHistsFromCorr()'
 
 
 
+  // --------------------------------------------------------------------------
+  //! Check if a jet satisfies cuts
+  // --------------------------------------------------------------------------
   bool SEnergyCorrelator::IsGoodJet(const Types::JetInfo& jet) {
 
     // print debug statement
@@ -381,10 +383,13 @@ namespace SColdQcdCorrelatorAnalysis {
     const bool isGoodJet = jet.IsInAcceptance(m_config.jetAccept);
     return isGoodJet;
 
-  }  // end 'IsGoodJet(double, double)'
+  }  // end 'IsGoodJet(Types::JetInfo&)'
 
 
 
+  // --------------------------------------------------------------------------
+  //! Check if a constituent satisfies cuts
+  // --------------------------------------------------------------------------
   bool SEnergyCorrelator::IsGoodCst(const Types::CstInfo& cst) {
 
     // print debug statement
@@ -393,7 +398,11 @@ namespace SColdQcdCorrelatorAnalysis {
     // if analyzing truth tree and needed, check embedding ID
     bool isSubEvtGood = true;
     if (m_config.isInTreeTruth && m_config.selectSubEvts) {
-      isSubEvtGood = Tools::IsSubEvtGood( cst.GetEmbedID(), m_config.subEvtOpt, m_config.isEmbed );
+      isSubEvtGood = Tools::IsSubEvtGood(
+        cst.GetEmbedID(),
+        m_config.subEvtOpt,
+        m_config.isEmbed
+      );
     }
 
     // if needed, apply cst. cuts
@@ -405,10 +414,13 @@ namespace SColdQcdCorrelatorAnalysis {
     const bool isGoodCst = (isSubEvtGood && isInCstAccept);
     return isGoodCst;
 
-  }  // end 'IsGoodCst(double, double)'
+  }  // end 'IsGoodCst(Types::CstInfo&)'
 
 
 
+  // --------------------------------------------------------------------------
+  //! Get bin no. for a given jet pt
+  // --------------------------------------------------------------------------
   int32_t SEnergyCorrelator::GetJetPtBin(const double ptJet) {
 
     // print debug statement
@@ -426,6 +438,42 @@ namespace SColdQcdCorrelatorAnalysis {
     return iJetPtBin;
 
   }  // end 'GetJetPtBin(double)'
+
+
+
+  // --------------------------------------------------------------------------
+  //! Get weight of a point (e.g. a constituent) wrt. a reference (e.g. a jet)
+  // --------------------------------------------------------------------------
+  double SEnergyCorrelator::GetWeight(
+    ROOT::Math::PtEtaPhiEVector momentum,
+    int option,
+    optional<ROOT::Math::PtEtaPhiEVector> reference
+  ){
+
+    double weight = 1;
+    double Et = 1;
+    if(reference.has_value()){
+      TVector3 pRef(reference.value().X(), reference.value().Y(), reference.value().Z());
+      TVector3 pMom(momentum.X(), momentum.Y(), momentum.Z());
+      TVector3 pEt = pMom - (pMom*pRef/(pRef*pRef))*pRef;
+      Et = pow(pEt.Mag2()+pow(Const::MassPion(),2),0.5);
+    }
+    switch(option){
+      case Norm::Et:
+	weight = Et;
+	break;
+      case Norm::E:
+	weight = momentum.E();
+	break;
+      case Norm::Pt:
+	[[fallthrough]];
+      default:
+	weight = momentum.Pt();
+	break;
+    }
+    return weight;
+
+  }  // end 'GetWeight(ROOT::Math::PtEtaPhiEVector, int, optional<ROOT::Math::PtEtaPhiEVector>)'
 
 }  // end SColdQcdCorrelatorAnalysis namespace
 

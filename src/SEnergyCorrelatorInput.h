@@ -1,12 +1,12 @@
-// ----------------------------------------------------------------------------
-// 'SEnergyCorrelatorInput.h'
-// Derek Anderson
-// 03.15.2023
-//
-// This struct collects the old branches from the
-// input jet trees and methods for converting
-// to-from the old-to-new input.
-// ----------------------------------------------------------------------------
+/// ---------------------------------------------------------------------------
+/*! \file    SEnergyCorrelatorInput.h
+ *  \authors Derek Anderson, Alex Clarke
+ *  \date    03.15.2023
+ *
+ *  A set of structs to define module input
+ *  and how to interface with the input trees.
+ */
+/// ---------------------------------------------------------------------------
 
 #ifndef SENERGYCORRELATORINPUT_H
 #define SENERGYCORRELATORINPUT_H
@@ -18,8 +18,9 @@ using namespace std;
 
 namespace SColdQcdCorrelatorAnalysis {
 
-  // input definition ---------------------------------------------------------
-
+  // --------------------------------------------------------------------------
+  //! Module input
+  // --------------------------------------------------------------------------
   struct SEnergyCorrelatorInput {
 
     // event level info
@@ -30,26 +31,27 @@ namespace SColdQcdCorrelatorAnalysis {
     vector<Types::JetInfo>         jets;
     vector<vector<Types::CstInfo>> csts; 
 
+    // ------------------------------------------------------------------------
+    //! Reset variables
+    // ------------------------------------------------------------------------
     void Reset() {
+
       reco.Reset();
       gen.Reset();
       jets.clear();
       csts.clear();
       return;
-    }  // end 'Reset()'
 
-    void SetChainAddresses(TChain* chain, const bool isInTreeTruth = true) {
-      /* TODO fill in */
-      return;
-    }  // end 'SetChainAddresses(TChain*, bool)'
+    }  // end 'Reset()'
 
   };  // end SEnergyCorrelatorInput 
 
 
 
-  // legacy input definition --------------------------------------------------
-
-  struct SEnergyCorrelatorLegacyInput {
+  // --------------------------------------------------------------------------
+  //! Interface to input tree
+  // --------------------------------------------------------------------------
+  struct SCorrelatorInputInterface {
 
     // input truth tree addresses
     int                  evtNumChrgPars = numeric_limits<int>::min();
@@ -87,9 +89,11 @@ namespace SColdQcdCorrelatorAnalysis {
     vector<vector<double>>* cstEta     = NULL;
     vector<vector<double>>* cstPhi     = NULL;
 
-
-
+    // ------------------------------------------------------------------------
+    //! Reset variables
+    // ------------------------------------------------------------------------
     void Reset() {
+
       evtNumChrgPars = numeric_limits<int>::min();
       evtSumPar      = numeric_limits<double>::min();
       partonID       = make_pair(numeric_limits<int>::min(),    numeric_limits<int>::min());
@@ -121,11 +125,14 @@ namespace SColdQcdCorrelatorAnalysis {
       cstEta         = NULL;
       cstPhi         = NULL;
       return;
+
     }  // end 'Reset()'
 
-
-
+    // ------------------------------------------------------------------------
+    //! Set tree addresses
+    // ------------------------------------------------------------------------
     void SetChainAddresses(TChain* chain, const bool isInTreeTruth = true) {
+
       if (isInTreeTruth) {
         chain -> SetBranchAddress("Parton3_ID",   &partonID.first);
         chain -> SetBranchAddress("Parton4_ID",   &partonID.second);
@@ -162,11 +169,17 @@ namespace SColdQcdCorrelatorAnalysis {
       chain -> SetBranchAddress("CstEta",     &cstEta);
       chain -> SetBranchAddress("CstPhi",     &cstPhi);
       return;
+
     }  // end 'SetChainAddresses(TChain*)'
 
-
-
-    void SetCorrelatorInput(SEnergyCorrelatorInput& input, const bool isInTreeTruth = true, optional<bool> isEmbed = nullopt) {
+    // ------------------------------------------------------------------------
+    //! Collect tree values into input variables
+    // ------------------------------------------------------------------------
+    void SetCorrelatorInput(
+      SEnergyCorrelatorInput& input,
+      const bool isInTreeTruth = true,
+      optional<bool> isEmbed = nullopt
+    ) {
 
       // make sure container is empty
       input.Reset();
@@ -258,13 +271,12 @@ namespace SColdQcdCorrelatorAnalysis {
       }  // end jet loop
       return;
 
-    }  // end 'SetCorrelatorInput(SEnergyCorrelatorInput&)'
+    }  // end 'SetCorrelatorInput(SEnergyCorrelatorInput&, bool, optional<bool>)'
 
-  };  // end SEnergyCorrelatorLegacyInput
+  };  // end SCorrelatorInputInterface
 
 }  // end SColdQcdCorrelatorAnalysis namespace
 
 #endif
 
 // end ------------------------------------------------------------------------
-

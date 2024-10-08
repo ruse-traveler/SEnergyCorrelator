@@ -1,12 +1,12 @@
-// ----------------------------------------------------------------------------
-// 'SEnergyCorrelator.cc'
-// Derek Anderson
-// 01.20.2023
-//
-// A module to implement Peter Komiske's EEC library
-// in the sPHENIX software stack for the Cold QCD
-// Energy-Energy Correlator analysis.
-// ----------------------------------------------------------------------------
+/// ---------------------------------------------------------------------------
+/*! \file    SEnergyCorrelator.cc
+ *  \authors Derek Anderson, Alex Clarke
+ *  \date    01.20.2023
+ *
+ *  A module to run ENC calculations in the sPHENIX
+ *  software stack for the Cold QCD EEC analysis.
+ */
+/// ---------------------------------------------------------------------------
 
 #define SENERGYCORRELATOR_CC
 
@@ -25,21 +25,29 @@ using namespace findNode;
 
 namespace SColdQcdCorrelatorAnalysis {
 
-  // ctor/dtor ----------------------------------------------------------------
+  // ctor/dtor =================================================================
 
-  SEnergyCorrelator::SEnergyCorrelator(SEnergyCorrelatorConfig& config) : SubsysReco(config.moduleName) {
+  // --------------------------------------------------------------------------
+  //! Module ctor accepting config struct
+  // --------------------------------------------------------------------------
+  SEnergyCorrelator::SEnergyCorrelator(SEnergyCorrelatorConfig& config) :
+    SubsysReco(config.moduleName)
+  {
 
     // set config & initialize internal variables
     m_config = config;
     InitializeMembers();
 
     // announce start of calculation
-    if (m_config.isStandalone) PrintMessage(0);
+    PrintMessage(0);
 
   }  // end ctor(SEnergyCorrelatorConfig&)
 
 
 
+  // --------------------------------------------------------------------------
+  //! Module dtor
+  // --------------------------------------------------------------------------
   SEnergyCorrelator::~SEnergyCorrelator() {
 
     // print debug statement
@@ -59,7 +67,7 @@ namespace SColdQcdCorrelatorAnalysis {
       delete m_outPackageHistErrLnDrAxis.at(iPtBin);
       delete m_outManualHistErrDrAxis.at(iPtBin);
       delete m_outProjE3C.at(iPtBin);
-      for(size_t jRLBin = 0; jRLBin < m_config.RL_Bins.size(); jRLBin++){
+      for(size_t jRLBin = 0; jRLBin < m_config.rlBins.size(); jRLBin++){
 	delete m_outE3C[iPtBin].at(jRLBin);
       }
     }
@@ -76,20 +84,18 @@ namespace SColdQcdCorrelatorAnalysis {
 
 
 
-  // public methods -----------------------------------------------------------
+  // public methods ===========================================================
 
+  // --------------------------------------------------------------------------
+  //! Module initialization
+  // --------------------------------------------------------------------------
   void SEnergyCorrelator::Init() {
 
     // print debug statement
     if (m_config.isDebugOn) PrintDebug(10);
 
-    // make sure standalone mode is on & open files
-    if (m_config.isStandalone) {
-      OpenInputFiles();
-    } else {
-      PrintError(5);
-      assert(m_config.isStandalone);
-    }
+    // open input/output files
+    OpenInputFiles();
     OpenOutputFile();
 
     // announce files
@@ -101,20 +107,17 @@ namespace SColdQcdCorrelatorAnalysis {
     InitializeHists();
     return;
 
-  }  // end 'StandaloneInit()'
+  }  // end 'Init()'
 
 
 
+  // --------------------------------------------------------------------------
+  //! Run analysis
+  // --------------------------------------------------------------------------
   void SEnergyCorrelator::Analyze() {
 
     // print debug statement
     if (m_config.isDebugOn) PrintDebug(12);
-
-    // make sure standalone mode is on
-    if (!m_config.isStandalone) {
-      PrintError(8);
-      assert(m_config.isStandalone);
-    }
 
     // announce start of event loop
     const uint64_t nEvts = m_inChain -> GetEntriesFast();
@@ -135,10 +138,8 @@ namespace SColdQcdCorrelatorAnalysis {
         PrintMessage(8, nEvts, iEvt);
       }
 
-      // if using legacy input, fill container
-      if (m_config.isLegacyInput) {
-        m_legacy.SetCorrelatorInput(m_input, m_config.isInTreeTruth, m_config.isEmbed);
-      }
+      // fill container
+      m_interface.SetCorrelatorInput(m_input, m_config.isInTreeTruth, m_config.isEmbed);
  
       // run calculations
       DoLocalCalculation();
@@ -153,33 +154,25 @@ namespace SColdQcdCorrelatorAnalysis {
     PrintMessage(9);
     return;
 
-  }  // end 'StandaloneAnalyze()'
+  }  // end 'Analyze()'
 
 
 
+  // --------------------------------------------------------------------------
+  //! Module wind-down
+  // --------------------------------------------------------------------------
   void SEnergyCorrelator::End() {
 
     // print debug statement
     if (m_config.isDebugOn) PrintDebug(13);
 
-    // make sure standalone mode is on & save output
-    if (m_config.isStandalone) {
-      SaveOutput();
-    } else {
-      PrintError(9);
-      assert(m_config.isStandalone);
-    }
-
-    // close files and announce end
-    if (!m_config.isStandalone) {
-      PrintError(15);
-      assert(m_config.isStandalone);
-    }
+    // save output, close files, and exit
+    SaveOutput();
     CloseOutputFile();
     PrintMessage(11);
     return;
 
-  }  // end 'StandaloneEnd()'
+  }  // end 'End()'
 
 }  // end SColdQcdCorrelatorAnalysis namespace
 
