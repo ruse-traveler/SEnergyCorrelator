@@ -36,8 +36,8 @@ namespace EnergyCorrelatorOptions {
 
   // jet pT bins
   const vector<pair<double, double>> ptJetBins = {
-    {0., 5.},
-    {5., 10.},
+    {0.,  5.},
+    {5.,  10.},
     {10., 15.},
     {15., 20.},
     {20., 30.},
@@ -61,20 +61,26 @@ namespace EnergyCorrelatorOptions {
   const pair<float, float> drCstRange  = {0.,  100.};
   const pair<float, float> eneCstRange = {0.1, 100.};
 
-  // Smearing options
-  const bool modCsts = true;
-  const float theta = 0;
-  const float pTSmear = 0.02;
-  const float effVal = 1;
-  const bool modJets = true;
+  // smearing options
+  const bool  modCsts    = true;
+  const bool  modJets    = true;
+  const float theta      = 0;
+  const float pTSmear    = 0.02;
+  const float effVal     = 1;
   const float jetPtSmear = 0.02;
 
-  //Manual calculation option
+  // manual calculation option
   const bool doManualCalc = true;
   const bool doThreePoint = true;
-  const vector <pair<double, double>> RL_Bins = {{0.0, 0.22664}, {0.22664, 0.26666}, {0.26666, 1.0}};
-  const int mom_option = 0;
-  const int norm_option = 0;
+  const int  mom_option   = 0;
+  const int  norm_option  = 0;
+
+  // rl bins for for manual E3C calc
+  const vector<pair<double, double>> RL_Bins = {
+    {0.0,     0.22664},
+    {0.22664, 0.26666},
+    {0.26666, 1.0}
+  };
   
   // bundle acceptances into pairs --------------------------------------------
 
@@ -142,11 +148,11 @@ namespace EnergyCorrelatorOptions {
       .nBinsDr       = nBinsDr,
       .drBinRange    = binRangeDr,
       .ptJetBins     = ptJetBins,
-      .doManualCalc = doManualCalc,
-      .doThreePoint = doThreePoint,
-      .RL_Bins = RL_Bins,
-      .mom_option = mom_option,
-      .norm_option = norm_option,
+      .doManualCalc  = doManualCalc,
+      .doThreePoint  = doThreePoint,
+      .RL_Bins       = RL_Bins,
+      .mom_option    = mom_option,
+      .norm_option   = norm_option,
       .jetAccept     = GetJetAccept(),
       .cstAccept     = GetCstAccept()
     };
@@ -180,19 +186,19 @@ namespace EnergyCorrelatorOptions {
       .nBinsDr       = nBinsDr,
       .drBinRange    = binRangeDr,
       .ptJetBins     = ptJetBins,
-      .doManualCalc = doManualCalc,
-      .doThreePoint = doThreePoint,
-      .RL_Bins = RL_Bins,
-      .mom_option = mom_option,
-      .norm_option = norm_option,
+      .doManualCalc  = doManualCalc,
+      .doThreePoint  = doThreePoint,
+      .RL_Bins       = RL_Bins,
+      .mom_option    = mom_option,
+      .norm_option   = norm_option,
       .jetAccept     = GetJetAccept(),
       .cstAccept     = GetCstAccept(),
-      .modCsts = modCsts,
-      .theta = theta,
-      .effVal = effVal,
-      .pTSmear = pTSmear,
-      .modJets = modJets,
-      .jetPtSmear = jetPtSmear
+      .modCsts       = modCsts,
+      .theta         = theta,
+      .effVal        = effVal,
+      .pTSmear       = pTSmear,
+      .modJets       = modJets,
+      .jetPtSmear    = jetPtSmear
     };
     return cfg_true;
 
