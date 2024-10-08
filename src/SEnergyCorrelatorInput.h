@@ -158,7 +158,7 @@ namespace SColdQcdCorrelatorAnalysis {
       chain -> SetBranchAddress("CstZ",       &cstZ);
       chain -> SetBranchAddress("CstDr",      &cstDr);
       chain -> SetBranchAddress("CstEnergy",  &cstEnergy);
-      chain -> SetBranchAddress("CstJt",      &cstPt);
+      chain -> SetBranchAddress("CstPt",      &cstPt);
       chain -> SetBranchAddress("CstEta",     &cstEta);
       chain -> SetBranchAddress("CstPhi",     &cstPhi);
       return;

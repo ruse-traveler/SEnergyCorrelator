@@ -41,7 +41,7 @@
 // fastjet libraries
 #include <fastjet/PseudoJet.hh>
 // eec library
-#include "/eec/include/EECLongestSide.hh"
+#include <eec/include/EECLongestSide.hh>
 // analysis utilities
 #include <scorrelatorutilities/Tools.h>
 #include <scorrelatorutilities/Types.h>
