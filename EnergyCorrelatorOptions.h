@@ -50,13 +50,20 @@ namespace EnergyCorrelatorOptions {
   const bool doThreePoint = false;
 
   // smearing options
-  //   - FIXME theta should be thetaSmear
-  const bool  modCsts    = true;
-  const bool  modJets    = true;
-  const float effVal     = 1;
-  const float theta      = 0;
-  const float ptCstSmear = 0.02;
-  const float ptJetSmear = 0.02;
+  //   - FIXME theta should be thSmear
+  //   - FIXME modJets should be doJetSmear
+  //   - FIXME modCsts should be doCstSmear
+  const bool   modJets    = true;
+  const bool   modCsts    = true;
+  const float  theta      = 0;
+  const float  ptCstSmear = 0.02;
+  const float  ptJetSmear = 0.02;
+
+  // efficiency options
+  const bool   doCstEff    = true;
+  const float  effValue    = 0.9;
+  const float  effSmooth   = 4.0;
+  const string effFunction = "[0]*(1.0-TMath::Exp(-1.0*[1]*x))";
 
   // jet pT bins
   const vector<pair<double, double>> ptJetBins = {
@@ -86,6 +93,22 @@ namespace EnergyCorrelatorOptions {
   const pair<float, float> eneCstRange = {0.1, 100.};
 
 
+
+  // create constituent efficiency function ===================================
+
+  TF1* MakeEffFunction() {
+
+    TF1* eff = new TF1(
+      "fCstEfficiency",
+      effFunction.data(),
+      eneCstRange.first,
+      eneCstRange.second
+    );
+    eff -> SetParameter(0, effValue);
+    eff -> SetParameter(1, effSmooth);
+    return eff;
+
+  }  // end 'MakeEffFunction()'
 
   
   // bundle acceptances into pairs ============================================
@@ -209,12 +232,14 @@ namespace EnergyCorrelatorOptions {
       .normOption    = normOption,
       .jetAccept     = GetJetAccept(),
       .cstAccept     = GetCstAccept(),
+      .modJets       = modJets,
       .modCsts       = modCsts,
+      .doCstEff      = doCstEff
       .theta         = theta,
-      .effVal        = effVal,
       .ptCstSmear    = ptCstSmear,
       .modJets       = modJets,
-      .ptJetSmear    = ptJetSmear
+      .ptJetSmear    = ptJetSmear,
+      .funcEff       = MakeEffFunction()
     };
     return cfg_true;
 

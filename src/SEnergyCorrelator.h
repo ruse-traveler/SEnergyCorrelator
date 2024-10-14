@@ -20,10 +20,12 @@
 #include <iostream>
 #include <optional>
 // root libraries
+#include <TF1.h>
 #include <TH1.h>
 #include <TH2.h>
 #include <TFile.h>
 #include <TChain.h>
+#include <TDatime.h>
 #include <TString.h>
 #include <TRandom2.h>
 #include <TVector3.h>
@@ -53,7 +55,7 @@
 
 // make common namespaces implicit
 using namespace std;
-
+using namespace ROOT::Math;
 
 
 namespace SColdQcdCorrelatorAnalysis {
@@ -101,19 +103,22 @@ namespace SColdQcdCorrelatorAnalysis {
       void InitializeHists();
       void InitializeCorrs();
       void InitializeTree();
+      void InitializeSmearing();
       void PrintMessage(const uint32_t code, const uint64_t nEvts = 0, const uint64_t event = 0);
       void PrintDebug(const uint32_t code);
       void PrintError(const uint32_t code, const size_t nDrBinEdges = 0, const size_t iDrBin = 0, const string sInFileName = "");
 
       // analysis methods (*.ana.h)
-      void    DoLocalCalculation();
-      void    DoLocalCalcWithPackage(const double ptJet);
-      void    DoLocalCalcManual(const vector<fastjet::PseudoJet> momentum, ROOT::Math::PtEtaPhiEVector normalization);
-      void    ExtractHistsFromCorr();
-      bool    IsGoodJet(const Types::JetInfo& jet);
-      bool    IsGoodCst(const Types::CstInfo& cst);
-      double  GetWeight(ROOT::Math::PtEtaPhiEVector momentum, int option, optional<ROOT::Math::PtEtaPhiEVector> reference = nullopt);
-      int32_t GetJetPtBin(const double ptJet);
+      void            DoLocalCalculation();
+      void            DoLocalCalcWithPackage(const double ptJet);
+      void            DoLocalCalcManual(const vector<fastjet::PseudoJet> momentum, PtEtaPhiEVector normalization);
+      void            ExtractHistsFromCorr();
+      bool            IsGoodJet(const Types::JetInfo& jet);
+      bool            IsGoodCst(const Types::CstInfo& cst);
+      double          GetWeight(PtEtaPhiEVector momentum, int option, optional<PtEtaPhiEVector> reference = nullopt);
+      int32_t         GetJetPtBin(const double ptJet);
+      PtEtaPhiEVector SmearJetMomentum(const Types::JetInfo& jet);
+      PtEtaPhiEVector SmearCstMomentum(const Types::CstInfo& cst);
 
       // configuration
       SEnergyCorrelatorConfig m_config;
@@ -122,6 +127,9 @@ namespace SColdQcdCorrelatorAnalysis {
       TFile*  m_outFile = NULL;
       TFile*  m_inFile  = NULL;
       TChain* m_inChain = NULL;
+
+      // for smearing truth momenta
+      TRandom2* m_rando  = NULL;
 
       // system members
       int m_fCurrent = 0;

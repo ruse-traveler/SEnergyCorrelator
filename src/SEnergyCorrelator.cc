@@ -101,6 +101,11 @@ namespace SColdQcdCorrelatorAnalysis {
     // announce files
     PrintMessage(1);
 
+    // initialize smearing if need be
+    if (m_config.isTreeTruth && m_config.modJets) {
+      InitializeSmearing();
+    }
+
     // initialize input, output, & correlators
     InitializeTree();
     InitializeCorrs();

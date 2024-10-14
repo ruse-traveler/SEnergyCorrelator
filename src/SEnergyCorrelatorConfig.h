@@ -28,12 +28,12 @@ namespace SColdQcdCorrelatorAnalysis {
     uint64_t             nBinsDr    {75};
 
     // basic options
-    int  verbosity    {0};
-    int  subEvtOpt    {Const::SubEvtOpt::Everything};
-    bool isEmbed      {false};
-    bool applyCstCuts {false};
-    bool isDebugOn    {false};
-    bool isBatchOn    {false};
+    int  verbosity     {0};
+    int  subEvtOpt     {Const::SubEvtOpt::Everything};
+    bool isEmbed       {false};
+    bool applyCstCuts  {false};
+    bool isDebugOn     {false};
+    bool isBatchOn     {false};
     bool doPackageCalc {true};
 
     // manual calculation options
@@ -50,13 +50,16 @@ namespace SColdQcdCorrelatorAnalysis {
     vector<string> inFileNames   { {} };
 
     // smearing options
-    //   - FIXME theta should be thetaSmear
-    bool  modCsts    {false};
+    //   - FIXME theta should be thSmear
+    //   - FIXME modJets should be doJetSmear
+    //   - FIXME modCsts should be doCstSmear
     bool  modJets    {false};
-    float effVal     {1};
+    bool  modCsts    {false};
+    bool  doCstEff   {false};
     float theta      {0};
     float ptCstSmear {0};
     float ptJetSmear {0};
+    TF1*  funcEff    {NULL};
 
     // subevent options
     bool        selectSubEvts {false};

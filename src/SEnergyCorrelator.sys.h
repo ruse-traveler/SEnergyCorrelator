@@ -158,6 +158,28 @@ namespace SColdQcdCorrelatorAnalysis {
 
 
   // --------------------------------------------------------------------------
+  //! Initialize smearing functions and RNGs for smearing
+  // --------------------------------------------------------------------------
+  void SEnergyCorrelator::InitializeSmearing() {
+
+    // grab date & time
+    TDatime* time = new TDatime();
+
+    // and seed RNG w/ date * time
+    m_rando = new TRandom2(
+      (time -> GetDate()) * (time -> GetTime())
+    );
+
+    // announce smearing initialization
+    //   - TODO add message 
+    PrintMessage(777);
+    return;
+
+  }  // end 'InitializeSmearing()'
+
+
+
+  // --------------------------------------------------------------------------
   //! Print messages
   // --------------------------------------------------------------------------
   void SEnergyCorrelator::PrintMessage(
@@ -456,6 +478,11 @@ namespace SColdQcdCorrelatorAnalysis {
       case 34:
         cout << "SEnergyCorrelator::DoLocalCalcWitPackagen() running calculation with EEC package..." << endl;
         break;
+
+      case 35:
+        cout << "SEnergyCorrelator::SmearJetMomentum(Types::JetInfo&) smearing jet momentum..." << endl;
+        break;
+
     }  // end switch (code)
     return;
 

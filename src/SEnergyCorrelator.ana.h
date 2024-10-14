@@ -13,6 +13,7 @@
 // make common namespaces implicit
 using namespace std;
 using namespace fastjet;
+using namespace ROOT::Math;
 
 
 
@@ -25,12 +26,6 @@ namespace SColdQcdCorrelatorAnalysis {
   // --------------------------------------------------------------------------
   /*! FIXME move smearing to a seperate function */
   void SEnergyCorrelator::DoLocalCalculation() {
-
-    TF1* fEff = new TF1("fEff", "[0]*(1.0-TMath::Exp(-1.0*[1]*x))", 0, 100.0);
-    fEff->SetParameter(0, m_config.effVal);
-    fEff->SetParameter(1, 0.9);
-    TDatime *date = new TDatime();
-    TRandom2 *shift = new TRandom2(date->GetDate()*date->GetTime());
     
     // print debug statement
     if (m_config.isDebugOn) PrintDebug(31);
@@ -45,23 +40,24 @@ namespace SColdQcdCorrelatorAnalysis {
       const bool isGoodJet = IsGoodJet( m_input.jets[iJet] );
       if (!isGoodJet) continue;
 
-      //get Jet info for manual calculations
-      double jet_pT = m_input.jets[iJet].GetPT();
-      const double jet_Eta = m_input.jets[iJet].GetEta();
-      const double jet_Phi = m_input.jets[iJet].GetPhi();
-      double jet_Ene = m_input.jets[iJet].GetEne();
-      if(m_config.ptJetSmear != 0 && m_config.modJets){
-	double mass = sqrt((jet_Ene*jet_Ene) - (jet_pT*jet_pT));
-	jet_pT += shift->Gaus(0, m_config.ptJetSmear*jet_pT);
-	jet_Ene = sqrt((jet_pT*jet_pT) + (mass*mass));
+      // grab jet 4-vector, smear pt if need be
+      PtEtaPhiEVector pJetVector;
+      if (m_config.modJets) {
+        pJetVector = SmearJetMomentum(m_input.jets[iJet]);
+      } else {
+        pJetVector = PtEtaPhiEVector(
+          m_input.jets[iJet].GetPT(),
+          m_input.jets[iJet].GetEta(),
+          m_input.jets[iJet].GetPhi(),
+          m_input.jets[iJet].GetEne()
+        );
       }
-      ROOT::Math::PtEtaPhiEVector VecJet(jet_pT, jet_Eta, jet_Phi, jet_Ene);
 
       // constituent loop
       for (uint64_t iCst = 0; iCst < m_input.csts[iJet].size(); iCst++) {
 
         // create cst 4-vector
-        ROOT::Math::PtEtaPhiMVector pVecCst(
+        PtEtaPhiMVector pVecCst(
           m_input.csts[iJet][iCst].GetPT(),
           m_input.csts[iJet][iCst].GetEta(),
           m_input.csts[iJet][iCst].GetPhi(),
@@ -80,29 +76,6 @@ namespace SColdQcdCorrelatorAnalysis {
 
 	//Apply smearing if necessary
 	if(m_config.modCsts){
-	  //Apply efficiency if needed
-	  float rando = shift->Uniform(0,1.);
-	  float eff = fEff->Eval(m_input.csts[iJet][iCst].GetPT());
-	  if(rando>eff && m_config.effVal!=1) skipCst = true;
-	  //Apply pT smearing if needed
-	  float newpT = m_input.csts[iJet][iCst].GetPT();
-	  if(m_config.ptCstSmear != 0) newpT+=shift->Gaus(0, m_config.ptCstSmear*m_input.csts[iJet][iCst].GetPT());
-	  ROOT::Math::PtEtaPhiMVector rVecCstCopy(newpT, m_input.csts[iJet][iCst].GetEta(), m_input.csts[iJet][iCst].GetPhi(), Const::MassPion());
-	  TVector3 p(rVecCstCopy.X(), rVecCstCopy.Y(), rVecCstCopy.Z());
-	  TVector3 rotation_axis(rVecCstCopy.X(), rVecCstCopy.Y(), rVecCstCopy.Z());
-	  //Apply angular smearing if needed
-	  if(m_config.theta != 0){
-	    float Theta0 = p.Theta();
-	    float deltaTheta = shift->Gaus(0, m_config.theta);
-	    float deltaPhi = shift->Uniform(-TMath::Pi(), TMath::Pi());
-	    p.SetTheta(Theta0+deltaTheta);
-	    p.Rotate(deltaPhi, rotation_axis);
-	  }
-	  //Change values to use in pseudoJet
-	  Px = p.X();
-	  Py = p.Y();
-	  Pz = p.Z();
-	  cstE = rVecCstCopy.E(); 
 	}
 	if(skipCst) continue;
 
@@ -124,7 +97,7 @@ namespace SColdQcdCorrelatorAnalysis {
         DoLocalCalcWithPackage( jet_pT  );
       }
       if(m_config.doManualCalc) {
-	DoLocalCalcManual(m_jetCstVector, VecJet);
+	DoLocalCalcManual(m_jetCstVector, pJetVector);
       }
     }  // end jet loop
     return;
@@ -157,7 +130,7 @@ namespace SColdQcdCorrelatorAnalysis {
   // --------------------------------------------------------------------------
   void SEnergyCorrelator::DoLocalCalcManual(
     const vector<fastjet::PseudoJet> momentum,
-    ROOT::Math::PtEtaPhiEVector normalization
+    PtEtaPhiEVector normalization
   ){
 
     //Get norm
@@ -165,7 +138,7 @@ namespace SColdQcdCorrelatorAnalysis {
     //Loop over csts
     for(uint64_t iCst = 0; iCst < momentum.size(); iCst++){
       //Get weightA
-      ROOT::Math::PtEtaPhiEVector cstVec(
+      PtEtaPhiEVector cstVec(
 	  momentum[iCst].pt(),
           momentum[iCst].eta(),
 	  momentum[iCst].phi(),
@@ -175,7 +148,7 @@ namespace SColdQcdCorrelatorAnalysis {
       //Start second cst loop
       for(uint64_t jCst = 0; jCst < momentum.size(); jCst++){
         //Get weightB
-	ROOT::Math::PtEtaPhiEVector cstVecB(
+	PtEtaPhiEVector cstVecB(
 	  momentum[jCst].pt(),
           momentum[jCst].eta(),
 	  momentum[jCst].phi(),
@@ -197,7 +170,7 @@ namespace SColdQcdCorrelatorAnalysis {
 	}//end of pT bin loop
 	//Start of third cst Loop
 	for(uint64_t kCst = 0; kCst < momentum.size() && m_config.doThreePoint; kCst++){
-	  ROOT::Math::PtEtaPhiEVector cstVecC(
+	  PtEtaPhiEVector cstVecC(
 	    momentum[kCst].pt(),
             momentum[kCst].eta(),
 	    momentum[kCst].phi(),
@@ -254,7 +227,7 @@ namespace SColdQcdCorrelatorAnalysis {
       }//end of second cst loop
     }//end of first cst loop
 
-  }  // end 'DoLocalCalcManual(vector<fastjet::PseudoJet>, ROOT::Math::PtEtaPhiEVector)'
+  }  // end 'DoLocalCalcManual(vector<fastjet::PseudoJet>, PtEtaPhiEVector)'
 
 
 
@@ -419,25 +392,21 @@ namespace SColdQcdCorrelatorAnalysis {
 
 
   // --------------------------------------------------------------------------
-  //! Get bin no. for a given jet pt
+  //! Check if constituent pt passes efficiency
   // --------------------------------------------------------------------------
-  int32_t SEnergyCorrelator::GetJetPtBin(const double ptJet) {
+  bool SEnergyCorrelator::DoesCstPassEff(const double ptCst) {
 
     // print debug statement
-    if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(28);
- 
-    bool    isInPtBin(false);
-    int32_t iJetPtBin(-1);
-    for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
-      isInPtBin = ((ptJet >= m_config.ptJetBins[iPtBin].first) && (ptJet < m_config.ptJetBins[iPtBin].second));
-      if (isInPtBin) {
-        iJetPtBin = iPtBin;
-        break; 
-      }
-    }
-    return iJetPtBin;
+    if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(36);
 
-  }  // end 'GetJetPtBin(double)'
+    // apply efficiency if need be
+    const float rando = m_rando          -> Uniform(0., 1.);
+    const float eff   = m_config.funcEff -> Eval(ptCst);
+
+    // return if value passed
+    return (rando <= eff);
+
+  }  // end 'ApplyCstEff(double)'
 
 
 
@@ -445,9 +414,9 @@ namespace SColdQcdCorrelatorAnalysis {
   //! Get weight of a point (e.g. a constituent) wrt. a reference (e.g. a jet)
   // --------------------------------------------------------------------------
   double SEnergyCorrelator::GetWeight(
-    ROOT::Math::PtEtaPhiEVector momentum,
+    PtEtaPhiEVector momentum,
     int option,
-    optional<ROOT::Math::PtEtaPhiEVector> reference
+    optional<PtEtaPhiEVector> reference
   ){
 
     double weight = 1;
@@ -473,7 +442,87 @@ namespace SColdQcdCorrelatorAnalysis {
     }
     return weight;
 
-  }  // end 'GetWeight(ROOT::Math::PtEtaPhiEVector, int, optional<ROOT::Math::PtEtaPhiEVector>)'
+  }  // end 'GetWeight(PtEtaPhiEVector, int, optional<PtEtaPhiEVector>)'
+
+
+
+  // --------------------------------------------------------------------------
+  //! Get bin no. for a given jet pt
+  // --------------------------------------------------------------------------
+  int32_t SEnergyCorrelator::GetJetPtBin(const double ptJet) {
+
+    // print debug statement
+    if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(28);
+ 
+    bool    isInPtBin(false);
+    int32_t iJetPtBin(-1);
+    for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
+      isInPtBin = ((ptJet >= m_config.ptJetBins[iPtBin].first) && (ptJet < m_config.ptJetBins[iPtBin].second));
+      if (isInPtBin) {
+        iJetPtBin = iPtBin;
+        break; 
+      }
+    }
+    return iJetPtBin;
+
+  }  // end 'GetJetPtBin(double)'
+
+
+
+  // --------------------------------------------------------------------------
+  //! Smear jet momentum
+  // --------------------------------------------------------------------------
+  PtEtaPhiEVector SEnergyCorrelator::SmearJetMomentum(const Types::JetInfo& jet) {
+
+    // print debug statement
+    if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(35);
+
+    // grab unsmeared jet pt, E & calculate mass
+    const double ptOrig = jet.GetPT();
+    const double eOrig  = jet.GetEne();
+    const double mJet   = sqrt( (ptOrig * ptOrig) - (eOrig * eOrig) );
+
+    // apply smearing
+    const double ptSmear = ptOrig + m_rando -> Gaus(0., m_config.ptJetSmear * ptOrig);
+    const double eSmear  = sqrt( hypot(ptSmear, mJet) ); 
+
+    // return updated 4-vector
+    return PtEtaPhiEVector(ptSmear , jet.GetEta(), jet.GetPhi(), eSmear);
+
+  }  // end 'SmearJetMomentum(Types::JetInfo&)'
+
+
+
+  // --------------------------------------------------------------------------
+  //! Smear cst momentum
+  // --------------------------------------------------------------------------
+  PtEtaPhiEVector SEnergyCorrelator::SmearCstMomentum(const Types::CstInfo& cst) {
+
+    // print debug statement
+    if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(36);
+
+	  //Apply pT smearing if needed
+	  float newpT = m_input.csts[iJet][iCst].GetPT();
+	  if(m_config.ptCstSmear != 0) newpT+=shift->Gaus(0, m_config.ptCstSmear*m_input.csts[iJet][iCst].GetPT());
+	  PtEtaPhiMVector rVecCstCopy(newpT, m_input.csts[iJet][iCst].GetEta(), m_input.csts[iJet][iCst].GetPhi(), Const::MassPion());
+	  TVector3 p(rVecCstCopy.X(), rVecCstCopy.Y(), rVecCstCopy.Z());
+	  TVector3 rotation_axis(rVecCstCopy.X(), rVecCstCopy.Y(), rVecCstCopy.Z());
+	  //Apply angular smearing if needed
+	  if(m_config.theta != 0){
+	    float Theta0 = p.Theta();
+	    float deltaTheta = shift->Gaus(0, m_config.theta);
+	    float deltaPhi = shift->Uniform(-TMath::Pi(), TMath::Pi());
+	    p.SetTheta(Theta0+deltaTheta);
+	    p.Rotate(deltaPhi, rotation_axis);
+	  }
+	  //Change values to use in pseudoJet
+	  Px = p.X();
+	  Py = p.Y();
+	  Pz = p.Z();
+	  cstE = rVecCstCopy.E(); 
+
+
+  }  // end 'SmearCstMomentum(Types::CstInfo&)'
 
 }  // end SColdQcdCorrelatorAnalysis namespace
 
