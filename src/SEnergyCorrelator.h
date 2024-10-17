@@ -109,16 +109,17 @@ namespace SColdQcdCorrelatorAnalysis {
       void PrintError(const uint32_t code, const size_t nDrBinEdges = 0, const size_t iDrBin = 0, const string sInFileName = "");
 
       // analysis methods (*.ana.h)
-      void            DoLocalCalculation();
-      void            DoLocalCalcWithPackage(const double ptJet);
-      void            DoLocalCalcManual(const vector<fastjet::PseudoJet> momentum, PtEtaPhiEVector normalization);
-      void            ExtractHistsFromCorr();
-      bool            IsGoodJet(const Types::JetInfo& jet);
-      bool            IsGoodCst(const Types::CstInfo& cst);
-      double          GetWeight(PtEtaPhiEVector momentum, int option, optional<PtEtaPhiEVector> reference = nullopt);
-      int32_t         GetJetPtBin(const double ptJet);
-      PtEtaPhiEVector SmearJetMomentum(const Types::JetInfo& jet);
-      PtEtaPhiEVector SmearCstMomentum(const Types::CstInfo& cst);
+      void    DoLocalCalculation();
+      void    DoLocalCalcWithPackage(const double ptJet);
+      void    DoLocalCalcManual(const vector<fastjet::PseudoJet> momentum, PtEtaPhiEVector normalization);
+      void    ExtractHistsFromCorr();
+      void    SmearJetMomentum(PtEtaPhiEVector& pJet);
+      void    SmearCstMomentum(PtEtaPhiEVector& pCst);
+      bool    IsGoodJet(const Types::JetInfo& jet);
+      bool    IsGoodCst(const Types::CstInfo& cst);
+      bool    SurvivesEfficiency(const double value);
+      double  GetWeight(PtEtaPhiEVector momentum, int option, optional<PtEtaPhiEVector> reference = nullopt);
+      int32_t GetJetPtBin(const double ptJet);
 
       // configuration
       SEnergyCorrelatorConfig m_config;
@@ -128,7 +129,7 @@ namespace SColdQcdCorrelatorAnalysis {
       TFile*  m_inFile  = NULL;
       TChain* m_inChain = NULL;
 
-      // for smearing truth momenta
+      // smearing members
       TRandom2* m_rando  = NULL;
 
       // system members

@@ -40,29 +40,36 @@ namespace SColdQcdCorrelatorAnalysis {
       const bool isGoodJet = IsGoodJet( m_input.jets[iJet] );
       if (!isGoodJet) continue;
 
-      // grab jet 4-vector, smear pt if need be
-      PtEtaPhiEVector pJetVector;
-      if (m_config.modJets) {
-        pJetVector = SmearJetMomentum(m_input.jets[iJet]);
-      } else {
-        pJetVector = PtEtaPhiEVector(
-          m_input.jets[iJet].GetPT(),
-          m_input.jets[iJet].GetEta(),
-          m_input.jets[iJet].GetPhi(),
-          m_input.jets[iJet].GetEne()
-        );
-      }
+      // create jet 4-vector, smear if need be
+      PtEtaPhiEVector pJetVector(
+        m_input.jets[iJet].GetPT(),
+        m_input.jets[iJet].GetEta(),
+        m_input.jets[iJet].GetPhi(),
+        m_input.jets[iJet].GetEne()
+      );
+      if (m_config.modJets) SmearJetMomentum(pJetVector);
 
       // constituent loop
       for (uint64_t iCst = 0; iCst < m_input.csts[iJet].size(); iCst++) {
 
-        // create cst 4-vector
+        // if needed, apply constituent cuts
+        const bool isGoodCst = IsGoodCst( m_input.csts[iJet][iCst] );
+        if (!isGoodCst) continue;
+
+        // create cst 4-vector, smear if need be
         PtEtaPhiMVector pVecCst(
           m_input.csts[iJet][iCst].GetPT(),
           m_input.csts[iJet][iCst].GetEta(),
           m_input.csts[iJet][iCst].GetPhi(),
           Const::MassPion()
         );
+        if (m_config.modCsts) SmearCstMomentum(pVecCst);
+
+        // apply efficiency if need be
+        if (m_config.doCstEff) {
+          bool surives = SurvivesEfficiency(pVecCst.Pt());
+          if (!survives) continue;
+        }
 
 	//Components to use for pseudoJet
 	float Px = pVecCst.Px();
@@ -70,18 +77,13 @@ namespace SColdQcdCorrelatorAnalysis {
 	float Pz = pVecCst.Pz();
 	float cstE = pVecCst.E();
 	float skipCst = false;
-	
+
 	//Create pseudoJet for original cst info
 	PseudoJet CstPseudo(Px, Py, Pz, cstE);
 
 	//Apply smearing if necessary
 	if(m_config.modCsts){
 	}
-	if(skipCst) continue;
-
-        // if needed, apply constituent cuts
-        const bool isGoodCst = IsGoodCst( m_input.csts[iJet][iCst] );
-        if (!isGoodCst) continue;
 
         // create pseudojet
         PseudoJet constituent(Px, Py, Pz, cstE);
@@ -392,21 +394,21 @@ namespace SColdQcdCorrelatorAnalysis {
 
 
   // --------------------------------------------------------------------------
-  //! Check if constituent pt passes efficiency
+  //! Check if a value (e.g. cst pt) passes efficiency
   // --------------------------------------------------------------------------
-  bool SEnergyCorrelator::DoesCstPassEff(const double ptCst) {
+  bool SEnergyCorrelator::SurvivesEfficiency(const double value) {
 
     // print debug statement
-    if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(36);
+    if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(37);
 
     // apply efficiency if need be
-    const float rando = m_rando          -> Uniform(0., 1.);
-    const float eff   = m_config.funcEff -> Eval(ptCst);
+    const float rand = m_rando          -> Uniform(0., 1.);
+    const float eff  = m_config.funcEff -> Eval(value);
 
     // return if value passed
-    return (rando <= eff);
+    return (rand <= eff);
 
-  }  // end 'ApplyCstEff(double)'
+  }  // end 'SurvivesEfficiency(double)'
 
 
 
@@ -472,35 +474,49 @@ namespace SColdQcdCorrelatorAnalysis {
   // --------------------------------------------------------------------------
   //! Smear jet momentum
   // --------------------------------------------------------------------------
-  PtEtaPhiEVector SEnergyCorrelator::SmearJetMomentum(const Types::JetInfo& jet) {
+  void SEnergyCorrelator::SmearJetMomentum(PtEtaPhiEVector& pJet) {
 
     // print debug statement
     if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(35);
 
     // grab unsmeared jet pt, E & calculate mass
-    const double ptOrig = jet.GetPT();
-    const double eOrig  = jet.GetEne();
-    const double mJet   = sqrt( (ptOrig * ptOrig) - (eOrig * eOrig) );
+    const double ptOrig = pJet.Pt();
+    const double eOrig  = pJet.E();
+    const double mJet   = pJet.M();
 
     // apply smearing
     const double ptSmear = ptOrig + m_rando -> Gaus(0., m_config.ptJetSmear * ptOrig);
     const double eSmear  = sqrt( hypot(ptSmear, mJet) ); 
 
-    // return updated 4-vector
-    return PtEtaPhiEVector(ptSmear , jet.GetEta(), jet.GetPhi(), eSmear);
+    // update 4-vector and exit
+    pJet.SetPt(ptSmear);
+    pJet.SetE(eSmear);
+    return;
 
-  }  // end 'SmearJetMomentum(Types::JetInfo&)'
+  }  // end 'SmearJetMomentum(PtEtaPhiEVector&)'
+
 
 
 
   // --------------------------------------------------------------------------
-  //! Smear cst momentum
+  //! Smear constituent momentum
   // --------------------------------------------------------------------------
-  PtEtaPhiEVector SEnergyCorrelator::SmearCstMomentum(const Types::CstInfo& cst) {
+  void SEnergyCorrelator::SmearCstMomentum(PtEtaPhiEVector& pCst) {
 
     // print debug statement
     if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(36);
 
+
+    // grab unsmeared cst pt
+    const double ptOrig = pCst.Pt();
+
+    // apply smearings
+    //   - FIXME should I add flags for each type of modification?
+    //     e.g. pt smearing and angular smearing?
+    //   - Or could I do something w/ lambdas...
+    const double ptSmear ptOrig + m_rando -> Gaus(0., m_config.ptCstSmear * ptOrig);
+
+    /* REFRENCE
 	  //Apply pT smearing if needed
 	  float newpT = m_input.csts[iJet][iCst].GetPT();
 	  if(m_config.ptCstSmear != 0) newpT+=shift->Gaus(0, m_config.ptCstSmear*m_input.csts[iJet][iCst].GetPT());
@@ -520,9 +536,13 @@ namespace SColdQcdCorrelatorAnalysis {
 	  Py = p.Y();
 	  Pz = p.Z();
 	  cstE = rVecCstCopy.E(); 
+    */
 
+    // update 4-vector and exit
+    pCst.SetPt(ptSmear);
+    return;
 
-  }  // end 'SmearCstMomentum(Types::CstInfo&)'
+  }  // end 'SmearCstMomentum(PtEtaPhiEVector&)'
 
 }  // end SColdQcdCorrelatorAnalysis namespace
 

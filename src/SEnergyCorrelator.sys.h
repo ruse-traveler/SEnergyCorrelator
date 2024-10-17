@@ -171,8 +171,7 @@ namespace SColdQcdCorrelatorAnalysis {
     );
 
     // announce smearing initialization
-    //   - TODO add message 
-    PrintMessage(777);
+    PrintMessage(16);
     return;
 
   }  // end 'InitializeSmearing()'
@@ -317,6 +316,14 @@ namespace SColdQcdCorrelatorAnalysis {
             cout << "     Option " << m_config.subEvtOpt << ": use everything (check what you entered)" << endl;
             break;
         }
+        break;
+
+      case 16:
+        cout << "    Initialized RNG (for smearing, if need be)." << endl;
+        break;
+
+      default:
+        cerr << "WARNING: unknown message code " << code << "!" << endl;
         break;
 
     }  // end switch (code)
@@ -480,7 +487,19 @@ namespace SColdQcdCorrelatorAnalysis {
         break;
 
       case 35:
-        cout << "SEnergyCorrelator::SmearJetMomentum(Types::JetInfo&) smearing jet momentum..." << endl;
+        cout << "SEnergyCorrelator::SmearJetMomentum(ROOT::Math::PtEtaPhiEVector&) smearing jet momentum..." << endl;
+        break;
+
+      case 36:
+        cout << "SEnergyCorrelator::SmearCstMomentum(ROOT::Math::PtEtaPhiEVector&) smearing constituent momentum..." << endl;
+        break;
+
+      case 37:
+        cout << "SEnergyCorrelator::SurvivesEfficiency(double) checking if value survives efficiency..." << endl;
+        break;
+
+      default:
+        cerr << "WARNING: unknown debugging code " << code << "!" << endl;
         break;
 
     }  // end switch (code)
@@ -537,7 +556,7 @@ namespace SColdQcdCorrelatorAnalysis {
         break;
 
       default:
-        cerr << "WARNING: unknown error! code = " << code << endl;
+        cerr << "WARNING: unknown error code " << code << "!" << endl;
         break;
 
     }  // end switch (code)
