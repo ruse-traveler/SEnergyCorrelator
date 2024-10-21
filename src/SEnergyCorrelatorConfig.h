@@ -23,7 +23,7 @@ namespace SColdQcdCorrelatorAnalysis {
   struct SEnergyCorrelatorConfig {
 
     // general correlator parameters
-    vector<uint32_t>     nPoints    { {2} };
+    vector<uint32_t>     nPoints    {2};
     pair<double, double> drBinRange {1e-5, 1.};
     uint64_t             nBinsDr    {75};
 

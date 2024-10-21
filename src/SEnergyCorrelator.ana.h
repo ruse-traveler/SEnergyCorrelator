@@ -24,7 +24,6 @@ namespace SColdQcdCorrelatorAnalysis {
   // --------------------------------------------------------------------------
   //! Run local (in-jet) ENC calculations
   // --------------------------------------------------------------------------
-  /*! FIXME move smearing to a seperate function */
   void SEnergyCorrelator::DoLocalCalculation() {
     
     // print debug statement
@@ -106,11 +105,11 @@ namespace SColdQcdCorrelatorAnalysis {
 
     // print debug statement
     if (m_config.isDebugOn) PrintDebug(31);
-    const uint32_t iPtJetBin = GetJetPtBin( ptJet );
-    const bool     foundBin  = (iPtJetBin >= 0);
-    const bool     hasCsts   = (m_jetCstVector.size() > 0); 
+    const int32_t iPtJetBin = GetJetPtBin( ptJet );
+    const bool    foundBin  = (iPtJetBin >= 0);
+    const bool    hasCsts   = (m_jetCstVector.size() > 0); 
     if (foundBin && hasCsts) {
-      m_eecLongSide[iPtJetBin] -> compute(m_jetCstVector);
+      m_eecLongSide.at(iPtJetBin) -> compute(m_jetCstVector);
     }
     return;
 
@@ -449,8 +448,8 @@ namespace SColdQcdCorrelatorAnalysis {
     // print debug statement
     if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(28);
  
-    bool    isInPtBin(false);
-    int32_t iJetPtBin(-1);
+    bool    isInPtBin = false;
+    int32_t iJetPtBin = -1;
     for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
       isInPtBin = ((ptJet >= m_config.ptJetBins[iPtBin].first) && (ptJet < m_config.ptJetBins[iPtBin].second));
       if (isInPtBin) {
