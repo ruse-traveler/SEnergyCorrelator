@@ -47,7 +47,7 @@ namespace SColdQcdCorrelatorAnalysis {
         m_input.jets[iJet].GetPhi(),
         m_input.jets[iJet].GetEne()
       );
-      if (m_config.modJets) SmearJetMomentum(pJetVector);
+      if (m_config.doJetSmear) SmearJetMomentum(pJetVector);
 
       // constituent loop
       for (uint64_t iCst = 0; iCst < m_input.csts[iJet].size(); iCst++) {
@@ -57,36 +57,27 @@ namespace SColdQcdCorrelatorAnalysis {
         if (!isGoodCst) continue;
 
         // create cst 4-vector, smear if need be
-        PtEtaPhiMVector pVecCst(
+        PtEtaPhiMVector pCstVector(
           m_input.csts[iJet][iCst].GetPT(),
           m_input.csts[iJet][iCst].GetEta(),
           m_input.csts[iJet][iCst].GetPhi(),
           Const::MassPion()
         );
-        if (m_config.modCsts) SmearCstMomentum(pVecCst);
+        if (m_config.doCstSmear) SmearCstMomentum(pCstVector);
 
         // apply efficiency if need be
         if (m_config.doCstEff) {
-          bool surives = SurvivesEfficiency(pVecCst.Pt());
+          bool surives = SurvivesEfficiency(pCstVector.Pt());
           if (!survives) continue;
         }
 
-	//Components to use for pseudoJet
-	float Px = pVecCst.Px();
-	float Py = pVecCst.Py();
-	float Pz = pVecCst.Pz();
-	float cstE = pVecCst.E();
-	float skipCst = false;
-
-	//Create pseudoJet for original cst info
-	PseudoJet CstPseudo(Px, Py, Pz, cstE);
-
-	//Apply smearing if necessary
-	if(m_config.modCsts){
-	}
-
         // create pseudojet
-        PseudoJet constituent(Px, Py, Pz, cstE);
+        PseudoJet constituent(
+          pCstVector.Px(),
+          pCstVector.Py(),
+          pCstVector.Pz(),
+          pCstVector.E()
+        );
         constituent.set_user_index(iCst);
 
         // add to list
@@ -96,7 +87,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
       // run eec computation(s)
       if (m_config.doPackageCalc) {
-        DoLocalCalcWithPackage( jet_pT  );
+        DoLocalCalcWithPackage( pJetVector.Pt() );
       }
       if(m_config.doManualCalc) {
 	DoLocalCalcManual(m_jetCstVector, pJetVector);
@@ -236,6 +227,7 @@ namespace SColdQcdCorrelatorAnalysis {
   // --------------------------------------------------------------------------
   //! Extract histograms from ENC package
   // --------------------------------------------------------------------------
+  /* FIXME move to a dedicated histogram collection */
   void SEnergyCorrelator::ExtractHistsFromCorr() {
 
     // print debug statement
@@ -451,6 +443,7 @@ namespace SColdQcdCorrelatorAnalysis {
   // --------------------------------------------------------------------------
   //! Get bin no. for a given jet pt
   // --------------------------------------------------------------------------
+  /* FIXME move to a dedicated histogram collection */
   int32_t SEnergyCorrelator::GetJetPtBin(const double ptJet) {
 
     // print debug statement
@@ -506,40 +499,38 @@ namespace SColdQcdCorrelatorAnalysis {
     // print debug statement
     if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(36);
 
+    // apply pt smearing, if need be
+    const double ptOrig  = pCst.Pt();
+    const double ptSmear = ptOrig + m_rando -> Gaus(0., m_config.ptCstSmear * ptOrig);
+    if (m_config.doCstPtSmear) {
+      pCst.SetPt(ptSmear);
+    }
 
-    // grab unsmeared cst pt
-    const double ptOrig = pCst.Pt();
+    // create TVector3 version of input
+    //   - FIXME might be good to upgrade these to GenVectors
+    TVector3 pCstVec3( pCst.X(), pCst.Y(), pCst.Z() );
+    TVector3 pSmearVec3 = pCstVec3;
 
-    // apply smearings
-    //   - FIXME should I add flags for each type of modification?
-    //     e.g. pt smearing and angular smearing?
-    //   - Or could I do something w/ lambdas...
-    const double ptSmear ptOrig + m_rando -> Gaus(0., m_config.ptCstSmear * ptOrig);
+    // apply theta smearing, if need be
+    const double thOrig  = pCstVec3.Theta();
+    const double thSmear = thOrig + m_rando -> Gaus(0., m_config.thCstSmear);
+    if (m_config.doCstThetaSmear) {
+      pSmearVec3.SetTheta(thSmear);
+    }
 
-    /* REFRENCE
-	  //Apply pT smearing if needed
-	  float newpT = m_input.csts[iJet][iCst].GetPT();
-	  if(m_config.ptCstSmear != 0) newpT+=shift->Gaus(0, m_config.ptCstSmear*m_input.csts[iJet][iCst].GetPT());
-	  PtEtaPhiMVector rVecCstCopy(newpT, m_input.csts[iJet][iCst].GetEta(), m_input.csts[iJet][iCst].GetPhi(), Const::MassPion());
-	  TVector3 p(rVecCstCopy.X(), rVecCstCopy.Y(), rVecCstCopy.Z());
-	  TVector3 rotation_axis(rVecCstCopy.X(), rVecCstCopy.Y(), rVecCstCopy.Z());
-	  //Apply angular smearing if needed
-	  if(m_config.theta != 0){
-	    float Theta0 = p.Theta();
-	    float deltaTheta = shift->Gaus(0, m_config.theta);
-	    float deltaPhi = shift->Uniform(-TMath::Pi(), TMath::Pi());
-	    p.SetTheta(Theta0+deltaTheta);
-	    p.Rotate(deltaPhi, rotation_axis);
-	  }
-	  //Change values to use in pseudoJet
-	  Px = p.X();
-	  Py = p.Y();
-	  Pz = p.Z();
-	  cstE = rVecCstCopy.E(); 
-    */
+    // apply phi smearing, if need be
+    const double phiRotate = m_rando -> Uniform(-TMath::Pi(), TMath::Pi());
+    if (m_config.doCstPhiSmear) {
+      pSmearVec3.Rotate(phiRotate, pCstVec3);
+    }
 
     // update 4-vector and exit
-    pCst.SetPt(ptSmear);
+    if (m_config.doCstThetaSmear || m_config.doCstPhiSmear) {
+      pCst.SetPt( pSmearVec3.Pt() );
+      pCst.SetEta( pSmearVec3.Eta() );
+      pCst.SetPhi( pSmearVec3.Phi() );
+      pCst.SetE( pSmearVec3.E() );
+    }
     return;
 
   }  // end 'SmearCstMomentum(PtEtaPhiEVector&)'

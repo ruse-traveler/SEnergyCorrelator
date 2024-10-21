@@ -50,16 +50,16 @@ namespace SColdQcdCorrelatorAnalysis {
     vector<string> inFileNames   { {} };
 
     // smearing options
-    //   - FIXME theta should be thSmear
-    //   - FIXME modJets should be doJetSmear
-    //   - FIXME modCsts should be doCstSmear
-    bool  modJets    {false};
-    bool  modCsts    {false};
-    bool  doCstEff   {false};
-    float theta      {0};
-    float ptCstSmear {0};
-    float ptJetSmear {0};
-    TF1*  funcEff    {NULL};
+    bool  doJetSmear      {false};  // turn jet smearing on/off
+    bool  doCstSmear      {false};  // turn ANY cst smearing on/off
+    bool  doCstPtSmear    {false};  // smear cst pt by ptCstSmear
+    bool  doCstThetaSmear {false};  // smear cst theta by thCstSmear
+    bool  doCstPhiSmear   {false};  // rotate cst phi around original momentum axis
+    bool  doCstEff        {false};  // apply reco efficiency to csts
+    float ptJetSmear      {0.};     // jet pt smearing width
+    float ptCstSmear      {0.};     // cst pt smearing width
+    float thCstSmear      {0.};     // cst theta smearing width
+    TF1*  funcEff         {NULL};   // cst reconstruction efficiency
 
     // subevent options
     bool        selectSubEvts {false};
