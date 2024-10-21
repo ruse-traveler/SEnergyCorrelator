@@ -40,7 +40,7 @@ namespace EnergyCorrelatorOptions {
   const int  subEvtOpt = Const::SubEvtOpt::Everything;
   const bool isEmbed   = false;
   const bool doCstCuts = true;
-  const bool doDebug   = false;
+  const bool doDebug   = true;
   const bool doBatch   = false;
 
   // manual calculation option
@@ -86,6 +86,7 @@ namespace EnergyCorrelatorOptions {
   // acceptance cuts ==========================================================
 
   // jet acceptance
+  const pair<float, float> eneJetRange = {0.1,  100.};
   const pair<float, float> etaJetRange = {-0.7, 0.7};
 
   // cst acceptance
@@ -126,8 +127,10 @@ namespace EnergyCorrelatorOptions {
 
     // set specific bounds
     jetAccept.first.SetPT( ptJetBins.front().first );
+    jetAccept.first.SetEne( eneJetRange.first );
     jetAccept.first.SetEta( etaJetRange.first );
     jetAccept.second.SetPT( ptJetBins.back().second );
+    jetAccept.second.SetEne( eneJetRange.second );
     jetAccept.second.SetEta( etaJetRange.second );
     return jetAccept;
 

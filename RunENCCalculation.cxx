@@ -47,12 +47,10 @@ void RunENCCalculation(const bool doBatch = false, const int verbosity = 0) {
   SEnergyCorrelatorConfig cfg_true = EnergyCorrelatorOptions::GetTruthConfig(inFiles, outFiles.second, doBatch, verbosity);
 
   // do correlator calculation on reco jets
-/* TEST
   SEnergyCorrelator* recoCorrelator = new SEnergyCorrelator(cfg_reco);
   recoCorrelator -> Init();
   recoCorrelator -> Analyze();
   recoCorrelator -> End();
-*/
 
   // do correlator calculation on truth jets
   SEnergyCorrelator* trueCorrelator = new SEnergyCorrelator(cfg_true);
