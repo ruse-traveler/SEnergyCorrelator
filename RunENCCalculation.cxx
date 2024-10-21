@@ -38,8 +38,8 @@ void RunENCCalculation(const bool doBatch = false, const int verbosity = 0) {
     "../SCorrelatorJetTreeMaker/output/intermediate_merge/pp200py8jet10run15_towerSubAntiKtR04_2024sep28/correlatorJetTree.pp200py8jet10run15_towerSubAntiKtR04_0000to0099.d29m9y2024.root"
   };
   const pair<string, string> outFiles = {
-    "twoPoint.pp200py8jet10run8.refactor_cleanUpCutFunctions_reco.d19m3y2024.root",
-    "twoPoint.pp200py8jet10run8.refactor_cleanUpCutFunctions_true.d19m3y2024.root"
+    "twoPoint.pp200py8jet10run15_antiKtTowerR04_packageCalcOnly.refactor_moveSmearToSeparateFunctions_reco.d21m10y2024.root",
+    "twoPoint.pp200py8jet10run15_antiKtTowerR04_packageCalcOnly.refactor_moveSmearTOSeparateFunctions_true.d21m10y2024.root"
   };
 
   // get module configurations
@@ -47,10 +47,12 @@ void RunENCCalculation(const bool doBatch = false, const int verbosity = 0) {
   SEnergyCorrelatorConfig cfg_true = EnergyCorrelatorOptions::GetTruthConfig(inFiles, outFiles.second, doBatch, verbosity);
 
   // do correlator calculation on reco jets
+/* TEST
   SEnergyCorrelator* recoCorrelator = new SEnergyCorrelator(cfg_reco);
   recoCorrelator -> Init();
   recoCorrelator -> Analyze();
   recoCorrelator -> End();
+*/
 
   // do correlator calculation on truth jets
   SEnergyCorrelator* trueCorrelator = new SEnergyCorrelator(cfg_true);

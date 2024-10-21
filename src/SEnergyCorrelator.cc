@@ -102,7 +102,7 @@ namespace SColdQcdCorrelatorAnalysis {
     PrintMessage(1);
 
     // initialize smearing if need be
-    if (m_config.isTreeTruth && m_config.modJets) {
+    if (m_config.isInTreeTruth && (m_config.doJetSmear || m_config.doCstSmear)) {
       InitializeSmearing();
     }
 

@@ -47,7 +47,7 @@ namespace SColdQcdCorrelatorAnalysis {
         m_input.jets[iJet].GetPhi(),
         m_input.jets[iJet].GetEne()
       );
-      if (m_config.doJetSmear) SmearJetMomentum(pJetVector);
+      if (m_config.isInTreeTruth && m_config.doJetSmear) SmearJetMomentum(pJetVector);
 
       // constituent loop
       for (uint64_t iCst = 0; iCst < m_input.csts[iJet].size(); iCst++) {
@@ -57,17 +57,17 @@ namespace SColdQcdCorrelatorAnalysis {
         if (!isGoodCst) continue;
 
         // create cst 4-vector, smear if need be
-        PtEtaPhiMVector pCstVector(
+        PtEtaPhiEVector pCstVector(
           m_input.csts[iJet][iCst].GetPT(),
           m_input.csts[iJet][iCst].GetEta(),
           m_input.csts[iJet][iCst].GetPhi(),
-          Const::MassPion()
+          m_input.csts[iJet][iCst].GetEne()
         );
-        if (m_config.doCstSmear) SmearCstMomentum(pCstVector);
+        if (m_config.isInTreeTruth && m_config.doCstSmear) SmearCstMomentum(pCstVector);
 
         // apply efficiency if need be
         if (m_config.doCstEff) {
-          bool surives = SurvivesEfficiency(pCstVector.Pt());
+          bool survives = SurvivesEfficiency(pCstVector.Pt());
           if (!survives) continue;
         }
 
@@ -474,7 +474,6 @@ namespace SColdQcdCorrelatorAnalysis {
 
     // grab unsmeared jet pt, E & calculate mass
     const double ptOrig = pJet.Pt();
-    const double eOrig  = pJet.E();
     const double mJet   = pJet.M();
 
     // apply smearing
@@ -525,11 +524,12 @@ namespace SColdQcdCorrelatorAnalysis {
     }
 
     // update 4-vector and exit
+    const double eSmear = hypot( pSmearVec3.Mag(), Const::MassPion() );
     if (m_config.doCstThetaSmear || m_config.doCstPhiSmear) {
       pCst.SetPt( pSmearVec3.Pt() );
       pCst.SetEta( pSmearVec3.Eta() );
       pCst.SetPhi( pSmearVec3.Phi() );
-      pCst.SetE( pSmearVec3.E() );
+      pCst.SetE( eSmear );
     }
     return;
 

@@ -24,8 +24,8 @@ namespace SColdQcdCorrelatorAnalysis {
   struct SEnergyCorrelatorInput {
 
     // event level info
-    Types::RecoInfo reco;
-    Types::GenInfo  gen;
+    Types::REvtInfo reco;
+    Types::GEvtInfo gen;
 
     // jet and constituent info
     vector<Types::JetInfo>         jets;

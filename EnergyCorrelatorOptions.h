@@ -50,14 +50,14 @@ namespace EnergyCorrelatorOptions {
   const bool doThreePoint = false;
 
   // smearing options
-  //   - FIXME theta should be thSmear
-  //   - FIXME modJets should be doJetSmear
-  //   - FIXME modCsts should be doCstSmear
-  const bool   modJets    = true;
-  const bool   modCsts    = true;
-  const float  theta      = 0;
-  const float  ptCstSmear = 0.02;
-  const float  ptJetSmear = 0.02;
+  const bool   doJetSmear      = true;
+  const bool   doCstSmear      = true;
+  const bool   doCstPtSmear    = true;
+  const bool   doCstThetaSmear = true;
+  const bool   doCstPhiSmear   = true;
+  const float  ptJetSmear      = 0.5;
+  const float  ptCstSmear      = 0.1;
+  const float  thCstSmear      = 0.01;
 
   // efficiency options
   const bool   doCstEff    = true;
@@ -210,36 +210,38 @@ namespace EnergyCorrelatorOptions {
   ) {
 
     SEnergyCorrelatorConfig cfg_true {
-      .verbosity     = cfg_verbosity,
-      .isDebugOn     = doDebug,
-      .isBatchOn     = cfg_doBatch,
-      .isEmbed       = isEmbed,
-      .isInTreeTruth = true,
-      .moduleName    = "TrueEnergyCorrelator",
-      .inTreeName    = "TruthJetTree",
-      .outFileName   = cfg_outFile,
-      .applyCstCuts  = doCstCuts,
-      .subEvtOpt     = subEvtOpt,
-      .inFileNames   = cfg_inFiles,
-      .nPoints       = nPoints,
-      .nBinsDr       = nBinsDr,
-      .drBinRange    = binRangeDr,
-      .ptJetBins     = ptJetBins,
-      .doManualCalc  = doManualCalc,
-      .doThreePoint  = doThreePoint,
-      .rlBins        = rlBins,
-      .momOption     = momOption,
-      .normOption    = normOption,
-      .jetAccept     = GetJetAccept(),
-      .cstAccept     = GetCstAccept(),
-      .modJets       = modJets,
-      .modCsts       = modCsts,
-      .doCstEff      = doCstEff
-      .theta         = theta,
-      .ptCstSmear    = ptCstSmear,
-      .modJets       = modJets,
-      .ptJetSmear    = ptJetSmear,
-      .funcEff       = MakeEffFunction()
+      .verbosity       = cfg_verbosity,
+      .isDebugOn       = doDebug,
+      .isBatchOn       = cfg_doBatch,
+      .isEmbed         = isEmbed,
+      .isInTreeTruth   = true,
+      .moduleName      = "TrueEnergyCorrelator",
+      .inTreeName      = "TruthJetTree",
+      .outFileName     = cfg_outFile,
+      .applyCstCuts    = doCstCuts,
+      .subEvtOpt       = subEvtOpt,
+      .inFileNames     = cfg_inFiles,
+      .nPoints         = nPoints,
+      .nBinsDr         = nBinsDr,
+      .drBinRange      = binRangeDr,
+      .ptJetBins       = ptJetBins,
+      .doManualCalc    = doManualCalc,
+      .doThreePoint    = doThreePoint,
+      .rlBins          = rlBins,
+      .momOption       = momOption,
+      .normOption      = normOption,
+      .jetAccept       = GetJetAccept(),
+      .cstAccept       = GetCstAccept(),
+      .doJetSmear      = doJetSmear,
+      .doCstSmear      = doCstSmear,
+      .doCstPtSmear    = doCstPtSmear,
+      .doCstThetaSmear = doCstThetaSmear,
+      .doCstPhiSmear   = doCstPhiSmear,
+      .doCstEff        = doCstEff,
+      .ptJetSmear      = ptJetSmear,
+      .ptCstSmear      = ptCstSmear,
+      .thCstSmear      = thCstSmear,
+      .funcEff         = MakeEffFunction()
     };
     return cfg_true;
 
