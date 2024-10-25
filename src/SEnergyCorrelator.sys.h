@@ -29,7 +29,8 @@ namespace SColdQcdCorrelatorAnalysis {
     if (m_config.isDebugOn) PrintDebug(0);
 
     // clear calculation vectors
-    m_jetCstVector.clear();
+    m_jetCalcVec.clear();
+    m_cstCalcVec.clear();
     m_eecLongSide.clear();    
 
     // clear output histograms
@@ -40,8 +41,6 @@ namespace SColdQcdCorrelatorAnalysis {
     m_outManualHistErrDrAxis.clear();
     m_outE3C.clear();
     m_outProjE3C.clear();
-    
-
     return;
 
   }  // end 'InitializeMembers()'
@@ -78,6 +77,7 @@ namespace SColdQcdCorrelatorAnalysis {
   // --------------------------------------------------------------------------
   //! Initialize output histograms
   // --------------------------------------------------------------------------
+  /* FIXME move this to a dedicated histogram collection */
   void SEnergyCorrelator::InitializeHists() {
 
     // print debug statement
@@ -91,36 +91,50 @@ namespace SColdQcdCorrelatorAnalysis {
       drBinEdgeArray[iDrEdge] = drBinEdges.at(iDrEdge);
     }
 
+    // loop over pt bins
     for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
+
+      // reserve space for package histograms
       TH1D* hInitialVarDrAxis   = NULL;
       TH1D* hInitialErrDrAxis   = NULL;
       TH1D* hInitialVarLnDrAxis = NULL;
       TH1D* hInitialErrLnDrAxis = NULL;
-      m_outPackageHistVarDrAxis.push_back(hInitialVarDrAxis);
-      m_outPackageHistVarLnDrAxis.push_back(hInitialVarLnDrAxis);
-      m_outPackageHistErrDrAxis.push_back(hInitialErrDrAxis);
-      m_outPackageHistErrLnDrAxis.push_back(hInitialErrLnDrAxis);
-      if(m_config.doManualCalc){      
-	TString weightNameTH1("hManualCorrelatorErrorDrAxis_ptJet");
-	weightNameTH1+=floor(m_config.ptJetBins[iPtBin].first);
-	m_outManualHistErrDrAxis.push_back(new TH1D(weightNameTH1, "", m_config.nBinsDr, drBinEdgeArray));
-	m_outManualHistErrDrAxis[iPtBin]->Sumw2();
-	if(m_config.doThreePoint){
-	  TString projE3CName("hManualProjE3C_ptJet");
-	  projE3CName+=floor(m_config.ptJetBins[iPtBin].first);
-	  m_outProjE3C.push_back(new TH1D(projE3CName, "", m_config.nBinsDr, drBinEdgeArray));
-	  vector<TH2D*> E3C_tmp;
-	  for(size_t jRLBin = 0; jRLBin<m_config.rlBins.size(); jRLBin++){
-	    TString E3CName("hManualE3C_ptJet");
-	    E3CName+=floor(m_config.ptJetBins[iPtBin].first);
-	    E3CName+="_RLBin";
-	    E3CName+=jRLBin;
-	    E3C_tmp.push_back(new TH2D(E3CName, "", 100, 0.0, 1.0, 100, 0.0, TMath::Pi()/2));
-	  }
-	  m_outE3C.push_back(E3C_tmp);
-	}
+      m_outPackageHistVarDrAxis.push_back( hInitialVarDrAxis );
+      m_outPackageHistVarLnDrAxis.push_back( hInitialVarLnDrAxis );
+      m_outPackageHistErrDrAxis.push_back( hInitialErrDrAxis );
+      m_outPackageHistErrLnDrAxis.push_back (hInitialErrLnDrAxis );
+
+      // if doing manual calculation, add relevent histograms
+      if (!m_config.doManualCalc) continue;
+
+      // create names
+      string projName("hManualProjE3C_ptJet");
+      string eecName("hManualCorrelatorErrorDrAxis_ptJet");
+      string e3cName("hManualE3C_ptJet");
+      projName += to_string( floor(m_config.ptJetBins[iPtBin].first) );
+      eecName  += to_string( floor(m_config.ptJetBins[iPtBin].first) );
+      e3cName  += to_string( floor(m_config.ptJetBins[iPtBin].first) );
+
+      // create manual two-point histograms
+      m_outManualHistErrDrAxis.push_back(new TH1D(eecName.data(), "", m_config.nBinsDr, drBinEdgeArray));
+      m_outManualHistErrDrAxis.back() -> Sumw2();
+
+      // add manual 3-point if needed
+      if (!m_config.doThreePoint) continue;
+
+      // create manual projected 3-point histogram
+      m_outProjE3C.push_back(new TH1D(projName.data(), "", m_config.nBinsDr, drBinEdgeArray));
+      m_outProjE3Cback() -> Sumw2();
+
+      // create shape-dependent 3-point histograms
+      vector<TH2D*> E3C_tmp;
+      for (size_t jRLBin = 0; jRLBin < m_config.rlBins.size(); jRLBin++) {
+        e3cName += "_RLBin" + to_string(jRLBin);
+        E3C_tmp.push_back(new TH2D(e3cName.data(), "", 100, 0.0, 1.0, 100, 0.0, TMath::Pi()/2));
       }
-    }
+      m_outE3C.push_back(E3C_tmp);
+
+    }  // end pt bin loop
 
     // announce histogram initialization
     PrintMessage(3);

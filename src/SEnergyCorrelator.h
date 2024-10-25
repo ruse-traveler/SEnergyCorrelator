@@ -12,6 +12,7 @@
 #define SENERGYCORRELATOR_H
 
 // c++ utilities
+#include <set>
 #include <limits>
 #include <string>
 #include <vector>
@@ -19,6 +20,7 @@
 #include <utility>
 #include <iostream>
 #include <optional>
+#include <algorithm>
 // root libraries
 #include <TF1.h>
 #include <TH1.h>
@@ -110,16 +112,21 @@ namespace SColdQcdCorrelatorAnalysis {
       void PrintError(const uint32_t code, const size_t nDrBinEdges = 0, const size_t iDrBin = 0, const string sInFileName = "");
 
       // analysis methods (*.ana.h)
-      void    DoLocalCalculation();
+      void    DoGlobalCalculation();  // TODO
+      void    DoGlobalCalculationWithPackage(const double htEvt);  // TODO
+      void    DoGlobalCalculationManual();  // TODO
+      void    DoLocalCalculation(const PtEtaPhiEVector& normalization);
       void    DoLocalCalcWithPackage(const double ptJet);
-      void    DoLocalCalcManual(const vector<fastjet::PseudoJet> momentum, PtEtaPhiEVector normalization);
+      void    DoLocalCalcManual(const PtEtaPhiEVector& normalization);
       void    ExtractHistsFromCorr();
       void    SmearJetMomentum(PtEtaPhiEVector& pJet);
       void    SmearCstMomentum(PtEtaPhiEVector& pCst);
       bool    IsGoodJet(const Types::JetInfo& jet);
       bool    IsGoodCst(const Types::CstInfo& cst);
       bool    SurvivesEfficiency(const double value);
-      double  GetWeight(PtEtaPhiEVector momentum, int option, optional<PtEtaPhiEVector> reference = nullopt);
+      double  GetWeight(const PtEtaPhiEVector& momentum, const int option, optional<PtEtaPhiEVector> reference = nullopt);
+      double  GetRM(const tuple<double, double, double> dists);
+      double  GetET(const TVector3& pRef, const TVector3& pRef);
       int32_t GetJetPtBin(const double ptJet);
 
       // configuration
@@ -137,7 +144,8 @@ namespace SColdQcdCorrelatorAnalysis {
       int m_fCurrent = 0;
 
       // for correlator calculations
-      vector<fastjet::PseudoJet> m_jetCstVector;
+      vector<fastjet::PseudoJet> m_jetCalcVec;
+      vector<fastjet::PseudoJet> m_cstCalcVec;
 
       // output histograms
       //   - FIXME move these to a dedicate histogram manager

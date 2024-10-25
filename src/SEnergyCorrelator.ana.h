@@ -22,6 +22,42 @@ namespace SColdQcdCorrelatorAnalysis {
   // analysis methods =========================================================
 
   // --------------------------------------------------------------------------
+  //! Do global (jet-jet) ENC calculations
+  // --------------------------------------------------------------------------
+  void SEnergyCorrelator::DoGlobalCalculation() {
+
+    /* TODO fill in */
+    return;
+
+  }  // end 'DoGlobalCalculation()'
+
+
+
+  // --------------------------------------------------------------------------
+  //! Do global (jet-jet) ENC calculations using P. T. Komiske's EEC  package
+  // --------------------------------------------------------------------------
+  void SEnergyCorrelator::DoGlobalCalculationWithPackage(const double htEvt) {
+
+    /* TODO fill in */
+    return;
+
+  }  // end 'DoGlobalCalculationWithPackage(double)'
+
+
+
+  // --------------------------------------------------------------------------
+  //! Do global (jet-jet_ ENC calculations manually
+  // --------------------------------------------------------------------------
+  void SEnergyCorrelator::DoGlobalCalculationManual(const PtEtaPhiEVector& normalization) {
+
+    /* TODO fill in */
+    return;
+
+  }  // end 'DoGlobalCalculationManual(PtEtaPhiEVector&)'
+
+
+
+  // --------------------------------------------------------------------------
   //! Run local (in-jet) ENC calculations
   // --------------------------------------------------------------------------
   void SEnergyCorrelator::DoLocalCalculation() {
@@ -33,7 +69,7 @@ namespace SColdQcdCorrelatorAnalysis {
     for (uint64_t iJet = 0; iJet < m_input.jets.size(); iJet++) {
 
       // clear vector for correlator
-      m_jetCstVector.clear();
+      m_cstCalcVec.clear();
 
       // select jet pt bin & apply jet cuts
       const bool isGoodJet = IsGoodJet( m_input.jets[iJet] );
@@ -80,16 +116,16 @@ namespace SColdQcdCorrelatorAnalysis {
         constituent.set_user_index(iCst);
 
         // add to list
-        m_jetCstVector.push_back(constituent);
+        m_cstCalcVec.push_back(constituent);
 
       }  // end cst loop
 
-      // run eec computation(s)
+      // run local eec computation(s)
       if (m_config.doPackageCalc) {
         DoLocalCalcWithPackage( pJetVector.Pt() );
       }
-      if(m_config.doManualCalc) {
-	DoLocalCalcManual(m_jetCstVector, pJetVector);
+      if (m_config.doManualCalc) {
+	DoLocalCalcManual( pJetVector );
       }
     }  // end jet loop
     return;
@@ -107,9 +143,9 @@ namespace SColdQcdCorrelatorAnalysis {
     if (m_config.isDebugOn) PrintDebug(31);
     const int32_t iPtJetBin = GetJetPtBin( ptJet );
     const bool    foundBin  = (iPtJetBin >= 0);
-    const bool    hasCsts   = (m_jetCstVector.size() > 0); 
+    const bool    hasCsts   = (m_cstCalcVec.size() > 0); 
     if (foundBin && hasCsts) {
-      m_eecLongSide.at(iPtJetBin) -> compute(m_jetCstVector);
+      m_eecLongSide.at(iPtJetBin) -> compute(m_cstCalcVec);
     }
     return;
 
@@ -120,104 +156,158 @@ namespace SColdQcdCorrelatorAnalysis {
   // --------------------------------------------------------------------------
   //! Run local (in-jet) calculations manually
   // --------------------------------------------------------------------------
-  void SEnergyCorrelator::DoLocalCalcManual(
-    const vector<fastjet::PseudoJet> momentum,
-    PtEtaPhiEVector normalization
-  ){
+  void SEnergyCorrelator::DoLocalCalcManual(const PtEtaPhiEVector& normalization) {
 
-    //Get norm
+    // get normalization for weights
     double norm = GetWeight(normalization, m_config.normOption);
-    //Loop over csts
-    for(uint64_t iCst = 0; iCst < momentum.size(); iCst++){
-      //Get weightA
-      PtEtaPhiEVector cstVec(
-	  momentum[iCst].pt(),
-          momentum[iCst].eta(),
-	  momentum[iCst].phi(),
-          pow(pow(momentum[iCst].pt(), 2) + pow(Const::MassPion(), 2), 0.5)
-        );
-      double weightA = GetWeight(cstVec, m_config.momOption, normalization);
-      //Start second cst loop
-      for(uint64_t jCst = 0; jCst < momentum.size(); jCst++){
-        //Get weightB
-	PtEtaPhiEVector cstVecB(
-	  momentum[jCst].pt(),
-          momentum[jCst].eta(),
-	  momentum[jCst].phi(),
-          pow(pow(momentum[jCst].pt(), 2) + pow(Const::MassPion(), 2), 0.5)
-        );
-	double weightB = GetWeight(cstVecB, m_config.momOption, normalization);
-	const double dhCstAB = (momentum[iCst].rap()-momentum[jCst].rap());
-	double dfCstAB = std::fabs(momentum[iCst].phi()-momentum[jCst].phi());
-	if(dfCstAB > TMath::Pi()) dfCstAB = 2*TMath::Pi() - dfCstAB;
-	const double drCstAB  = sqrt((dhCstAB * dhCstAB) + (dfCstAB * dfCstAB));
-	const double eecWeight = (weightA*weightB)/(norm*norm);
 
-	//Fill manual eecs
-	for(size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++){
-	  bool isInPtBin = ((normalization.Pt() >= m_config.ptJetBins[iPtBin].first) && (normalization.Pt() < m_config.ptJetBins[iPtBin].second));
-	  if(isInPtBin){
-	    m_outManualHistErrDrAxis[iPtBin]->Fill(drCstAB, eecWeight);
-	  }
-	}//end of pT bin loop
-	//Start of third cst Loop
-	for(uint64_t kCst = 0; kCst < momentum.size() && m_config.doThreePoint; kCst++){
-	  PtEtaPhiEVector cstVecC(
-	    momentum[kCst].pt(),
-            momentum[kCst].eta(),
-	    momentum[kCst].phi(),
-            pow(pow(momentum[kCst].pt(), 2) + pow(Const::MassPion(), 2), 0.5)
+    // 1s cst loop
+    for (uint64_t iCst = 0; iCst < m_cstCalcVec.size(); iCst++) {
+
+      // get weight for cst A
+      const double weightA = GetWeight(
+        PtEtaPhiEVector(
+          m_cstCalcVec[iCst].pt(),
+          m_cstCalcVec[iCst].eta(),
+          m_cstCalcVec[iCst].phi(),
+          m_cstCalcVec[iCst].E()
+        ),
+        m_config.momOption,
+        normalization
+      );
+
+      // 2nd cst loop
+      for (uint64_t jCst = 0; jCst < m_cstCalcVec.size(); jCst++){
+
+        // get weight for cst B
+        const double weightB = GetWeight(
+	  PtEtaPhiEVector(
+	    m_cstCalcVec[jCst].pt(),
+            m_cstCalcVec[jCst].eta(),
+	    m_cstCalcVec[jCst].phi(),
+            m_cstCalcVec[jCst].E()
+          ),
+          m_config.momOption,
+          normalization
+        );
+
+        // calculate distance b/n cst.s A-B
+        const double drCstAB = std::hypot(
+          m_cstCalcVec[iCst].rap() - m_cstCalcVec[jCst].rap(),
+          std::remainder(
+            m_cstCalcVec[iCst].phi() - m_cstCalcVec[jCst].phi(),
+            TMath::TwoPi()
+          )
+        );
+
+        // now calculate 2-point weight & fill relevant histograms
+        // FIXME move to a dedicated histogram collection
+        const double eecWeight = (weightA * weightB) / (norm * norm);
+        for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
+          const bool isInPtBin = (
+            (normalization.Pt() >= m_config.ptJetBins[iPtBin].first) &&
+            (normalization.Pt() < m_config.ptJetBins[iPtBin].second)
           );
-	  double weightC = GetWeight(cstVecC, m_config.momOption, normalization);
-	  const double dhCstAC = (momentum[iCst].rap()-momentum[kCst].rap());
-	  double dfCstAC = std::fabs(momentum[iCst].phi()-momentum[kCst].phi());
-	  if(dfCstAC > TMath::Pi()) dfCstAC = 2*TMath::Pi() - dfCstAC;
-	  const double drCstAC  = sqrt((dhCstAC * dhCstAC) + (dfCstAC * dfCstAC));
-	  const double dhCstBC = (momentum[jCst].rap()-momentum[kCst].rap());
-	  double dfCstBC = std::fabs(momentum[jCst].phi()-momentum[kCst].phi());
-	  if(dfCstBC > TMath::Pi()) dfCstBC = 2*TMath::Pi() - dfCstBC;
-	  const double drCstBC  = sqrt((dhCstBC * dhCstBC) + (dfCstBC * dfCstBC));
-	  const double e3cWeight = (weightA*weightB*weightC)/(norm*norm*norm);
+          if (isInPtBin) {
+            m_outManualHistErrDrAxis[iPtBin] -> Fill(drCstAB, eecWeight);
+          }
+        } //end of pT bin loop
 
-	  //Determine RL and RS
-	  double RL = std::max(std::max(drCstAB, drCstAC), drCstBC);
-	  double RS = std::min(std::min(drCstAB, drCstAC), drCstBC);
+        // if not doing 3-point, continue on in loop
+        /* FIXME in prepping for multiple n per calc..
+         *   - should make nPoints a set
+         *   - might want to move this to a separate function...
+         *   - also can remove the 3 point flag
+         */  
+        if ((m_config.nPoints.count(3) == 0) || !m_config.doThreePoint) continue;
+
+        // 3rd cst loop
+        for (uint64_t kCst = 0; kCst < m_cstCalcVec.size(); kCst++) {
+
+          const double weightC = GetWeight(
+	    PtEtaPhiEVector(
+	      m_cstCalcVec[kCst].pt(),
+              m_cstCalcVec[kCst].eta(),
+	      m_cstCalcVec[kCst].phi(),
+              m_cstCalcVec[kCst].E()
+            ),
+            m_config.momOption,
+            normalization
+          );
+
+          // calculate distances b/n cst.s A-C, B-C
+          const double drCstAC = std::hypot(
+            m_cstCalcVec[iCst].rap() - m_cstCalcVec[kCst].rap(),
+            std::remainder(
+              m_cstCalcVec[iCst].phi() - m_cstCalcVec[kCst].phi(),
+              TMath::TwoPi()
+            )
+          );
+          const double drCstBC = std::hypot(
+            m_cstCalcVec[jCst].rap() - m_cstCalcVec[kCst].rap(),
+            std::remainder(
+              m_cstCalcVec[jCst].phi() - m_cstCalcVec[kCst].phi(),
+              TMath::TwoPi()
+            )
+          );
+
+          // calculate 3-point weight & RL/M/S
+          const double e3cWeight = (weightA * weightB * weightC) / (norm * norm * norm);
+          const double RL        = std::max(std::max(drCstAB, drCstAC), drCstBC);
+          const double RS        = std::min(std::min(drCstAB, drCstAC), drCstBC);
 	  
-	  //Fill Projected E3C
-	  for(size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++){
-	    bool isInPtBin = ((normalization.Pt() >= m_config.ptJetBins[iPtBin].first) && (normalization.Pt() < m_config.ptJetBins[iPtBin].second));
-	    if(isInPtBin){
-	      m_outProjE3C[iPtBin]->Fill(RL, e3cWeight);
+	  // fill Projected E3C histograms
+	  // FIXME move to a dedicated histogram collection
+	  for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
+	    const bool isInPtBin = (
+              (normalization.Pt() >= m_config.ptJetBins[iPtBin].first) &&
+              (normalization.Pt() < m_config.ptJetBins[iPtBin].second)
+            );
+	    if (isInPtBin) {
+              m_outProjE3C[iPtBin] -> Fill(RL, e3cWeight);
 	    }
-	  }//end of ptBin loop
+          }  //end of ptBin loop
 
-	  //Get RM
-	  double RM = drCstAB; //set RM default value
-	  if((drCstAB >= drCstAC && drCstAB <= drCstBC) || (drCstAB <= drCstAC && drCstAB >= drCstBC)) RM = drCstAB;
-	  if((drCstAC >= drCstAB && drCstAC <= drCstBC) || (drCstAC <= drCstAB && drCstAC >= drCstBC)) RM = drCstAC;
-	  if((drCstBC >= drCstAB && drCstBC <= drCstAC) || (drCstBC <= drCstAB && drCstBC >= drCstAC)) RM = drCstBC;
+          // grab RM
+          const double RM = GetRM( std::make_tuple(drCstAB, drCstAC, drCstBC) );
 
-	  //skip in case RS or RM are 0
-	  if(RS == 0 || RM == 0) continue;
+	  // skip case where RS or RM are 0
+	  if (RS == 0 || RM == 0) continue;
 
-	  //Get Parameterization
-	  const double xi = RS/RM;
-	  const double phi = std::asin(sqrt(1 - pow(RL-RM, 2)/(RS*RS)));
+	  // calculate shape parameters
+	  const double xi  = RS / RM;
+	  const double phi = std::asin(sqrt(1. - pow(RL - RM, 2.) / (RS * RS)));
 
-	  //Fill E3Cs
-	  for(size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++){
-	    bool isInPtBin = ((normalization.Pt() >= m_config.ptJetBins[iPtBin].first) && (normalization.Pt() < m_config.ptJetBins[iPtBin].second));
-	    if(isInPtBin){
-	      for(size_t jRLBin = 0; jRLBin < m_config.rlBins.size(); jRLBin++){
-		if(RL >= m_config.rlBins[jRLBin].first && RL < m_config.rlBins[jRLBin].second){
-		  m_outE3C[iPtBin][jRLBin]->Fill(xi, phi, e3cWeight);
-		}
-	      }
-	    }
-	  }//end of ptBin loop
-	}//end of third cst loop
-      }//end of second cst loop
-    }//end of first cst loop
+          // fill shape-dependent E3c histograms
+          // FIXME move to a dedicated histogram collection
+          for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
+
+            // check if in pt bin
+            const bool isInPtBin = (
+              (normalization.Pt() >= m_config.ptJetBins[iPtBin].first) &&
+              (normalization.Pt() < m_config.ptJetBins[iPtBin].second)
+            );
+            if (!isInPtBin) continue;
+
+            // loop over RL bins
+            for (size_t jRLBin = 0; jRLBin < m_config.rlBins.size(); jRLBin++) {
+
+              // check if in RL bin
+              const bool isInRLBin = (
+                (RL >= m_config.rlBins[jRLBin].first) &&
+                (RL < m_config.rlBins[jRLBin].second)
+              )
+              if (!isInRLBin) continue;
+
+              // fill hist
+              m_outE3C[iPtBin][jRLBin]->Fill(xi, phi, e3cWeight);
+
+            }  // end of rl bin loop
+          } // end of ptBin loop
+        }  // end of 3rd cst loop
+      }  // end of 2nd cst loop
+    }  //end of 1st cst loop
+    return;
 
   }  // end 'DoLocalCalcManual(vector<fastjet::PseudoJet>, PtEtaPhiEVector)'
 
@@ -339,6 +429,78 @@ namespace SColdQcdCorrelatorAnalysis {
 
 
   // --------------------------------------------------------------------------
+  //! Smear jet momentum
+  // --------------------------------------------------------------------------
+  void SEnergyCorrelator::SmearJetMomentum(PtEtaPhiEVector& pJet) {
+
+    // print debug statement
+    if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(35);
+
+    // grab unsmeared jet pt, E & calculate mass
+    const double ptOrig = pJet.Pt();
+    const double mJet   = pJet.M();
+
+    // apply smearing
+    const double ptSmear = ptOrig + m_rando -> Gaus(0., m_config.ptJetSmear * ptOrig);
+    const double eSmear  = sqrt( hypot(ptSmear, mJet) ); 
+
+    // update 4-vector and exit
+    pJet.SetPt(ptSmear);
+    pJet.SetE(eSmear);
+    return;
+
+  }  // end 'SmearJetMomentum(PtEtaPhiEVector&)'
+
+
+
+  // --------------------------------------------------------------------------
+  //! Smear constituent momentum
+  // --------------------------------------------------------------------------
+  void SEnergyCorrelator::SmearCstMomentum(PtEtaPhiEVector& pCst) {
+
+    // print debug statement
+    if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(36);
+
+    // apply pt smearing, if need be
+    const double ptOrig  = pCst.Pt();
+    const double ptSmear = ptOrig + m_rando -> Gaus(0., m_config.ptCstSmear * ptOrig);
+    if (m_config.doCstPtSmear) {
+      pCst.SetPt(ptSmear);
+    }
+
+    // create TVector3 version of input
+    //   - FIXME might be good to upgrade these to GenVectors
+    TVector3 pCstVec3( pCst.X(), pCst.Y(), pCst.Z() );
+    TVector3 pSmearVec3 = pCstVec3;
+
+    // apply theta smearing, if need be
+    const double thOrig  = pCstVec3.Theta();
+    const double thSmear = thOrig + m_rando -> Gaus(0., m_config.thCstSmear);
+    if (m_config.doCstThetaSmear) {
+      pSmearVec3.SetTheta(thSmear);
+    }
+
+    // apply phi smearing, if need be
+    const double phiRotate = m_rando -> Uniform(-TMath::Pi(), TMath::Pi());
+    if (m_config.doCstPhiSmear) {
+      pSmearVec3.Rotate(phiRotate, pCstVec3);
+    }
+
+    // update 4-vector and exit
+    const double eSmear = hypot( pSmearVec3.Mag(), Const::MassPion() );
+    if (m_config.doCstThetaSmear || m_config.doCstPhiSmear) {
+      pCst.SetPt( pSmearVec3.Pt() );
+      pCst.SetEta( pSmearVec3.Eta() );
+      pCst.SetPhi( pSmearVec3.Phi() );
+      pCst.SetE( eSmear );
+    }
+    return;
+
+  }  // end 'SmearCstMomentum(PtEtaPhiEVector&)'
+
+
+
+  // --------------------------------------------------------------------------
   //! Check if a jet satisfies cuts
   // --------------------------------------------------------------------------
   bool SEnergyCorrelator::IsGoodJet(const Types::JetInfo& jet) {
@@ -407,35 +569,108 @@ namespace SColdQcdCorrelatorAnalysis {
   //! Get weight of a point (e.g. a constituent) wrt. a reference (e.g. a jet)
   // --------------------------------------------------------------------------
   double SEnergyCorrelator::GetWeight(
-    PtEtaPhiEVector momentum,
-    int option,
+    const PtEtaPhiEVector& momentum,
+    const int option,
     optional<PtEtaPhiEVector> reference
-  ){
+  ) {
 
-    double weight = 1;
-    double Et = 1;
-    if(reference.has_value()){
-      TVector3 pRef(reference.value().X(), reference.value().Y(), reference.value().Z());
-      TVector3 pMom(momentum.X(), momentum.Y(), momentum.Z());
-      TVector3 pEt = pMom - (pMom*pRef/(pRef*pRef))*pRef;
-      Et = pow(pEt.Mag2()+pow(Const::MassPion(),2),0.5);
+    // calculate Et wrt reference if provided,
+    // othwerwise use built-in value
+    double et = momenutm.Et();
+    if (reference.has_value()) {
+      et = GetET(
+        TVector3(
+          momentum.Px(),
+          momentum.Py(),
+          momentum.Pz()
+        ),
+        TVector3(
+          reference.value().Px(),
+          reference.value().Py(),
+          reference.value().Pz()
+        )
+      );
     }
-    switch(option){
+
+    // select relevant component
+    double weight = 1.;
+    switch (option) {
       case Norm::Et:
-	weight = Et;
-	break;
+        weight = Et;
+        break;
       case Norm::E:
-	weight = momentum.E();
-	break;
+        weight = momentum.E();
+        break;
       case Norm::Pt:
-	[[fallthrough]];
+        [[fallthrough]];
       default:
-	weight = momentum.Pt();
-	break;
+        weight = momentum.Pt();
+        break;
     }
     return weight;
 
-  }  // end 'GetWeight(PtEtaPhiEVector, int, optional<PtEtaPhiEVector>)'
+  }  // end 'GetWeight(PtEtaPhiEVector&, int&, optional<PtEtaPhiEVector>)'
+
+
+
+  // --------------------------------------------------------------------------
+  //! Get median distance from a triplet
+  // --------------------------------------------------------------------------
+  /* FIXME can probably replace this w/ clever use of some stl containers */
+  double GetRM(const tuple<double, double, double>& dists) {
+
+    // print debug statement
+    //   - FIXME give proper code
+    if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(777);
+  
+    // check if first element is median
+    if (
+      ((get<0>(dists) >= get<1>(dists)) && (get<0>(dists) <= get<2>(dists))) ||
+      ((get<0>(dists) <= get<1>(dists)) && (get<0>(dists) >= get<2>(dists)))
+    ) {
+      return get<0>(dists);
+    }
+
+    // check if second element is median
+    if (
+      ((get<1>(dists) >= get<0>(dists)) && (get<1>(dists) <= get<2>(dists))) ||
+      ((get<1>(dists) <= get<0>(dists)) && (get<1>(dists) >= get<2>(dists)))
+    ) {
+      return get<1>(dists);
+    }
+
+    // check if third element is median
+    if (
+      ((get<2>(dists) >= get<0>(dists)) && (get<2>(dists) <= get<1>(dists))) ||
+      ((get<2>(dists) <= get<0>(dists)) && (get<2>(dists) >= get<1>(dists)))
+    ) {
+      return get<2>(dists);
+    }
+
+    // by default return 1st element
+    return get<0>(dists);
+
+  }  // end 'GetRM(tuple<double, double, double>)'
+
+
+
+  // --------------------------------------------------------------------------
+  //! Get energy transverse to a provided reference
+  // --------------------------------------------------------------------------
+  double GetET(const TVector3& pMom, const TVector3& pRef) {
+
+    // print debug statement
+    // FIXME provide an actual code
+    if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(777);
+
+    // get component transverse to reference
+    TVector3 pProduct    = ((pMom * pRef) / (pRef * pRef)) * pRef;
+    TVector3 pTransverse = pMom - pProduct;
+
+    // then return energy of transverse part
+    return std::hypot(pTransverse.Mag(), Const::MassPion());
+
+  }  // end 'GetET(TVector3&, TVector3&)'
 
 
 
@@ -460,79 +695,6 @@ namespace SColdQcdCorrelatorAnalysis {
     return iJetPtBin;
 
   }  // end 'GetJetPtBin(double)'
-
-
-
-  // --------------------------------------------------------------------------
-  //! Smear jet momentum
-  // --------------------------------------------------------------------------
-  void SEnergyCorrelator::SmearJetMomentum(PtEtaPhiEVector& pJet) {
-
-    // print debug statement
-    if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(35);
-
-    // grab unsmeared jet pt, E & calculate mass
-    const double ptOrig = pJet.Pt();
-    const double mJet   = pJet.M();
-
-    // apply smearing
-    const double ptSmear = ptOrig + m_rando -> Gaus(0., m_config.ptJetSmear * ptOrig);
-    const double eSmear  = sqrt( hypot(ptSmear, mJet) ); 
-
-    // update 4-vector and exit
-    pJet.SetPt(ptSmear);
-    pJet.SetE(eSmear);
-    return;
-
-  }  // end 'SmearJetMomentum(PtEtaPhiEVector&)'
-
-
-
-
-  // --------------------------------------------------------------------------
-  //! Smear constituent momentum
-  // --------------------------------------------------------------------------
-  void SEnergyCorrelator::SmearCstMomentum(PtEtaPhiEVector& pCst) {
-
-    // print debug statement
-    if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(36);
-
-    // apply pt smearing, if need be
-    const double ptOrig  = pCst.Pt();
-    const double ptSmear = ptOrig + m_rando -> Gaus(0., m_config.ptCstSmear * ptOrig);
-    if (m_config.doCstPtSmear) {
-      pCst.SetPt(ptSmear);
-    }
-
-    // create TVector3 version of input
-    //   - FIXME might be good to upgrade these to GenVectors
-    TVector3 pCstVec3( pCst.X(), pCst.Y(), pCst.Z() );
-    TVector3 pSmearVec3 = pCstVec3;
-
-    // apply theta smearing, if need be
-    const double thOrig  = pCstVec3.Theta();
-    const double thSmear = thOrig + m_rando -> Gaus(0., m_config.thCstSmear);
-    if (m_config.doCstThetaSmear) {
-      pSmearVec3.SetTheta(thSmear);
-    }
-
-    // apply phi smearing, if need be
-    const double phiRotate = m_rando -> Uniform(-TMath::Pi(), TMath::Pi());
-    if (m_config.doCstPhiSmear) {
-      pSmearVec3.Rotate(phiRotate, pCstVec3);
-    }
-
-    // update 4-vector and exit
-    const double eSmear = hypot( pSmearVec3.Mag(), Const::MassPion() );
-    if (m_config.doCstThetaSmear || m_config.doCstPhiSmear) {
-      pCst.SetPt( pSmearVec3.Pt() );
-      pCst.SetEta( pSmearVec3.Eta() );
-      pCst.SetPhi( pSmearVec3.Phi() );
-      pCst.SetE( eSmear );
-    }
-    return;
-
-  }  // end 'SmearCstMomentum(PtEtaPhiEVector&)'
 
 }  // end SColdQcdCorrelatorAnalysis namespace
 
