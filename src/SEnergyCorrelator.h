@@ -114,8 +114,8 @@ namespace SColdQcdCorrelatorAnalysis {
       // analysis methods (*.ana.h)
       void    DoGlobalCalculation();  // TODO
       void    DoGlobalCalculationWithPackage(const double htEvt);  // TODO
-      void    DoGlobalCalculationManual();  // TODO
-      void    DoLocalCalculation(const PtEtaPhiEVector& normalization);
+      void    DoGlobalCalculationManual(const PtEtaPhiEVector& normalization);  // TODO
+      void    DoLocalCalculation();
       void    DoLocalCalcWithPackage(const double ptJet);
       void    DoLocalCalcManual(const PtEtaPhiEVector& normalization);
       void    ExtractHistsFromCorr();
@@ -125,8 +125,8 @@ namespace SColdQcdCorrelatorAnalysis {
       bool    IsGoodCst(const Types::CstInfo& cst);
       bool    SurvivesEfficiency(const double value);
       double  GetWeight(const PtEtaPhiEVector& momentum, const int option, optional<PtEtaPhiEVector> reference = nullopt);
-      double  GetRM(const tuple<double, double, double> dists);
-      double  GetET(const TVector3& pRef, const TVector3& pRef);
+      double  GetRM(const tuple<double, double, double>& dists);
+      double  GetET(const TVector3& pMom, const TVector3& pRef);
       int32_t GetJetPtBin(const double ptJet);
 
       // configuration

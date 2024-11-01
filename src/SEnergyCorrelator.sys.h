@@ -124,7 +124,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
       // create manual projected 3-point histogram
       m_outProjE3C.push_back(new TH1D(projName.data(), "", m_config.nBinsDr, drBinEdgeArray));
-      m_outProjE3Cback() -> Sumw2();
+      m_outProjE3C.back() -> Sumw2();
 
       // create shape-dependent 3-point histograms
       vector<TH2D*> E3C_tmp;

@@ -217,9 +217,10 @@ namespace SColdQcdCorrelatorAnalysis {
         /* FIXME in prepping for multiple n per calc..
          *   - should make nPoints a set
          *   - might want to move this to a separate function...
-         *   - also can remove the 3 point flag
+         *   - also can remove the 3 point flag at that point, e.g.
+         *       if (!m_config.nPoints.count(3)) continue;
          */  
-        if ((m_config.nPoints.count(3) == 0) || !m_config.doThreePoint) continue;
+        if (!m_config.doThreePoint) continue;
 
         // 3rd cst loop
         for (uint64_t kCst = 0; kCst < m_cstCalcVec.size(); kCst++) {
@@ -296,7 +297,7 @@ namespace SColdQcdCorrelatorAnalysis {
               const bool isInRLBin = (
                 (RL >= m_config.rlBins[jRLBin].first) &&
                 (RL < m_config.rlBins[jRLBin].second)
-              )
+              );
               if (!isInRLBin) continue;
 
               // fill hist
@@ -576,7 +577,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
     // calculate Et wrt reference if provided,
     // othwerwise use built-in value
-    double et = momenutm.Et();
+    double et = momentum.Et();
     if (reference.has_value()) {
       et = GetET(
         TVector3(
@@ -596,7 +597,7 @@ namespace SColdQcdCorrelatorAnalysis {
     double weight = 1.;
     switch (option) {
       case Norm::Et:
-        weight = Et;
+        weight = et;
         break;
       case Norm::E:
         weight = momentum.E();
@@ -617,7 +618,7 @@ namespace SColdQcdCorrelatorAnalysis {
   //! Get median distance from a triplet
   // --------------------------------------------------------------------------
   /* FIXME can probably replace this w/ clever use of some stl containers */
-  double GetRM(const tuple<double, double, double>& dists) {
+  double SEnergyCorrelator::GetRM(const tuple<double, double, double>& dists) {
 
     // print debug statement
     //   - FIXME give proper code
@@ -650,14 +651,14 @@ namespace SColdQcdCorrelatorAnalysis {
     // by default return 1st element
     return get<0>(dists);
 
-  }  // end 'GetRM(tuple<double, double, double>)'
+  }  // end 'GetRM(tuple<double, double, double>&)'
 
 
 
   // --------------------------------------------------------------------------
   //! Get energy transverse to a provided reference
   // --------------------------------------------------------------------------
-  double GetET(const TVector3& pMom, const TVector3& pRef) {
+  double SEnergyCorrelator::GetET(const TVector3& pMom, const TVector3& pRef) {
 
     // print debug statement
     // FIXME provide an actual code
