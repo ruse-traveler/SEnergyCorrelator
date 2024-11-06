@@ -12,6 +12,7 @@
 #define SENERGYCORRELATOR_H
 
 // c++ utilities
+#include <map>
 #include <set>
 #include <limits>
 #include <string>
@@ -145,15 +146,23 @@ namespace SColdQcdCorrelatorAnalysis {
       vector<fastjet::PseudoJet> m_jetCalcVec;
       vector<fastjet::PseudoJet> m_cstCalcVec;
 
-      // output histograms
-      //   - FIXME move these to a dedicate histogram manager
+      // local package output histograms
+      //   - FIXME move these to a dedicated histogram manager
       vector<TH1D*> m_outPackageHistVarDrAxis;
       vector<TH1D*> m_outPackageHistErrDrAxis;
       vector<TH1D*> m_outPackageHistVarLnDrAxis;
       vector<TH1D*> m_outPackageHistErrLnDrAxis;
-      vector<TH1D*> m_outManualHistErrDrAxis;
+
+      // local manual output histograms
+      //   - FIXME move these to a dedicated histogram manager
+      vector<TH1D*>         m_outManualHistErrDrAxis;
+      vector<TH1D*>         m_outProjE3C;
       vector<vector<TH2D*>> m_outE3C;
-      vector<TH1D*> m_outProjE3C;
+
+      // global output histograms
+      //   - FIXME move these to a dedicated histogram manager
+      vector<TH1D*> m_outGlobalHistThetaAxis;
+      vector<TH1D*> m_outGlobalHistCosThAxis;
 
       // correlators
       vector<fastjet::contrib::eec::EECLongestSide<fastjet::contrib::eec::hist::axis::log>*> m_eecLongSide;

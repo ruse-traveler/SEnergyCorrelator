@@ -72,6 +72,7 @@ namespace SColdQcdCorrelatorAnalysis {
     // histogram bins
     vector<pair<double, double>> rlBins    { {{0.0, 1.0}} };
     vector<pair<double, double>> ptJetBins { {{0., 100.}} };
+    vector<pair<double, double>> htEvtBins { {{0., 200.}} };
 
     // acceptance parameters
     pair<Types::JetInfo, Types::JetInfo> jetAccept;

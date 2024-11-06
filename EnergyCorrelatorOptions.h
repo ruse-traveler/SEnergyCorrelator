@@ -68,6 +68,11 @@ namespace EnergyCorrelatorOptions {
   const float  effSmooth   = 4.0;
   const string effFunction = "[0]*(1.0-TMath::Exp(-1.0*[1]*x))";
 
+  // event ht bins
+  const vector<pair<double, double>> htEvtBins = {
+    {0., 200.}
+  };
+
   // jet pT bins
   const vector<pair<double, double>> ptJetBins = {
     {0.,  5.},
@@ -191,6 +196,7 @@ namespace EnergyCorrelatorOptions {
       .nBinsDr       = nBinsDr,
       .drBinRange    = binRangeDr,
       .ptJetBins     = ptJetBins,
+      .htEvtBins     = htEvtBins,
       .doLocalCalc   = doLocalCalc,
       .doGlobalCalc  = doGlobalCalc,
       .doManualCalc  = doManualCalc,
@@ -234,6 +240,7 @@ namespace EnergyCorrelatorOptions {
       .nBinsDr         = nBinsDr,
       .drBinRange      = binRangeDr,
       .ptJetBins       = ptJetBins,
+      .htEvtBins       = htEvtBins,
       .doLocalCalc     = doLocalCalc,
       .doGlobalCalc    = doGlobalCalc,
       .doManualCalc    = doManualCalc,

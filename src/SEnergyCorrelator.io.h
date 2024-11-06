@@ -80,22 +80,41 @@ namespace SColdQcdCorrelatorAnalysis {
     // print debug statement
     if (m_config.isDebugOn) PrintDebug(9);
 
+    // save local output histograms
+    //   - FIXME move to a dedicated histogram collection
     m_outFile -> cd();
-    for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
-      m_outPackageHistVarDrAxis[iPtBin]   -> Write();
-      m_outPackageHistErrDrAxis[iPtBin]   -> Write();
-      m_outPackageHistVarLnDrAxis[iPtBin] -> Write();
-      m_outPackageHistErrLnDrAxis[iPtBin] -> Write();
-      if(m_config.doManualCalc){
-	m_outManualHistErrDrAxis[iPtBin]->Write();
-	if(m_config.doThreePoint){
-	  m_outProjE3C[iPtBin]->Write();
-	  for(size_t jRLBin = 0; jRLBin < m_config.rlBins.size(); jRLBin++){
-	    m_outE3C[iPtBin][jRLBin]->Write();
-	  }
-	}
-      }
-    }
+    if (m_config.doLocalCalc) {
+      for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
+
+        // save package histograms
+        if (m_config.doPackageCalc) {
+          m_outPackageHistVarDrAxis[iPtBin]   -> Write();
+          m_outPackageHistErrDrAxis[iPtBin]   -> Write();
+          m_outPackageHistVarLnDrAxis[iPtBin] -> Write();
+          m_outPackageHistErrLnDrAxis[iPtBin] -> Write();
+        }
+
+        // save manual histograms
+        if (m_config.doManualCalc) {
+          m_outManualHistErrDrAxis[iPtBin]->Write();
+          if (m_config.doThreePoint) {
+            m_outProjE3C[iPtBin]->Write();
+            for(size_t jRLBin = 0; jRLBin < m_config.rlBins.size(); jRLBin++){
+              m_outE3C[iPtBin][jRLBin]->Write();
+            }  // end rl bin loop
+          }  // end if three point
+        }  // end if manual
+      } // end pt bin loop
+    }  // end if local
+
+     // save global output histograms
+    //   - FIXME move to a dedicated histogram collection
+    if (m_config.doGlobalCalc) {
+      for (size_t iHtBin = 0; iHtBin < m_config.htEvtBins.size(); iHtBin++) {
+        m_outGlobalHistThetaAxis.at(iHtBin) -> Write();
+        m_outGlobalHistCosThAxis.at(iHtBin) -> Write();
+      }  // end ht bin loop
+    }  // end if global
 
     // announce saving
     PrintMessage(10);

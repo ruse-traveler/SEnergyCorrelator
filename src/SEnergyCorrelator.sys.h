@@ -39,8 +39,10 @@ namespace SColdQcdCorrelatorAnalysis {
     m_outPackageHistVarLnDrAxis.clear();
     m_outPackageHistErrLnDrAxis.clear();
     m_outManualHistErrDrAxis.clear();
-    m_outE3C.clear();
     m_outProjE3C.clear();
+    m_outE3C.clear();
+    m_outGlobalHistThetaAxis.clear();
+    m_outGlobalHistCosThAxis.clear();
     return;
 
   }  // end 'InitializeMembers()'
@@ -83,13 +85,25 @@ namespace SColdQcdCorrelatorAnalysis {
     // print debug statement
     if (m_config.isDebugOn) PrintDebug(5);
 
+    // extract log binning
+    //   - FIXME manually code and move to utilities
     vector<double> drBinEdges  = m_eecLongSide[0] -> bin_edges();
     size_t         nDrBinEdges = drBinEdges.size();
  
+    // fill bin edges
     double drBinEdgeArray[nDrBinEdges];
     for (size_t iDrEdge = 0; iDrEdge < nDrBinEdges; iDrEdge++) {
       drBinEdgeArray[iDrEdge] = drBinEdges.at(iDrEdge);
     }
+
+    // define bins
+    //   - FIXME move to a bins database
+    map<string, tuple<size_t, float, float>> bins = {
+      {"xi",    make_tuple(100, 0.0, 1.0)},
+      {"phi",   make_tuple(100, 0.0, TMath::Pi()/2.0)},
+      {"theta", make_tuple(314, 0.0, TMath::Pi())},
+      {"costh", make_tuple(100, 0.0, 1.0)}
+    };
 
     // loop over pt bins
     for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
@@ -110,13 +124,20 @@ namespace SColdQcdCorrelatorAnalysis {
       // create names
       string projName("hManualProjE3C_ptJet");
       string eecName("hManualCorrelatorErrorDrAxis_ptJet");
-      string e3cName("hManualE3C_ptJet");
+      string e3cBase("hManualE3C_ptJet");
       projName += to_string( floor(m_config.ptJetBins[iPtBin].first) );
       eecName  += to_string( floor(m_config.ptJetBins[iPtBin].first) );
-      e3cName  += to_string( floor(m_config.ptJetBins[iPtBin].first) );
+      e3cBase  += to_string( floor(m_config.ptJetBins[iPtBin].first) );
 
       // create manual two-point histograms
-      m_outManualHistErrDrAxis.push_back(new TH1D(eecName.data(), "", m_config.nBinsDr, drBinEdgeArray));
+      m_outManualHistErrDrAxis.push_back(
+        new TH1D(
+          eecName.data(),
+          "",
+          m_config.nBinsDr,
+          drBinEdgeArray
+        )
+      );
       m_outManualHistErrDrAxis.back() -> Sumw2();
 
       // add manual 3-point if needed
@@ -129,12 +150,47 @@ namespace SColdQcdCorrelatorAnalysis {
       // create shape-dependent 3-point histograms
       vector<TH2D*> E3C_tmp;
       for (size_t jRLBin = 0; jRLBin < m_config.rlBins.size(); jRLBin++) {
-        e3cName += "_RLBin" + to_string(jRLBin);
-        E3C_tmp.push_back(new TH2D(e3cName.data(), "", 100, 0.0, 1.0, 100, 0.0, TMath::Pi()/2));
+        const string e3cName = e3cBase + "_RLBin" + to_string(jRLBin);
+        E3C_tmp.push_back(
+          new TH2D(
+            e3cName.data(),
+            "",
+            get<0>(bins["xi"]), get<1>(bins["xi"]), get<2>(bins["xi"]),
+            get<0>(bins["phi"]), get<1>(bins["phi"]), get<2>(bins["phi"])
+          )
+        );
       }
       m_outE3C.push_back(E3C_tmp);
 
     }  // end pt bin loop
+
+    // create global names
+    const string thetaAxisBase("hTEECThetaAxis_htEvt");
+    const string costhAxisBase("hTEERCosThAxis_htEvt");
+
+    // loop over ht bins
+    for (size_t iHtBin = 0; iHtBin < m_config.htEvtBins.size(); iHtBin++) {
+
+      // construct names
+      const string thetaAxisName = thetaAxisBase + to_string(iHtBin);
+      const string costhAxisName = costhAxisBase + to_string(iHtBin);
+
+      // construct histograms
+      m_outGlobalHistThetaAxis.push_back(
+        new TH1D(
+          thetaAxisName.data(),
+          "",
+          get<0>(bins["theta"]), get<1>(bins["theta"]), get<2>(bins["theta"])
+        )
+      );
+      m_outGlobalHistCosThAxis.push_back(
+        new TH1D(
+          costhAxisName.data(),
+          "",
+          get<0>(bins["costh"]), get<1>(bins["costh"]), get<2>(bins["costh"])
+        )
+      );
+    }  // end ht bin loop
 
     // announce histogram initialization
     PrintMessage(3);
