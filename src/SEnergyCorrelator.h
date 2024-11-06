@@ -112,10 +112,8 @@ namespace SColdQcdCorrelatorAnalysis {
       void PrintError(const uint32_t code, const size_t nDrBinEdges = 0, const size_t iDrBin = 0, const string sInFileName = "");
 
       // analysis methods (*.ana.h)
-      void    DoGlobalCalculation();  // TODO
-      void    DoGlobalCalculationWithPackage(const double htEvt);  // TODO
-      void    DoGlobalCalculationManual(const PtEtaPhiEVector& normalization);  // TODO
-      void    DoLocalCalculation();
+      void    RunCalculations();
+      void    DoGlobalCalcManual(const double normGlobal);  // TODO
       void    DoLocalCalcWithPackage(const double ptJet);
       void    DoLocalCalcManual(const PtEtaPhiEVector& normalization);
       void    ExtractHistsFromCorr();

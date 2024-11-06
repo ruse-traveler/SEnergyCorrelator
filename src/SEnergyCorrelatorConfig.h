@@ -36,12 +36,14 @@ namespace SColdQcdCorrelatorAnalysis {
     bool applyCstCuts  {false};
     bool isDebugOn     {false};
     bool isBatchOn     {false};
-    bool doPackageCalc {true};
 
-    // manual calculation options
+    // calculation options
     int  momOption     {0};
     int  normOption    {0};
+    bool doLocalCalc   {true};
+    bool doGlobalCalc  {true};
     bool doManualCalc  {false};
+    bool doPackageCalc {true};
     bool doThreePoint  {false};
 
     // i/o options

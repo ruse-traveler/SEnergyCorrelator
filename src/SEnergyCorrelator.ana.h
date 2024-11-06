@@ -22,54 +22,31 @@ namespace SColdQcdCorrelatorAnalysis {
   // analysis methods =========================================================
 
   // --------------------------------------------------------------------------
-  //! Do global (jet-jet) ENC calculations
+  //! Run ENC calculations
   // --------------------------------------------------------------------------
-  void SEnergyCorrelator::DoGlobalCalculation() {
+  void SEnergyCorrelator::RunCalculations() {
 
-    /* TODO fill in */
-    return;
-
-  }  // end 'DoGlobalCalculation()'
-
-
-
-  // --------------------------------------------------------------------------
-  //! Do global (jet-jet) ENC calculations using P. T. Komiske's EEC  package
-  // --------------------------------------------------------------------------
-  void SEnergyCorrelator::DoGlobalCalculationWithPackage(const double htEvt) {
-
-    /* TODO fill in */
-    return;
-
-  }  // end 'DoGlobalCalculationWithPackage(double)'
-
-
-
-  // --------------------------------------------------------------------------
-  //! Do global (jet-jet_ ENC calculations manually
-  // --------------------------------------------------------------------------
-  void SEnergyCorrelator::DoGlobalCalculationManual(const PtEtaPhiEVector& normalization) {
-
-    /* TODO fill in */
-    return;
-
-  }  // end 'DoGlobalCalculationManual(PtEtaPhiEVector&)'
-
-
-
-  // --------------------------------------------------------------------------
-  //! Run local (in-jet) ENC calculations
-  // --------------------------------------------------------------------------
-  void SEnergyCorrelator::DoLocalCalculation() {
-    
     // print debug statement
+    // TODO update debug statement
     if (m_config.isDebugOn) PrintDebug(31);
 
-    // jet loop
-    for (uint64_t iJet = 0; iJet < m_input.jets.size(); iJet++) {
+    // helper lambda to turn a PtEtaPhiEVector into a PseudoJet
+    auto getPseudoJet = [](const PtEtaPhiEVector& vector) {
+      PseudoJet pseudo(
+        vector.Px(),
+        vector.Py(),
+        vector.Pz(),
+        vector.E()
+      );
+      return pseudo;
+    };
 
-      // clear vector for correlator
-      m_cstCalcVec.clear();
+    //clear vector for global correlator
+    m_jetCalcVec.clear();
+
+    // jet loop
+    double normGlobal = 0.;
+    for (uint64_t iJet = 0; iJet < m_input.jets.size(); iJet++) {
 
       // select jet pt bin & apply jet cuts
       const bool isGoodJet = IsGoodJet( m_input.jets[iJet] );
@@ -83,6 +60,23 @@ namespace SColdQcdCorrelatorAnalysis {
         m_input.jets[iJet].GetEne()
       );
       if (m_config.isInTreeTruth && m_config.doJetSmear) SmearJetMomentum(pJetVector);
+
+      // create jet pseudojet
+      PseudoJet jet = getPseudoJet(pJetVector);
+      jet.set_user_index(iJet);
+
+      // increment normalization & load global calc vector, if needed
+      if (m_config.doGlobalCalc) {
+        normGlobal += GetWeight(pJetVector, m_config.normOption);
+        m_jetCalcVec.push_back(jet);
+      }
+
+      // run local calculation if needed
+      if (m_config.doLocalCalc) {
+        m_cstCalcVec.clear();
+      } else {
+        continue;
+      }
 
       // constituent loop
       for (uint64_t iCst = 0; iCst < m_input.csts[iJet].size(); iCst++) {
@@ -102,17 +96,12 @@ namespace SColdQcdCorrelatorAnalysis {
 
         // apply efficiency if need be
         if (m_config.doCstEff) {
-          bool survives = SurvivesEfficiency(pCstVector.Pt());
+          const bool survives = SurvivesEfficiency(pCstVector.Pt());
           if (!survives) continue;
         }
 
-        // create pseudojet
-        PseudoJet constituent(
-          pCstVector.Px(),
-          pCstVector.Py(),
-          pCstVector.Pz(),
-          pCstVector.E()
-        );
+        // create cst pseudojet
+        PseudoJet constituent = getPseudoJet(pCstVector);
         constituent.set_user_index(iCst);
 
         // add to list
@@ -128,9 +117,30 @@ namespace SColdQcdCorrelatorAnalysis {
 	DoLocalCalcManual( pJetVector );
       }
     }  // end jet loop
+
+    // run global calculations
+    if (m_config.doGlobalCalc) {
+      DoGlobalCalcManual( normGlobal );
+    }
     return;
 
   }  // end 'DoLocalCalculation()'
+
+
+
+  // --------------------------------------------------------------------------
+  //! Do global (jet-jet) ENC calculations
+  // --------------------------------------------------------------------------
+  void SEnergyCorrelator::DoGlobalCalcManual(const double normGlobal) {
+    
+    // print debug statement
+    // TODO give it an actual debug message
+    if (m_config.isDebugOn) PrintDebug(777);
+
+    /* TODO fill in */
+    return;
+
+  }  // end 'DoGlobalCalcManual(double)'
 
 
 
@@ -577,6 +587,8 @@ namespace SColdQcdCorrelatorAnalysis {
 
     // calculate Et wrt reference if provided,
     // othwerwise use built-in value
+    //   - FIXME might be good to swap out the TVector3
+    //     for PtEtaPhiEVector
     double et = momentum.Et();
     if (reference.has_value()) {
       et = GetET(

@@ -38,8 +38,8 @@ void RunENCCalculation(const bool doBatch = false, const int verbosity = 0) {
     "../SCorrelatorJetTreeMaker/output/intermediate_merge/pp200py8jet10run15_towerSubAntiKtR04_2024sep28/correlatorJetTree.pp200py8jet10run15_towerSubAntiKtR04_0000to0099.d29m9y2024.root"
   };
   const pair<string, string> outFiles = {
-    "twoPoint.pp200py8jet10run15_antiKtTowerR04_packageCalcOnly.refactor_moveSmearToSeparateFunctions_reco.d21m10y2024.root",
-    "twoPoint.pp200py8jet10run15_antiKtTowerR04_packageCalcOnly.refactor_moveSmearTOSeparateFunctions_true.d21m10y2024.root"
+    "twoPoint.pp200py8jet10run15_antiKtTowerR04_packageCalcOnly.refactor_addGlobalCalc_reco.d6m11y2024.root",
+    "twoPoint.pp200py8jet10run15_antiKtTowerR04_packageCalcOnly.refactor_addGlobalCalc_true.d6m11y2024.root"
   };
 
   // get module configurations

@@ -43,11 +43,14 @@ namespace EnergyCorrelatorOptions {
   const bool doDebug   = true;
   const bool doBatch   = false;
 
-  // manual calculation option
-  const int  momOption    = 0;
-  const int  normOption   = 0;
-  const bool doManualCalc = false;
-  const bool doThreePoint = false;
+  // calculation options
+  const int  momOption     = 0;
+  const int  normOption    = 0;
+  const bool doLocalCalc   = true;
+  const bool doGlobalCalc  = true;
+  const bool doManualCalc  = false;
+  const bool doPackageCalc = true;
+  const bool doThreePoint  = false;
 
   // smearing options
   const bool   doJetSmear      = true;
@@ -188,7 +191,10 @@ namespace EnergyCorrelatorOptions {
       .nBinsDr       = nBinsDr,
       .drBinRange    = binRangeDr,
       .ptJetBins     = ptJetBins,
+      .doLocalCalc   = doLocalCalc,
+      .doGlobalCalc  = doGlobalCalc,
       .doManualCalc  = doManualCalc,
+      .doPackageCalc = doPackageCalc,
       .doThreePoint  = doThreePoint,
       .rlBins        = rlBins,
       .momOption     = momOption,
@@ -228,7 +234,10 @@ namespace EnergyCorrelatorOptions {
       .nBinsDr         = nBinsDr,
       .drBinRange      = binRangeDr,
       .ptJetBins       = ptJetBins,
+      .doLocalCalc     = doLocalCalc,
+      .doGlobalCalc    = doGlobalCalc,
       .doManualCalc    = doManualCalc,
+      .doPackageCalc   = doPackageCalc,
       .doThreePoint    = doThreePoint,
       .rlBins          = rlBins,
       .momOption       = momOption,

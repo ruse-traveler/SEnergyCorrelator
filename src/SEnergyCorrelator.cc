@@ -143,11 +143,13 @@ namespace SColdQcdCorrelatorAnalysis {
         PrintMessage(8, nEvts, iEvt);
       }
 
-      // fill container
-      m_interface.SetCorrelatorInput(m_input, m_config.isInTreeTruth, m_config.isEmbed);
- 
-      // run calculations
-      DoLocalCalculation();
+      // fill container and run calculations
+      m_interface.SetCorrelatorInput(
+        m_input,
+        m_config.isInTreeTruth,
+        m_config.isEmbed
+      );
+      RunCalculations();
 
     }  // end event loop
 
