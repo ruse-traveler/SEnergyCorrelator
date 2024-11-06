@@ -232,6 +232,9 @@ namespace SColdQcdCorrelatorAnalysis {
   // --------------------------------------------------------------------------
   void SEnergyCorrelator::InitializeSmearing() {
 
+    // print debug statement
+    if (m_config.isDebugOn) PrintDebug(43);
+
     // grab date & time
     TDatime* time = new TDatime();
 
@@ -541,7 +544,7 @@ namespace SColdQcdCorrelatorAnalysis {
         break;
 
       case 31:
-        cout << "SEnergyCorrelator::DoLocalCalculation() looping over jets and calculating correlators..." << endl;
+        cout << "SEnergyCorrelator::RunCalculations() looping over jets and calculating correlators..." << endl;
         break;
 
       case 32:
@@ -553,7 +556,7 @@ namespace SColdQcdCorrelatorAnalysis {
         break;
 
       case 34:
-        cout << "SEnergyCorrelator::DoLocalCalcWitPackagen() running calculation with EEC package..." << endl;
+        cout << "SEnergyCorrelator::DoLocalCalcWithPackage() running local calculation with EEC package..." << endl;
         break;
 
       case 35:
@@ -566,6 +569,34 @@ namespace SColdQcdCorrelatorAnalysis {
 
       case 37:
         cout << "SEnergyCorrelator::SurvivesEfficiency(double) checking if value survives efficiency..." << endl;
+        break;
+
+      case 38:
+        cout << "SEnergyCorrelator::DoGlobalCalcManual(double) running global calculation..." << endl;
+        break;
+
+      case 39:
+        cout << "SEnergyCorrelator::DoLocalCalcManual(ROOT::Math::PtEtaPhiEVector&) running local calculation manually..." << endl;
+        break;
+
+      case 40:
+        cout << "SEnergyCorrelator::GetWeight(ROOT::Math::PtEtaPhiEVector&, int, optional<ROOT::Math::PtEtaPhiEVector>) getting weight..." << endl;
+        break;
+
+      case 41:
+        cout << "SEnergyCorrelator::GetRM(tuple<double, double, double>&) determining RM..." << endl;
+        break;
+
+      case 42:
+        cout << "SEnergyCorrelator::GetET(TVector3&, TVector3&) calculating et..." << endl;
+        break;
+
+      case 43:
+        cout << "SEnergyCorrelator::InitializeSmearing() initializing smearing utilities..." << endl;
+        break;
+
+      case 44:
+        cout << "SEnergyCorrelator::SEnergyCorrelator(SEnergyCorrelatorConfig&) calling ctor..." << endl;
         break;
 
       default:

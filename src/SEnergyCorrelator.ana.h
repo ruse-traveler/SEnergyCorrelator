@@ -27,7 +27,6 @@ namespace SColdQcdCorrelatorAnalysis {
   void SEnergyCorrelator::RunCalculations() {
 
     // print debug statement
-    // TODO update debug statement
     if (m_config.isDebugOn) PrintDebug(31);
 
     // helper lambda to turn a PtEtaPhiEVector into a PseudoJet
@@ -134,8 +133,7 @@ namespace SColdQcdCorrelatorAnalysis {
   void SEnergyCorrelator::DoGlobalCalcManual(const double normGlobal) {
     
     // print debug statement
-    // TODO give it an actual debug message
-    if (m_config.isDebugOn) PrintDebug(777);
+    if (m_config.isDebugOn) PrintDebug(38);
 
     /* TODO fill in */
     return;
@@ -151,6 +149,7 @@ namespace SColdQcdCorrelatorAnalysis {
 
     // print debug statement
     if (m_config.isDebugOn) PrintDebug(31);
+
     const int32_t iPtJetBin = GetJetPtBin( ptJet );
     const bool    foundBin  = (iPtJetBin >= 0);
     const bool    hasCsts   = (m_cstCalcVec.size() > 0); 
@@ -167,6 +166,9 @@ namespace SColdQcdCorrelatorAnalysis {
   //! Run local (in-jet) calculations manually
   // --------------------------------------------------------------------------
   void SEnergyCorrelator::DoLocalCalcManual(const PtEtaPhiEVector& normalization) {
+
+    // print debug statement
+    if (m_config.isDebugOn) PrintDebug(39);
 
     // get normalization for weights
     double norm = GetWeight(normalization, m_config.normOption);
@@ -585,6 +587,9 @@ namespace SColdQcdCorrelatorAnalysis {
     optional<PtEtaPhiEVector> reference
   ) {
 
+    // print debug statement
+    if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(40);
+
     // calculate Et wrt reference if provided,
     // othwerwise use built-in value
     //   - FIXME might be good to swap out the TVector3
@@ -633,8 +638,7 @@ namespace SColdQcdCorrelatorAnalysis {
   double SEnergyCorrelator::GetRM(const tuple<double, double, double>& dists) {
 
     // print debug statement
-    //   - FIXME give proper code
-    if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(777);
+    if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(41);
   
     // check if first element is median
     if (
@@ -670,11 +674,11 @@ namespace SColdQcdCorrelatorAnalysis {
   // --------------------------------------------------------------------------
   //! Get energy transverse to a provided reference
   // --------------------------------------------------------------------------
+  /* FIXME might be good to swap out the TVector3 for PtEtaPhiEVector */
   double SEnergyCorrelator::GetET(const TVector3& pMom, const TVector3& pRef) {
 
     // print debug statement
-    // FIXME provide an actual code
-    if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(777);
+    if (m_config.isDebugOn && (m_config.verbosity > 7)) PrintDebug(42);
 
     // get component transverse to reference
     TVector3 pProduct    = ((pMom * pRef) / (pRef * pRef)) * pRef;

@@ -34,6 +34,9 @@ namespace SColdQcdCorrelatorAnalysis {
     SubsysReco(config.moduleName)
   {
 
+    // print debug statement
+    if (config.isDebugOn) PrintDebug(44);
+
     // set config & initialize internal variables
     m_config = config;
     InitializeMembers();
