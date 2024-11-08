@@ -41,8 +41,8 @@ namespace SColdQcdCorrelatorAnalysis {
     m_outManualHistErrDrAxis.clear();
     m_outProjE3C.clear();
     m_outE3C.clear();
-    m_outGlobalHistThetaAxis.clear();
-    m_outGlobalHistCosThAxis.clear();
+    m_outGlobalHistDPhiAxis.clear();
+    m_outGlobalHistCosDFAxis.clear();
     return;
 
   }  // end 'InitializeMembers()'
@@ -101,8 +101,8 @@ namespace SColdQcdCorrelatorAnalysis {
     map<string, tuple<size_t, float, float>> bins = {
       {"xi",    make_tuple(100, 0.0, 1.0)},
       {"phi",   make_tuple(100, 0.0, TMath::Pi()/2.0)},
-      {"theta", make_tuple(314, 0.0, TMath::Pi())},
-      {"costh", make_tuple(100, 0.0, 1.0)}
+      {"dphi",  make_tuple(314, 0.0, TMath::Pi())},
+      {"cosdf", make_tuple(100, 0.0, 1.0)}
     };
 
     // loop over pt bins
@@ -165,29 +165,29 @@ namespace SColdQcdCorrelatorAnalysis {
     }  // end pt bin loop
 
     // create global names
-    const string thetaAxisBase("hTEECThetaAxis_htEvt");
-    const string costhAxisBase("hTEERCosThAxis_htEvt");
+    const string dphiAxisBase("hTEECDPhiAxis_htEvt");
+    const string cosdfAxisBase("hTEERCosDFAxis_htEvt");
 
     // loop over ht bins
     for (size_t iHtBin = 0; iHtBin < m_config.htEvtBins.size(); iHtBin++) {
 
       // construct names
-      const string thetaAxisName = thetaAxisBase + to_string(iHtBin);
-      const string costhAxisName = costhAxisBase + to_string(iHtBin);
+      const string dphiAxisName  = dphiAxisBase + to_string(iHtBin);
+      const string cosdfAxisName = cosdfAxisBase + to_string(iHtBin);
 
       // construct histograms
-      m_outGlobalHistThetaAxis.push_back(
+      m_outGlobalHistDPhiAxis.push_back(
         new TH1D(
-          thetaAxisName.data(),
+          dphiAxisName.data(),
           "",
-          get<0>(bins["theta"]), get<1>(bins["theta"]), get<2>(bins["theta"])
+          get<0>(bins["dphi"]), get<1>(bins["dphi"]), get<2>(bins["dphi"])
         )
       );
-      m_outGlobalHistCosThAxis.push_back(
+      m_outGlobalHistCosDFAxis.push_back(
         new TH1D(
-          costhAxisName.data(),
+          cosdfAxisName.data(),
           "",
-          get<0>(bins["costh"]), get<1>(bins["costh"]), get<2>(bins["costh"])
+          get<0>(bins["cosdf"]), get<1>(bins["cosdf"]), get<2>(bins["cosdf"])
         )
       );
     }  // end ht bin loop

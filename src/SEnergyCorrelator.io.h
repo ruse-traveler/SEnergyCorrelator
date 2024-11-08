@@ -111,8 +111,8 @@ namespace SColdQcdCorrelatorAnalysis {
     //   - FIXME move to a dedicated histogram collection
     if (m_config.doGlobalCalc) {
       for (size_t iHtBin = 0; iHtBin < m_config.htEvtBins.size(); iHtBin++) {
-        m_outGlobalHistThetaAxis.at(iHtBin) -> Write();
-        m_outGlobalHistCosThAxis.at(iHtBin) -> Write();
+        m_outGlobalHistDPhiAxis.at(iHtBin)  -> Write();
+        m_outGlobalHistCosDFAxis.at(iHtBin) -> Write();
       }  // end ht bin loop
     }  // end if global
 

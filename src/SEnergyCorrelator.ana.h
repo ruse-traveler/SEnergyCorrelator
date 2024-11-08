@@ -135,7 +135,57 @@ namespace SColdQcdCorrelatorAnalysis {
     // print debug statement
     if (m_config.isDebugOn) PrintDebug(38);
 
-    /* TODO fill in */
+    // 1st jet loop
+    for (uint64_t iJetA = 0; iJetA < m_jetCalcVec.size(); ++iJetA) {
+
+      // get weight for jet A
+      const double weightA = GetWeight(
+        PtEtaPhiEVector(
+          m_jetCalcVec[iJetA].pt(),
+          m_jetCalcVec[iJetA].eta(),
+          m_jetCalcVec[iJetA].phi(),
+          m_jetCalcVec[iJetA].E()
+        ),
+        m_config.momOption
+      );
+
+      // 2nd jet loop
+      for (uint64_t iJetB = 0; iJetB < m_jetCalcVec.size(); ++iJetB) {
+
+        // get weight for jet B
+        const double weightB = GetWeight(
+          PtEtaPhiEVector(
+            m_jetCalcVec[iJetB].pt(),
+            m_jetCalcVec[iJetB].eta(),
+            m_jetCalcVec[iJetB].phi(),
+            m_jetCalcVec[iJetB].E()
+          ),
+          m_config.momOption
+        );
+
+        // now calculate overall weight and delta-phi
+        const double teec = (weightA * weightB) / (normGlobal * normGlobal);
+        const double dphi = std::remainder(
+          m_jetCalcVec[iJetA].phi() - m_jetCalcVec[iJetB].phi(),
+          TMath::TwoPi()
+        );
+        const double cosdf = std::cos(dphi);
+
+        // fill histograms
+        // FIXME move to a dedicated histogram collection
+        for (size_t iHtBin = 0; iHtBin < m_config.htEvtBins.size(); ++iHtBin) {
+          const bool isInHtBin = (
+            (normGlobal >= m_config.htEvtBins[iHtBin].first) &&
+            (normGlobal < m_config.htEvtBins[iHtBin].second)
+          );
+          if (isInHtBin) {
+            m_outGlobalHistDPhiAxis[iHtBin]  -> Fill(dphi, teec);
+            m_outGlobalHistCosDFAxis[iHtBin] -> Fill(cosdf, teec);
+          }
+        } //end of HT bin loop
+
+      }  // end jet loop B
+    }  // end jet loop A
     return;
 
   }  // end 'DoGlobalCalcManual(double)'
@@ -581,6 +631,9 @@ namespace SColdQcdCorrelatorAnalysis {
   // --------------------------------------------------------------------------
   //! Get weight of a point (e.g. a constituent) wrt. a reference (e.g. a jet)
   // --------------------------------------------------------------------------
+  /* FIXME this should be overloaded to accept both PtEtaPhiEVector and
+   * PseudoJets...
+   */
   double SEnergyCorrelator::GetWeight(
     const PtEtaPhiEVector& momentum,
     const int option,

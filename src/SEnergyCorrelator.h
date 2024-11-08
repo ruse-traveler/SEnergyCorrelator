@@ -161,8 +161,9 @@ namespace SColdQcdCorrelatorAnalysis {
 
       // global output histograms
       //   - FIXME move these to a dedicated histogram manager
-      vector<TH1D*> m_outGlobalHistThetaAxis;
-      vector<TH1D*> m_outGlobalHistCosThAxis;
+      //   - FIXME also add pi-phi versions
+      vector<TH1D*> m_outGlobalHistDPhiAxis;
+      vector<TH1D*> m_outGlobalHistCosDFAxis;
 
       // correlators
       vector<fastjet::contrib::eec::EECLongestSide<fastjet::contrib::eec::hist::axis::log>*> m_eecLongSide;
