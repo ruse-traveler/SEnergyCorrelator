@@ -99,10 +99,10 @@ namespace SColdQcdCorrelatorAnalysis {
     // define bins
     //   - FIXME move to a bins database
     map<string, tuple<size_t, float, float>> bins = {
-      {"xi",    make_tuple(100, 0.0, 1.0)},
-      {"phi",   make_tuple(100, 0.0, TMath::Pi()/2.0)},
-      {"dphi",  make_tuple(314, 0.0, TMath::Pi())},
-      {"cosdf", make_tuple(100, 0.0, 1.0)}
+      {"xi",    make_tuple(100, 0.0,  1.0)},
+      {"phi",   make_tuple(100, 0.0,  TMath::Pi()/2.0)},
+      {"dphi",  make_tuple(314, 0.0,  TMath::Pi())},
+      {"cosdf", make_tuple(24,  -1.0, 1.0)}
     };
 
     // loop over pt bins

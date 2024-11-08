@@ -40,30 +40,30 @@ namespace EnergyCorrelatorOptions {
   const int  subEvtOpt = Const::SubEvtOpt::Everything;
   const bool isEmbed   = false;
   const bool doCstCuts = true;
-  const bool doDebug   = true;
+  const bool doDebug   = false;
   const bool doBatch   = false;
 
   // calculation options
   const int  momOption     = 0;
   const int  normOption    = 0;
-  const bool doLocalCalc   = true;
+  const bool doLocalCalc   = false;
   const bool doGlobalCalc  = true;
   const bool doManualCalc  = false;
-  const bool doPackageCalc = true;
+  const bool doPackageCalc = false;
   const bool doThreePoint  = false;
 
   // smearing options
-  const bool   doJetSmear      = true;
-  const bool   doCstSmear      = true;
-  const bool   doCstPtSmear    = true;
-  const bool   doCstThetaSmear = true;
-  const bool   doCstPhiSmear   = true;
+  const bool   doJetSmear      = false;
+  const bool   doCstSmear      = false;
+  const bool   doCstPtSmear    = false;
+  const bool   doCstThetaSmear = false;
+  const bool   doCstPhiSmear   = false;
   const float  ptJetSmear      = 0.5;
   const float  ptCstSmear      = 0.1;
   const float  thCstSmear      = 0.01;
 
   // efficiency options
-  const bool   doCstEff    = true;
+  const bool   doCstEff    = false;
   const float  effValue    = 0.9;
   const float  effSmooth   = 4.0;
   const string effFunction = "[0]*(1.0-TMath::Exp(-1.0*[1]*x))";
@@ -94,7 +94,7 @@ namespace EnergyCorrelatorOptions {
   // acceptance cuts ==========================================================
 
   // jet acceptance
-  const pair<float, float> eneJetRange = {0.1,  100.};
+  const pair<float, float> eneJetRange = {0.2,  100.};
   const pair<float, float> etaJetRange = {-0.7, 0.7};
 
   // cst acceptance
