@@ -119,7 +119,8 @@ namespace EnergyCorrelatorOptions {
 
   }  // end 'MakeEffFunction()'
 
-  
+ 
+ 
   // bundle acceptances into pairs ============================================
 
   // --------------------------------------------------------------------------

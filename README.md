@@ -11,28 +11,17 @@ After copying the source files (located in `src/`), compile the module with the 
 ./sphx-build
 ```
 
-
-The macros `DoStandaloneCorrelatorCalculation.cxx` and `macros/Fun4All_DoStandaloneCalculation.C` illustrate how to use the module.  In the
-case of the former, the module is ran by itself in a ROOT macro.
+The macros `DoStandaloneCorrelatorCalculation.cxx` illustrate how to use the module.
 
 ```
-root -b -q DoStandaloneCorrelatorCalculation.cxx
+root -b -q RunENCCalculation.cxx
 ```
 
 All of the relevant parameters such as input/output files, n-points, jet pT bins, etc. are set in `EnergyCorrelatorOptions.h`  The script
-`DoStandaloneCorrelatorCalculation.rb` can be used to run this macro with fewer keystrokes.
-
-The latter macro illustrates how to run the module as an "afterburner" to Fun4All.  First, Fun4All runs the `SCorrelatorJetTreeMaker` module
-over the specified input files to produce the input jet trees for `SEnergyCorrelator`.  Then the module is run over the output from Fun4All. 
-This macro is run, like always, with:
-
-```
-root -b -q Fun4All_DoStandaloneCalculation.C
-```
+`RunENCCalculation.rb` can be used to run this macro with fewer keystrokes.
 
 ---
 
 ## To-Do:
 
 - [Major] Add functionality to run multiple n-points per calculation
-- [Minor] Update afterburner example macro
