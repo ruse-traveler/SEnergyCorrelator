@@ -13,15 +13,15 @@ require 'fileutils'
 
 # top directory to copy from/to
 copy_from = "/sphenix/user/danderson/eec/SEnergyCorrelator"
-copy_to   = "/sphenix/user/danderson/sphenix/analysis/AndersonAnalysisModules/ColdQcdCorrelatorAnalysis/SEnergyCorrelator"
+copy_to   = "/sphenix/user/danderson/sphenix/analysis/EnergyCorrelatorsJets/ColdQCDENC/SEnergyCorrelator"
 
 # what files to copy
 to_copy = [
   "README.md",
-  "DoStandaloneCorrelatorCalculation.cxx",
-  "DoStandaloneCorrelatorCalculation.rb",
-  "DoStandaloneCorrelatorCalculationOnCondor.sh",
-  "DoStandaloneCorrelatorCalculationOnCondor.job",
+  "RunENCCalculation.cxx",
+  "RunENCCalculation.rb",
+  "RunENCCalculationOnCondor.sh",
+  "RunENCCalculationOnCondor.job",
   "EnergyCorrelatorOptions.h",
   "scripts/copy-to-analysis.rb",
   "scripts/wipe-source.sh",

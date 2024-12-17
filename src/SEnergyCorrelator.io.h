@@ -1,12 +1,12 @@
-// ----------------------------------------------------------------------------
-// 'SEnergyCorrelator.io.h'
-// Derek Anderson
-// 01.27.2023
-//
-// A module to implement Peter Komiske's EEC library
-// in the sPHENIX software stack for the Cold QCD
-// Energy-Energy Correlator analysis.
-// ----------------------------------------------------------------------------
+/// ---------------------------------------------------------------------------
+/*! \file    SEnergyCorrelator.io.h
+ *  \authors Derek Anderson, Alex Clarke
+ *  \date    01.20.2023
+ *
+ *  A module to run ENC calculations in the sPHENIX
+ *  software stack for the Cold QCD EEC analysis.
+ */
+/// ---------------------------------------------------------------------------
 
 #pragma once
 
@@ -18,8 +18,11 @@ using namespace findNode;
 
 namespace SColdQcdCorrelatorAnalysis {
 
-  // i/o methods --------------------------------------------------------------
+  // i/o methods ==============================================================
 
+  // --------------------------------------------------------------------------
+  //! Open input files
+  // --------------------------------------------------------------------------
   void SEnergyCorrelator::OpenInputFiles() {
 
     // print debug statement
@@ -49,6 +52,9 @@ namespace SColdQcdCorrelatorAnalysis {
 
 
 
+  // --------------------------------------------------------------------------
+  //! Open output files
+  // --------------------------------------------------------------------------
   void SEnergyCorrelator::OpenOutputFile() {
 
     // print debug statement
@@ -66,36 +72,61 @@ namespace SColdQcdCorrelatorAnalysis {
 
 
 
+  // --------------------------------------------------------------------------
+  //! Save output
+  // --------------------------------------------------------------------------
   void SEnergyCorrelator::SaveOutput() {
 
     // print debug statement
     if (m_config.isDebugOn) PrintDebug(9);
 
+    // save local output histograms
+    //   - FIXME move to a dedicated histogram collection
     m_outFile -> cd();
-    for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
-      m_outPackageHistVarDrAxis[iPtBin]   -> Write();
-      m_outPackageHistErrDrAxis[iPtBin]   -> Write();
-      m_outPackageHistVarLnDrAxis[iPtBin] -> Write();
-      m_outPackageHistErrLnDrAxis[iPtBin] -> Write();
-      if(m_config.doManualCalc){
-	m_outManualHistErrDrAxis[iPtBin]->Write();
-	if(m_config.doThreePoint){
-	  m_outProjE3C[iPtBin]->Write();
-	  for(size_t jRLBin = 0; jRLBin < m_config.RL_Bins.size(); jRLBin++){
-	    m_outE3C[iPtBin][jRLBin]->Write();
-	  }
-	}
-      }
-    }
+    if (m_config.doLocalCalc) {
+      for (size_t iPtBin = 0; iPtBin < m_config.ptJetBins.size(); iPtBin++) {
+
+        // save package histograms
+        if (m_config.doPackageCalc) {
+          m_outPackageHistVarDrAxis[iPtBin]   -> Write();
+          m_outPackageHistErrDrAxis[iPtBin]   -> Write();
+          m_outPackageHistVarLnDrAxis[iPtBin] -> Write();
+          m_outPackageHistErrLnDrAxis[iPtBin] -> Write();
+        }
+
+        // save manual histograms
+        if (m_config.doManualCalc) {
+          m_outManualHistErrDrAxis[iPtBin]->Write();
+          if (m_config.doThreePoint) {
+            m_outProjE3C[iPtBin]->Write();
+            for(size_t jRLBin = 0; jRLBin < m_config.rlBins.size(); jRLBin++){
+              m_outE3C[iPtBin][jRLBin]->Write();
+            }  // end rl bin loop
+          }  // end if three point
+        }  // end if manual
+      } // end pt bin loop
+    }  // end if local
+
+     // save global output histograms
+    //   - FIXME move to a dedicated histogram collection
+    if (m_config.doGlobalCalc) {
+      for (size_t iHtBin = 0; iHtBin < m_config.htEvtBins.size(); iHtBin++) {
+        m_outGlobalHistDPhiAxis.at(iHtBin)  -> Write();
+        m_outGlobalHistCosDFAxis.at(iHtBin) -> Write();
+      }  // end ht bin loop
+    }  // end if global
 
     // announce saving
-    if (m_config.isStandalone) PrintMessage(10);
+    PrintMessage(10);
     return;
 
   }  // end 'SaveOutput()'
 
 
 
+  // --------------------------------------------------------------------------
+  //! Close output files
+  // --------------------------------------------------------------------------
   void SEnergyCorrelator::CloseOutputFile() {
 
     // print debug statement

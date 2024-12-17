@@ -1,16 +1,16 @@
 #!/usr/bin/env ruby
 # -----------------------------------------------------------------------------
-# 'DoStandaloneCorrelatorCalculation.rb'
-# Derek Anderson
-# 01.18.2024
+# \file   RunENCCalculation.rb
+# \author Derek Anderson
+# \date   01.18.2024
 #
-# Short script to run the 'DoStandaloneCorrelatorCalculation.C' macro.
+# Short script to run RunENCCalculation.cxx
 # -----------------------------------------------------------------------------
 
 if ARGV[0] == "condor"
-  exec("condor_submit DoStandaloneCorrelatorCalculationOnCondor.job")
+  exec("condor_submit RunENCCalculationOnCondor.job")
 else
-  exec("root -b -q DoStandaloneCorrelatorCalculation.cxx")
+  exec("root -b -q RunENCCalculation.cxx")
 end
 
 # end -------------------------------------------------------------------------

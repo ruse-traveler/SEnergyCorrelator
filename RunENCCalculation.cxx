@@ -1,13 +1,14 @@
-// ----------------------------------------------------------------------------
-// 'DoStandaloneCorrelatorCalculation.cxx'
-// Derek Anderson
-// 02.02.2023
-//
-// Use this to run the SEnergyCorrelator class in standalone mode.
-// ----------------------------------------------------------------------------
+/// ---------------------------------------------------------------------------
+/*! \file    RunENCCalculation.cxx
+ *  \authors Derek Anderson
+ *  \date    02.02.2023
+ *
+ *  A ROOT macro to run the SEnergyCorrelator module.
+ */
+/// ---------------------------------------------------------------------------
 
-#ifndef DOSTANDALONECORRELATORCALCULATION_CXX
-#define DOSTANDALONECORRELATORCALCULATION_CXX
+#ifndef RUNENCCALCULATION_CXX
+#define RUNENCCALCULATION_CXX
 
 // c++ utilities
 #include <string>
@@ -30,15 +31,15 @@ R__LOAD_LIBRARY(libscorrelatorutilities.so)
 
 // macro body -----------------------------------------------------------------
 
-void DoStandaloneCorrelatorCalculation(const bool doBatch = false, const int verbosity = 0) {
+void RunENCCalculation(const bool doBatch = false, const int verbosity = 0) {
 
   // input/output files
   const vector<string> inFiles = {
-    "../SCorrelatorJetTreeMaker/output/condor/final_merge/correlatorJetTree.pp200py8jet10run8_trksWithRoughCuts.d26m9y2023.root"
+    "../SCorrelatorJetTreeMaker/output/intermediate_merge/pp200py8jet10run15_towerSubAntiKtR04_2024sep28/correlatorJetTree.pp200py8jet10run15_towerSubAntiKtR04_0000to0099.d29m9y2024.root"
   };
   const pair<string, string> outFiles = {
-    "twoPoint.pp200py8jet10run8.refactor_cleanUpCutFunctions_reco.d19m3y2024.root",
-    "twoPoint.pp200py8jet10run8.refactor_cleanUpCutFunctions_true.d19m3y2024.root"
+    "twoPoint.pp200py8jet10run15_antiKtTowerR04_packageCalcOnly.refactor_addGlobalCalc_reco.d6m11y2024.root",
+    "twoPoint.pp200py8jet10run15_antiKtTowerR04_packageCalcOnly.refactor_addGlobalCalc_true.d6m11y2024.root"
   };
 
   // get module configurations
